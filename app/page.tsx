@@ -73,7 +73,7 @@ const FEATURES = [
 // Photos officielles — gardiens français
 const GALLERY = [
   {
-    src: '/images/huet.jpg',
+    src: '/images/christobal huet.jpeg',
     alt: 'Cristobal Huet — Champion NHL, Stanley Cup 2010',
     name: 'Cristobal Huet',
     title: 'Champion NHL · Stanley Cup 2010',
@@ -81,21 +81,29 @@ const GALLERY = [
     large: true,
   },
   {
-    src: '/images/keller.jpg',
+    src: '/images/antoine keller.jpg',
     alt: 'Antoine Keller — Premier gardien français drafté en NHL',
     name: 'Antoine Keller',
     title: '1er gardien français drafté en NHL',
-    badge: '⭐ Pionnier',
+    badge: '⭐ Pionnier NHL',
     large: false,
   },
   {
-    src: '/images/photo3.jpg',
-    alt: "Les créateurs de l'ANGB",
-    name: "Les fondateurs",
-    title: "Créateurs de l'ANGB",
-    badge: '🏒 ANGB',
+    src: '/images/tonin caubet.jpg',
+    alt: 'Tonin Caubet — Président fondateur ANGB',
+    name: 'Tonin Caubet',
+    title: 'Président fondateur · ANGB',
+    badge: '🏒 Fondateur',
     large: false,
   },
+]
+
+const FOUNDERS = [
+  { src: '/images/pacôme courtoison.jpeg', name: 'Pacôme Courtoison' },
+  { src: '/images/steven catelin.png',     name: 'Steven Catelin' },
+  { src: '/images/flo gourdin.jpg',        name: 'Flo Gourdin' },
+  { src: '/images/jean jp fontaine.jpg',   name: 'Jean-JP Fontaine' },
+  { src: '/images/adrien vazzaz.jpg',      name: 'Adrien Vazzaz' },
 ]
 
 // ─────────────────────────────────────────────────────────────────
@@ -328,6 +336,55 @@ export default function HomePage() {
             ))}
           </div>
 
+        </div>
+      </section>
+
+      {/* ── Fondateurs ───────────────────────────────────────────── */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 text-center"
+          >
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>
+              Les créateurs
+            </p>
+            <h2 className="text-3xl md:text-4xl"
+              style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
+              L&apos;équipe fondatrice de l&apos;ANGB
+            </h2>
+          </motion.div>
+
+          <div className="flex flex-wrap justify-center gap-6">
+            {FOUNDERS.map(({ src, name }, i) => (
+              <motion.div
+                key={name}
+                className="flex flex-col items-center gap-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                whileHover={{ y: -4 }}
+              >
+                <div className="relative w-20 h-20 rounded-full overflow-hidden border-2"
+                  style={{ borderColor: 'rgba(74,127,255,0.4)', background: 'var(--navy-light)' }}>
+                  <Image
+                    src={src}
+                    alt={name}
+                    fill
+                    className="object-cover object-top"
+                    sizes="80px"
+                  />
+                </div>
+                <p className="text-xs font-semibold text-center" style={{ color: 'var(--white)' }}>
+                  {name}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
