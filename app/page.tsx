@@ -70,24 +70,30 @@ const FEATURES = [
   { href: '/annuaire',    icon: '📋', title: 'Annuaire',          desc: 'Répertoire des gardiens actifs en France par division et région.' },
 ]
 
-// Photos hockey — remplacer par les photos officielles ANGB
+// Photos officielles — gardiens français
 const GALLERY = [
   {
-    src: 'https://images.unsplash.com/photo-1580748142113-18ab85c5e937?auto=format&fit=crop&w=1200&q=80',
-    alt: 'Gardien de but hockey sur glace en action',
-    label: 'En compétition',
+    src: '/images/huet.jpg',
+    alt: 'Cristobal Huet — Champion NHL, Stanley Cup 2010',
+    name: 'Cristobal Huet',
+    title: 'Champion NHL · Stanley Cup 2010',
+    badge: '🏆 Légende française',
     large: true,
   },
   {
-    src: 'https://images.unsplash.com/photo-1515703407324-5f753afd8be8?auto=format&fit=crop&w=700&q=80',
-    alt: 'Hockey sur glace — défense du but',
-    label: 'Défense du but',
+    src: '/images/keller.jpg',
+    alt: 'Antoine Keller — Premier gardien français drafté en NHL',
+    name: 'Antoine Keller',
+    title: '1er gardien français drafté en NHL',
+    badge: '⭐ Pionnier',
     large: false,
   },
   {
-    src: 'https://images.unsplash.com/photo-1569517762716-1f44ef7dc5ad?auto=format&fit=crop&w=700&q=80',
-    alt: 'Formation gardien de but hockey',
-    label: 'Formation & entraînement',
+    src: '/images/photo3.jpg',
+    alt: "Les créateurs de l'ANGB",
+    name: "Les fondateurs",
+    title: "Créateurs de l'ANGB",
+    badge: '🏒 ANGB',
     large: false,
   },
 ]
@@ -272,11 +278,11 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          {/* Grid : grande image gauche + 2 petites droite */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-3" style={{ height: '540px' }}>
-            {GALLERY.map(({ src, alt, label, large }, i) => (
+          {/* Grid : grande image gauche (Huet) + Keller + Fondateurs à droite */}
+          <div className="grid grid-cols-2 grid-rows-2 gap-3" style={{ height: '580px' }}>
+            {GALLERY.map(({ src, alt, name, title, badge, large }, i) => (
               <motion.div
-                key={label}
+                key={name}
                 className={`relative overflow-hidden rounded-2xl group ${large ? 'row-span-2' : ''}`}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -292,26 +298,36 @@ export default function HomePage() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes={large ? '50vw' : '25vw'}
                 />
-                {/* Overlay */}
+                {/* Overlay dégradé fort en bas */}
                 <div className="absolute inset-0"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.05) 50%, transparent 100%)' }} />
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)' }} />
                 {/* Barre tricolore */}
                 <div className="absolute top-0 left-0 right-0 h-[3px] flex">
                   <div className="flex-1" style={{ background: '#002395' }} />
                   <div className="flex-1" style={{ background: '#FFFFFF' }} />
                   <div className="flex-1" style={{ background: 'var(--red-fr)' }} />
                 </div>
-                {/* Caption */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="text-sm font-semibold" style={{ color: 'var(--white)' }}>{label}</p>
+                {/* Badge top-left */}
+                <div className="absolute top-3 left-3">
+                  <span className="text-[10px] font-semibold px-2 py-1 rounded-full"
+                    style={{ background: 'rgba(74,127,255,0.85)', color: 'white', backdropFilter: 'blur(4px)' }}>
+                    {badge}
+                  </span>
+                </div>
+                {/* Nom + titre en bas */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+                  <p className={`font-bold mb-0.5 ${large ? 'text-xl md:text-2xl' : 'text-base'}`}
+                    style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
+                    {name}
+                  </p>
+                  <p className="text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                    {title}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <p className="text-center text-[11px] mt-3" style={{ color: 'rgba(255,255,255,0.15)' }}>
-            Photos Unsplash · À remplacer par les photos officielles ANGB
-          </p>
         </div>
       </section>
 
