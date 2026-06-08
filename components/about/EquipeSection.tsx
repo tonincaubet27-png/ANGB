@@ -31,8 +31,10 @@ export default function EquipeSection() {
   ]
 
   const referents = [
-    { initials: 'ML', name: 'Mathis Laurent', region: 'Normandie', division: 'D1' },
-    { initials: 'HC', name: 'Hugo Chauveau', region: 'Rhône-Alpes', division: 'D2' },
+    { initials: 'ML', name: 'Mathis Laurent',   region: 'Normandie',    division: 'D1' },
+    { initials: 'HC', name: 'Hugo Chauveau',    region: 'Rhône-Alpes',  division: 'D2' },
+    { initials: 'TD', name: 'Thomas Dumont',    region: 'Île-de-France', division: 'D1' },
+    { initials: 'PR', name: 'Pierre Renault',   region: 'Bretagne',     division: 'D3' },
   ]
 
   const commissions = [
@@ -112,11 +114,11 @@ export default function EquipeSection() {
             </div>
           ))}
           <div
-            className="p-4 rounded-xl border border-dashed text-center flex items-center justify-center col-span-2"
-            style={{ borderColor: 'rgba(255,255,255,0.15)' }}
+            className="p-4 rounded-xl border border-dashed text-center flex items-center justify-center col-span-2 sm:col-span-4"
+            style={{ borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs" style={{ color: 'var(--gray)' }}>
-              Postes de référents ouverts — contactez-nous
+              Postes ouverts dans toutes les régions — <a href="mailto:contact@angb.fr" style={{ color: 'var(--accent)' }}>contact@angb.fr</a>
             </p>
           </div>
         </div>
