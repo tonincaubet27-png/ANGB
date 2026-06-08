@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getListings, createListing } from '@/lib/data'
+import { getListings, createListing, createContactRequest } from '@/lib/data'
 import type { Listing } from '@/lib/types'
 
 const CATEGORIES = ['Tout', 'jambières', 'plastron', 'masque', 'gants', 'crosse', 'complet', 'autre']
@@ -19,67 +19,110 @@ const CONDITION_COLOR: Record<string, { bg: string; color: string }> = {
   'usage':         { bg: 'rgba(139,160,181,0.15)', color: '#8a9ab5' },
 }
 
-interface ModalForm {
+interface DepotForm {
   title: string; category: string; condition: string
   price: string; description: string; city: string
   seller_name: string; seller_division: string
 }
 
-const EMPTY_FORM: ModalForm = {
+const EMPTY_DEPOT: DepotForm = {
   title: '', category: 'jambières', condition: 'très bon état',
   price: '', description: '', city: '', seller_name: '', seller_division: '',
 }
 
+interface ContactForm {
+  buyer_name: string
+  buyer_email: string
+  buyer_phone: string
+  message: string
+}
+
 export default function EquipementPage() {
-  const [listings, setListings]   = useState<Listing[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [catFilter, setCat]       = useState('Tout')
-  const [condFilter, setCond]     = useState('Tout')
-  const [divFilter, setDiv]       = useState('Tout')
-  const [modalOpen, setModal]     = useState(false)
-  const [form, setForm]           = useState<ModalForm>(EMPTY_FORM)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [mobileOpen, setMobile]   = useState(false)
+  const [listings, setListings]         = useState<Listing[]>([])
+  const [loading, setLoading]           = useState(true)
+  const [catFilter, setCat]             = useState('Tout')
+  const [condFilter, setCond]           = useState('Tout')
+  const [divFilter, setDiv]             = useState('Tout')
+
+  // Modal dépôt annonce
+  const [depotOpen, setDepot]           = useState(false)
+  const [depotForm, setDepotForm]       = useState<DepotForm>(EMPTY_DEPOT)
+  const [depotSubmitting, setDepotSub]  = useState(false)
+  const [depotDone, setDepotDone]       = useState(false)
+
+  // Modal contact vendeur
+  const [contactListing, setContactListing] = useState<Listing | null>(null)
+  const [contactForm, setContactForm]   = useState<ContactForm>({ buyer_name: '', buyer_email: '', buyer_phone: '', message: '' })
+  const [contactSubmitting, setContactSub] = useState(false)
+  const [contactDone, setContactDone]   = useState(false)
+
+  const [mobileOpen, setMobile]         = useState(false)
 
   useEffect(() => {
     getListings().then(data => { setListings(data); setLoading(false) })
   }, [])
 
+  // Pré-remplir le message quand on ouvre le modal contact
+  const openContact = (listing: Listing) => {
+    setContactListing(listing)
+    setContactForm({
+      buyer_name: '',
+      buyer_email: '',
+      buyer_phone: '',
+      message: `Bonjour,\n\nJe suis intéressé(e) par votre annonce "${listing.title}" à ${fmt(listing.price)}.\n\nPourriez-vous me contacter pour organiser la transaction ?\n\nMerci !`,
+    })
+    setContactDone(false)
+  }
+
+  const handleContact = async () => {
+    if (!contactListing || !contactForm.buyer_name || !contactForm.buyer_email) return
+    setContactSub(true)
+    await createContactRequest({
+      listing_id: contactListing.id,
+      listing_title: contactListing.title,
+      buyer_name: contactForm.buyer_name,
+      buyer_email: contactForm.buyer_email,
+      buyer_phone: contactForm.buyer_phone || undefined,
+      message: contactForm.message,
+    })
+    setContactSub(false)
+    setContactDone(true)
+    setTimeout(() => { setContactListing(null); setContactDone(false) }, 2500)
+  }
+
   const filtered = listings.filter(l => {
-    if (catFilter  !== 'Tout' && l.category         !== catFilter)  return false
-    if (condFilter !== 'Tout' && l.condition         !== condFilter) return false
-    if (divFilter  !== 'Tout' && l.seller_division   !== divFilter)  return false
+    if (catFilter  !== 'Tout' && l.category       !== catFilter)  return false
+    if (condFilter !== 'Tout' && l.condition       !== condFilter) return false
+    if (divFilter  !== 'Tout' && l.seller_division !== divFilter)  return false
     return true
   })
 
   const fmt = (cents: number) => `${Math.round(cents / 100)} €`
 
-  const handleSubmit = async () => {
-    if (!form.title || !form.price) return
-    setSubmitting(true)
+  const handleDepot = async () => {
+    if (!depotForm.title || !depotForm.price) return
+    setDepotSub(true)
     const res = await createListing({
-      title: form.title,
-      category: form.category as Listing['category'],
-      condition: form.condition as Listing['condition'],
-      price: Math.round(parseFloat(form.price) * 100),
-      description: form.description,
-      city: form.city,
-      seller_name: form.seller_name,
-      seller_division: form.seller_division,
+      title: depotForm.title,
+      category: depotForm.category as Listing['category'],
+      condition: depotForm.condition as Listing['condition'],
+      price: Math.round(parseFloat(depotForm.price) * 100),
+      description: depotForm.description,
+      city: depotForm.city,
+      seller_name: depotForm.seller_name,
+      seller_division: depotForm.seller_division,
     })
-    setSubmitting(false)
+    setDepotSub(false)
     if (res.ok) {
-      setSubmitted(true)
-      // Optimistic UI : ajoute à la liste locale
+      setDepotDone(true)
       setListings(prev => [{
-        id: Date.now().toString(), ...form,
-        price: Math.round(parseFloat(form.price) * 100),
-        category: form.category as Listing['category'],
-        condition: form.condition as Listing['condition'],
+        id: Date.now().toString(), ...depotForm,
+        price: Math.round(parseFloat(depotForm.price) * 100),
+        category: depotForm.category as Listing['category'],
+        condition: depotForm.condition as Listing['condition'],
         created_at: new Date().toISOString(), is_active: true,
       }, ...prev])
-      setTimeout(() => { setModal(false); setSubmitted(false); setForm(EMPTY_FORM) }, 1800)
+      setTimeout(() => { setDepot(false); setDepotDone(false); setDepotForm(EMPTY_DEPOT) }, 1800)
     }
   }
 
@@ -94,15 +137,9 @@ export default function EquipementPage() {
           <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--gray)' }}>{label}</p>
           <div className="space-y-0.5">
             {(items as readonly string[]).map(it => (
-              <button
-                key={it}
-                onClick={() => set(it)}
+              <button key={it} onClick={() => set(it)}
                 className="w-full text-left px-3 py-1.5 rounded-lg text-sm transition-colors"
-                style={{
-                  background: value === it ? 'rgba(74,127,255,0.15)' : 'transparent',
-                  color: value === it ? 'var(--white)' : 'var(--gray)',
-                }}
-              >
+                style={{ background: value === it ? 'rgba(74,127,255,0.15)' : 'transparent', color: value === it ? 'var(--white)' : 'var(--gray)' }}>
                 {fmtItem(it)}
               </button>
             ))}
@@ -118,11 +155,13 @@ export default function EquipementPage() {
       <div className="py-16" style={{ background: 'linear-gradient(180deg, rgba(74,127,255,0.08) 0%, transparent 100%)', borderBottom: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Bourse d'équipement</p>
+            <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Bourse d&apos;équipement</p>
             <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Équipement</h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>Achat et vente de matériel de gardien entre membres de la communauté</p>
           </div>
-          <button onClick={() => setModal(true)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0" style={{ background: 'var(--accent)' }}>
+          <button onClick={() => setDepot(true)}
+            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90 transition-opacity"
+            style={{ background: 'var(--accent)' }}>
             + Déposer une annonce
           </button>
         </div>
@@ -132,8 +171,7 @@ export default function EquipementPage() {
         {/* Mobile filters */}
         <button className="md:hidden w-full mb-4 py-2.5 px-4 rounded-lg text-sm font-medium border flex items-center justify-between"
           style={{ borderColor: 'var(--border)', color: 'var(--gray)', background: 'var(--navy-mid)' }}
-          onClick={() => setMobile(!mobileOpen)}
-        >
+          onClick={() => setMobile(!mobileOpen)}>
           <span>Filtres</span><span>{mobileOpen ? '▲' : '▼'}</span>
         </button>
         {mobileOpen && (
@@ -154,7 +192,7 @@ export default function EquipementPage() {
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 rounded-2xl animate-pulse" style={{ background: 'var(--navy-mid)' }} />
+                  <div key={i} className="h-72 rounded-2xl animate-pulse" style={{ background: 'var(--navy-mid)' }} />
                 ))}
               </div>
             ) : (
@@ -169,10 +207,12 @@ export default function EquipementPage() {
                       return (
                         <div key={l.id} className="p-5 rounded-2xl border flex flex-col gap-3 hover:border-accent/30 transition-colors"
                           style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
+                          {/* Image emoji */}
                           <div className="w-full h-24 rounded-xl flex items-center justify-center text-5xl"
                             style={{ background: 'var(--navy-light)' }}>
                             {CATEGORY_EMOJI[l.category] ?? '🔧'}
                           </div>
+                          {/* Titre + prix */}
                           <div className="flex items-start justify-between gap-2">
                             <h3 className="font-semibold text-sm leading-snug" style={{ color: 'var(--white)' }}>{l.title}</h3>
                             <span className="text-xl font-bold flex-shrink-0"
@@ -180,7 +220,9 @@ export default function EquipementPage() {
                               {fmt(l.price)}
                             </span>
                           </div>
+                          {/* Description */}
                           <p className="text-xs leading-relaxed flex-1" style={{ color: 'var(--gray)' }}>{l.description}</p>
+                          {/* Vendeur + état */}
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="text-xs font-medium" style={{ color: 'var(--white)' }}>{l.seller_name}</p>
@@ -191,6 +233,14 @@ export default function EquipementPage() {
                               {l.condition}
                             </span>
                           </div>
+                          {/* ── Bouton Contacter ── */}
+                          <button
+                            onClick={() => openContact(l)}
+                            className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 active:scale-95 mt-1"
+                            style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(74,127,255,0.25)' }}
+                          >
+                            Contacter le vendeur
+                          </button>
                         </div>
                       )
                     })}
@@ -202,11 +252,11 @@ export default function EquipementPage() {
         </div>
       </div>
 
-      {/* Modal dépôt annonce */}
-      {modalOpen && (
+      {/* ── Modal dépôt annonce ─────────────────────────────────── */}
+      {depotOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
-          onClick={e => { if (e.target === e.currentTarget) setModal(false) }}>
+          onClick={e => { if (e.target === e.currentTarget) setDepot(false) }}>
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
             style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
             <div className="p-6">
@@ -214,35 +264,32 @@ export default function EquipementPage() {
                 <h2 className="text-2xl tracking-widest" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)' }}>
                   Déposer une annonce
                 </h2>
-                <button onClick={() => setModal(false)} className="p-2 rounded-lg hover:bg-white/10 text-lg" style={{ color: 'var(--gray)' }}>✕</button>
+                <button onClick={() => setDepot(false)} className="p-2 rounded-lg hover:bg-white/10" style={{ color: 'var(--gray)' }}>✕</button>
               </div>
-
-              {submitted ? (
+              {depotDone ? (
                 <div className="text-center py-8">
                   <div className="text-5xl mb-3">✓</div>
                   <p className="font-semibold" style={{ color: 'var(--white)' }}>Annonce publiée !</p>
-                  <p className="text-sm mt-1" style={{ color: 'var(--gray)' }}>Elle sera visible après validation par le bureau.</p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--gray)' }}>Visible après validation par le bureau.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* Titre */}
                   <label className="block">
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Titre *</span>
                     <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                       style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                      value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                      value={depotForm.title} onChange={e => setDepotForm(f => ({ ...f, title: e.target.value }))}
                       placeholder="Warrior Ritual G7 — Jambières" />
                   </label>
-                  {/* Catégorie + État */}
                   <div className="grid grid-cols-2 gap-3">
                     {(['category', 'condition'] as const).map(field => (
                       <label key={field} className="block">
-                        <span className="text-xs font-medium mb-1.5 block capitalize" style={{ color: 'var(--gray)' }}>
+                        <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>
                           {field === 'category' ? 'Catégorie *' : 'État *'}
                         </span>
                         <select className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                           style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                          value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}>
+                          value={depotForm[field]} onChange={e => setDepotForm(f => ({ ...f, [field]: e.target.value }))}>
                           {(field === 'category'
                             ? ['jambières','plastron','masque','gants','crosse','complet','autre']
                             : ['très bon état','bon état','usage']
@@ -251,53 +298,152 @@ export default function EquipementPage() {
                       </label>
                     ))}
                   </div>
-                  {/* Prix */}
                   <label className="block">
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Prix (€) *</span>
                     <input type="number" min="0" className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                       style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                      value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                      value={depotForm.price} onChange={e => setDepotForm(f => ({ ...f, price: e.target.value }))}
                       placeholder="250" />
                   </label>
-                  {/* Description */}
                   <label className="block">
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Description</span>
                     <textarea rows={3} className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
                       style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                      value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                      value={depotForm.description} onChange={e => setDepotForm(f => ({ ...f, description: e.target.value }))}
                       placeholder="Détails, taille, utilisation…" />
                   </label>
-                  {/* Ville + Nom */}
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block">
                       <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Ville</span>
                       <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                         style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                        value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Paris" />
+                        value={depotForm.city} onChange={e => setDepotForm(f => ({ ...f, city: e.target.value }))} placeholder="Paris" />
                     </label>
                     <label className="block">
                       <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Votre nom</span>
                       <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                         style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                        value={form.seller_name} onChange={e => setForm(f => ({ ...f, seller_name: e.target.value }))} placeholder="Tonin C." />
+                        value={depotForm.seller_name} onChange={e => setDepotForm(f => ({ ...f, seller_name: e.target.value }))} placeholder="Tonin C." />
                     </label>
                   </div>
-                  {/* Division */}
                   <label className="block">
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Division</span>
                     <select className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                       style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                      value={form.seller_division} onChange={e => setForm(f => ({ ...f, seller_division: e.target.value }))}>
+                      value={depotForm.seller_division} onChange={e => setDepotForm(f => ({ ...f, seller_division: e.target.value }))}>
                       <option value="">Sélectionner</option>
                       {['Magnus','D1','D2','D3','Féminine Élite','Régionale','Loisir'].map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </label>
-                  <button onClick={handleSubmit} disabled={!form.title || !form.price || submitting}
-                    className="w-full py-3 rounded-xl text-sm font-semibold text-white mt-2 disabled:opacity-50 transition-opacity hover:opacity-90"
+                  <button onClick={handleDepot} disabled={!depotForm.title || !depotForm.price || depotSubmitting}
+                    className="w-full py-3 rounded-xl text-sm font-semibold text-white mt-2 disabled:opacity-50 hover:opacity-90 transition-opacity"
                     style={{ background: 'var(--accent)' }}>
-                    {submitting ? 'Publication…' : 'Publier l\'annonce'}
+                    {depotSubmitting ? 'Publication…' : "Publier l'annonce"}
                   </button>
                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal contact vendeur ───────────────────────────────── */}
+      {contactListing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setContactListing(null) }}>
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+            style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-2xl tracking-widest" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)' }}>
+                  Contacter le vendeur
+                </h2>
+                <button onClick={() => setContactListing(null)} className="p-2 rounded-lg hover:bg-white/10" style={{ color: 'var(--gray)' }}>✕</button>
+              </div>
+
+              {contactDone ? (
+                <div className="text-center py-10">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"
+                    style={{ background: 'rgba(52,211,153,0.15)' }}>✓</div>
+                  <p className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-bebas)', color: '#34d399', letterSpacing: '0.04em' }}>
+                    Message envoyé !
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--gray)' }}>
+                    Le vendeur vous contactera par email sous 48h.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Aperçu de l'annonce */}
+                  <div className="flex items-center gap-3 p-3 rounded-xl mb-5"
+                    style={{ background: 'var(--navy-light)', border: '1px solid var(--border)' }}>
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl flex-shrink-0"
+                      style={{ background: 'var(--navy-mid)' }}>
+                      {CATEGORY_EMOJI[contactListing.category] ?? '🔧'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--white)' }}>{contactListing.title}</p>
+                      <p className="text-xs" style={{ color: 'var(--gray)' }}>
+                        Vendeur : {contactListing.seller_name}{contactListing.city ? ` · ${contactListing.city}` : ''}
+                      </p>
+                    </div>
+                    <span className="text-lg font-bold flex-shrink-0"
+                      style={{ fontFamily: 'var(--font-bebas)', color: 'var(--accent)', letterSpacing: '0.05em' }}>
+                      {fmt(contactListing.price)}
+                    </span>
+                  </div>
+
+                  {/* Formulaire */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Votre nom *</span>
+                        <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                          style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                          value={contactForm.buyer_name}
+                          onChange={e => setContactForm(f => ({ ...f, buyer_name: e.target.value }))}
+                          placeholder="Prénom Nom" />
+                      </label>
+                      <label className="block">
+                        <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Téléphone</span>
+                        <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                          style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                          value={contactForm.buyer_phone}
+                          onChange={e => setContactForm(f => ({ ...f, buyer_phone: e.target.value }))}
+                          placeholder="06 xx xx xx xx" />
+                      </label>
+                    </div>
+                    <label className="block">
+                      <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Email *</span>
+                      <input type="email" className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                        style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                        value={contactForm.buyer_email}
+                        onChange={e => setContactForm(f => ({ ...f, buyer_email: e.target.value }))}
+                        placeholder="vous@email.com" />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Message</span>
+                      <textarea rows={5} className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
+                        style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                        value={contactForm.message}
+                        onChange={e => setContactForm(f => ({ ...f, message: e.target.value }))} />
+                    </label>
+
+                    <button
+                      onClick={handleContact}
+                      disabled={!contactForm.buyer_name || !contactForm.buyer_email || contactSubmitting}
+                      className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-50 hover:opacity-90 transition-all hover:-translate-y-0.5"
+                      style={{ background: 'var(--accent)', boxShadow: '0 4px 20px rgba(74,127,255,0.3)' }}
+                    >
+                      {contactSubmitting ? 'Envoi…' : '📩 Envoyer ma demande'}
+                    </button>
+                    <p className="text-center text-[11px]" style={{ color: 'var(--gray)' }}>
+                      Vos coordonnées seront transmises au vendeur via l&apos;ANGB.
+                    </p>
+                  </div>
+                </>
               )}
             </div>
           </div>

@@ -47,6 +47,15 @@ export interface Goalie {
   created_at: string
 }
 
+export interface ContactRequest {
+  listing_id: string
+  listing_title: string
+  buyer_name: string
+  buyer_email: string
+  buyer_phone?: string
+  message?: string
+}
+
 export interface AdhesionFormData {
   // Informations personnelles
   nom: string

@@ -3,7 +3,7 @@
  * Essaie Supabase en premier — retombe sur les mock data si non configuré.
  */
 
-import type { Listing, Thread, Post, Goalie } from './types'
+import type { Listing, Thread, Post, Goalie, ContactRequest } from './types'
 import { createClient } from '@supabase/supabase-js'
 
 // ─── Client browser (null si non configuré) ────────────────────────────────
@@ -152,6 +152,15 @@ export async function submitAdhesion(payload: Record<string, unknown>): Promise<
   if (!client) return { ok: true }
 
   const { error } = await client.from('adhesion_requests').insert(payload)
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
+export async function createContactRequest(payload: ContactRequest): Promise<{ ok: boolean; error?: string }> {
+  const client = getBrowserClient()
+  if (!client) return { ok: true } // mode démo
+
+  const { error } = await client.from('contact_requests').insert(payload)
   if (error) return { ok: false, error: error.message }
   return { ok: true }
 }
