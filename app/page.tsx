@@ -70,7 +70,7 @@ const FEATURES = [
   { href: '/annuaire',    icon: '📋', title: 'Annuaire',          desc: 'Répertoire des gardiens actifs en France par division et région.' },
 ]
 
-// Photos officielles — gardiens français
+// Photos officielles — légendes françaises en vedette
 const GALLERY = [
   {
     src: '/images/christobal huet.jpeg',
@@ -78,7 +78,6 @@ const GALLERY = [
     name: 'Cristobal Huet',
     title: 'Champion NHL · Stanley Cup 2010',
     badge: '🏆 Légende française',
-    large: true,
   },
   {
     src: '/images/antoine keller.jpg',
@@ -86,24 +85,16 @@ const GALLERY = [
     name: 'Antoine Keller',
     title: '1er gardien français drafté en NHL',
     badge: '⭐ Pionnier NHL',
-    large: false,
-  },
-  {
-    src: '/images/tonin caubet.jpg',
-    alt: 'Tonin Caubet — Président fondateur ANGB',
-    name: 'Tonin Caubet',
-    title: 'Président fondateur · ANGB',
-    badge: '🏒 Fondateur',
-    large: false,
   },
 ]
 
 const FOUNDERS = [
-  { src: '/images/pacôme courtoison.jpeg', name: 'Pacôme Courtoison' },
-  { src: '/images/steven catelin.png',     name: 'Steven Catelin' },
-  { src: '/images/flo gourdin.jpg',        name: 'Flo Gourdin' },
-  { src: '/images/jean jp fontaine.jpg',   name: 'Jean-JP Fontaine' },
-  { src: '/images/adrien vazzaz.jpg',      name: 'Adrien Vazzaz' },
+  { src: '/images/tonin caubet.jpg',        name: 'Tonin Caubet' },
+  { src: '/images/pacôme courtoison.jpeg',  name: 'Pacôme Courtoison' },
+  { src: '/images/steven catelin.png',      name: 'Steven Catelin' },
+  { src: '/images/flo gourdin.jpg',         name: 'Flo Gourdin' },
+  { src: '/images/jean jp fontaine.jpg',    name: 'Jean-JP Fontaine' },
+  { src: '/images/adrien vazzaz.jpg',       name: 'Adrien Vazzaz' },
 ]
 
 // ─────────────────────────────────────────────────────────────────
@@ -286,12 +277,12 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          {/* Grid : grande image gauche (Huet) + Keller + Fondateurs à droite */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-3" style={{ height: '580px' }}>
-            {GALLERY.map(({ src, alt, name, title, badge, large }, i) => (
+          {/* Grid : Huet et Keller côte à côte, pleine hauteur */}
+          <div className="grid grid-cols-2 gap-3" style={{ height: '580px' }}>
+            {GALLERY.map(({ src, alt, name, title, badge }, i) => (
               <motion.div
                 key={name}
-                className={`relative overflow-hidden rounded-2xl group ${large ? 'row-span-2' : ''}`}
+                className="relative overflow-hidden rounded-2xl group"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -304,7 +295,7 @@ export default function HomePage() {
                   alt={alt}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes={large ? '50vw' : '25vw'}
+                  sizes="50vw"
                 />
                 {/* Overlay dégradé fort en bas */}
                 <div className="absolute inset-0"
@@ -324,7 +315,7 @@ export default function HomePage() {
                 </div>
                 {/* Nom + titre en bas */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                  <p className={`font-bold mb-0.5 ${large ? 'text-xl md:text-2xl' : 'text-base'}`}
+                  <p className="font-bold mb-0.5 text-xl md:text-2xl"
                     style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
                     {name}
                   </p>
