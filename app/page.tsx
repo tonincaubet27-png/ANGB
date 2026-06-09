@@ -5,11 +5,42 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
 
-// ── Animated counter ─────────────────────────────────────────────────────────
-function Counter({ value, delay = 0 }: { value: string; delay?: number }) {
-  const ref    = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true })
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function SectionHead({
+  overline, title, sub, center = true,
+}: { overline: string; title: string; sub?: string; center?: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.55 }}
+      className={`mb-10 ${center ? 'text-center' : ''}`}
+    >
+      <span className="overline-fr mb-3 inline-block">{overline}</span>
+      <h2 className="text-4xl md:text-6xl mt-2"
+        style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em', lineHeight: 1 }}>
+        {title}
+      </h2>
+      {sub && (
+        <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--gray)', maxWidth: 540, margin: '12px auto 0' }}>
+          {sub}
+        </p>
+      )}
+    </motion.div>
+  )
+}
+
+function StatCard({ value, label, sub, delay = 0, color = 'blue' }: {
+  value: string; label: string; sub: string; delay?: number; color?: 'blue' | 'red' | 'white'
+}) {
+  const ref    = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.5 })
   const [display, setDisplay] = useState('0')
+
+  const topColor = { blue: '#002395', red: '#ED2939', white: 'rgba(255,255,255,0.3)' }[color]
+  const valColor = { blue: '#4a7fff', red: '#ED2939', white: 'var(--white)' }[color]
 
   useEffect(() => {
     if (!inView) return
@@ -18,46 +49,72 @@ function Counter({ value, delay = 0 }: { value: string; delay?: number }) {
     const num    = parseInt(match[0])
     const before = value.slice(0, value.indexOf(match[0]))
     const after  = value.slice(value.indexOf(match[0]) + match[0].length)
-    let f = 0
-    const t = setInterval(() => {
-      f++
-      const e = 1 - Math.pow(1 - f / 70, 3)
-      setDisplay(before + Math.round(e * num) + after)
-      if (f >= 70) { setDisplay(value); clearInterval(t) }
+    let frame    = 0
+    const total  = 80
+    const timer  = setInterval(() => {
+      frame++
+      const eased = 1 - Math.pow(1 - frame / total, 3)
+      setDisplay(before + Math.round(eased * num) + after)
+      if (frame >= total) { setDisplay(value); clearInterval(timer) }
     }, 1000 / 60)
-    return () => clearInterval(t)
+    return () => clearInterval(timer)
   }, [inView, value])
 
-  return <span ref={ref}>{display}</span>
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.55, delay }}
+      whileHover={{ y: -5 }}
+      className="p-6 rounded-2xl text-center cursor-default relative overflow-hidden"
+      style={{
+        background: 'var(--navy-card)',
+        border: '1px solid var(--border)',
+        borderTop: `3px solid ${topColor}`,
+      }}
+    >
+      <p className="text-5xl mb-1"
+        style={{ fontFamily: 'var(--font-bebas)', color: valColor, letterSpacing: '0.02em' }}>
+        {display}
+      </p>
+      <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--white)' }}>{label}</p>
+      <p className="text-xs" style={{ color: 'var(--gray)' }}>{sub}</p>
+    </motion.div>
+  )
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-const PILLARS = [
-  {
-    num: '01', icon: '🎓', title: 'Formation',
-    desc: "Diplôme d'État gardien, label Club Formateur, réseau d'entraîneurs certifiés.",
-    href: '/association',
-  },
-  {
-    num: '02', icon: '🩺', title: 'Santé & prévention',
-    desc: '67% des gardiens jouent blessés. Protocoles médicaux dédiés, suivi du poste.',
-    href: '/association',
-  },
-  {
-    num: '03', icon: '🏒', title: 'Vivier & représentation',
-    desc: 'Voix au sein de la FFHG, commissions actives, données du poste au niveau national.',
-    href: '/association',
-  },
-  {
-    num: '04', icon: '📋', title: 'Annuaire des gardiens',
-    desc: 'Répertoire complet par division et région — de la D3 au Magnus.',
-    href: '/annuaire',
-  },
+
+const STATS = [
+  { value: '5',     label: 'Divisions couvertes', sub: 'Magnus → Féminine Élite', color: 'blue'  as const },
+  { value: '1200+', label: 'Gardiens en France',  sub: 'Tous niveaux confondus',  color: 'white' as const },
+  { value: '3',     label: 'Workstreams FFHG',    sub: 'Commissions actives',     color: 'blue'  as const },
+  { value: '2026',  label: 'Année de fondation',  sub: 'Association loi 1901',    color: 'red'   as const },
+]
+
+const FEATURES = [
+  { href: '/association', icon: '🏒', title: "L'association",     desc: "Mission, équipe, axes stratégiques et fonctionnement de l'ANGB.", color: 'blue' },
+  { href: '/association', icon: '🎓', title: 'Formation',         desc: "Diplôme d'État gardien, label Club Formateur, réseau d'entraîneurs.", color: 'red' },
+  { href: '/association', icon: '🩺', title: 'Santé',             desc: '67% jouent blessés. Protocoles de prévention et suivi médical.', color: 'blue' },
+  { href: '/equipement',  icon: '🛡️', title: 'Bourse équipement', desc: 'Achat et vente de matériel entre membres de la communauté.', color: 'red' },
+  { href: '/forum',       icon: '💬', title: 'Forum',             desc: 'Échanges entre gardiens, entraîneurs et structures de tous niveaux.', color: 'blue' },
+  { href: '/annuaire',    icon: '📋', title: 'Annuaire',          desc: 'Répertoire des gardiens actifs en France par division et région.', color: 'red' },
 ]
 
 const GALLERY = [
-  { src: '/images/christobal huet.jpeg', name: 'Cristobal Huet',  title: 'Champion NHL · Stanley Cup 2010',    num: '01' },
-  { src: '/images/antoine keller.jpg',   name: 'Antoine Keller',  title: '1er gardien français drafté en NHL', num: '02' },
+  {
+    src: '/images/christobal huet.jpeg',
+    name: 'Cristobal Huet',
+    title: 'Champion NHL · Stanley Cup 2010',
+    badge: '🏆 Légende française',
+  },
+  {
+    src: '/images/antoine keller.jpg',
+    name: 'Antoine Keller',
+    title: '1er gardien français drafté en NHL',
+    badge: '⭐ Pionnier NHL',
+  },
 ]
 
 const FOUNDERS = [
@@ -70,216 +127,222 @@ const FOUNDERS = [
 ]
 
 // ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function HomePage() {
   return (
-    <div style={{ background: 'var(--navy)' }}>
+    <div>
 
-      {/* ──────────────────────────────────────────────────────────── HERO */}
-      <section className="relative min-h-[95vh] flex flex-col justify-center overflow-hidden">
+      {/* ── Hero ────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden min-h-[92vh] flex items-center">
 
-        {/* Fond — gradient directionnel */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 120% 80% at 60% 0%, rgba(0,35,149,0.15) 0%, transparent 65%), radial-gradient(ellipse 60% 60% at 10% 80%, rgba(237,41,57,0.08) 0%, transparent 60%)' }} />
+        {/* Gradient bleu France */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{
+            background: [
+              'radial-gradient(ellipse 100% 70% at 50% -15%, rgba(0,35,149,0.18) 0%, transparent 70%)',
+              'radial-gradient(ellipse 100% 70% at 50% -8%,  rgba(0,35,149,0.26) 0%, transparent 70%)',
+              'radial-gradient(ellipse 100% 70% at 50% -15%, rgba(0,35,149,0.18) 0%, transparent 70%)',
+            ],
+          }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+        />
 
-        {/* Grille subtile */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.02]"
-          style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+        {/* Grille décorative */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
+        }} />
 
-        {/* Ligne verticale gauche — tricolore */}
-        <div className="absolute left-6 md:left-10 top-12 bottom-12 w-[2px]"
-          style={{ background: 'linear-gradient(to bottom, transparent, #002395 20%, #fff 50%, #ED2939 80%, transparent)' }} />
+        {/* Orbe bleu */}
+        <motion.div
+          className="absolute right-[8%] top-[20%] w-72 h-72 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(0,35,149,0.14) 0%, transparent 70%)' }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Orbe rouge */}
+        <motion.div
+          className="absolute left-[5%] bottom-[20%] w-56 h-56 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(237,41,57,0.1) 0%, transparent 70%)' }}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        />
 
-        <div className="max-w-7xl mx-auto px-10 md:px-16 w-full pt-24 pb-20">
+        {/* Lignes latérales */}
+        <div className="absolute left-0 top-0 bottom-0 w-px opacity-25"
+          style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,35,149,0.9), transparent)' }} />
+        <div className="absolute right-0 top-0 bottom-0 w-px opacity-20"
+          style={{ background: 'linear-gradient(to bottom, transparent, rgba(237,41,57,0.7), transparent)' }} />
 
-          {/* Overline */}
-          <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gray)', marginBottom: 24 }}>
-            Association Nationale · Gardiens de But · Hockey sur Glace
-          </motion.p>
+        <div className="relative w-full max-w-7xl mx-auto px-4 md:px-8 pt-20 pb-20 text-center">
 
-          {/* Titre principal */}
-          <h1 style={{ fontFamily: 'var(--font-bebas)', lineHeight: 0.88, marginBottom: 32 }}>
-            {[
-              { text: 'La voix des',   color: 'var(--white)',  size: 'clamp(4rem, 12vw, 9rem)', delay: 0.1 },
-              { text: 'Gardiens',      color: 'var(--white)',  size: 'clamp(5rem, 16vw, 12rem)', delay: 0.2 },
-              { text: 'Français',      color: '#ED2939',       size: 'clamp(5rem, 16vw, 12rem)', delay: 0.3 },
-            ].map(({ text, color, size, delay }) => (
-              <motion.div
-                key={text}
-                initial={{ opacity: 0, y: 60 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] }}
-                style={{ display: 'block', color, fontSize: size, letterSpacing: '0.03em' }}>
-                {text}
-              </motion.div>
+          {/* Badge officiel */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-[0.18em] mb-10 border"
+            style={{ background: 'rgba(0,35,149,0.12)', borderColor: 'rgba(0,35,149,0.35)', color: 'rgba(150,180,255,0.9)' }}
+          >
+            <span>🇫🇷</span>
+            <span>Association Loi 1901 · Fondée en 2026</span>
+          </motion.div>
+
+          {/* Titre */}
+          <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] leading-none mb-6"
+            style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}>
+            {['La', 'voix', 'des'].map((word, i) => (
+              <motion.span
+                key={word}
+                initial={{ opacity: 0, y: 80, rotateX: -30 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ duration: 0.7, delay: 0.15 + i * 0.12, ease: [0.21, 0.47, 0.32, 0.98] }}
+                style={{ color: 'var(--white)', display: 'inline-block', marginRight: '0.25em' }}
+              >
+                {word}
+              </motion.span>
             ))}
+            <br />
+            <motion.span
+              initial={{ opacity: 0, y: 80, rotateX: -30 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ duration: 0.7, delay: 0.51, ease: [0.21, 0.47, 0.32, 0.98] }}
+              className="relative inline-block"
+              style={{ color: '#4a7fff', marginRight: '0.25em' }}
+            >
+              gardiens
+              {/* Soulignement tricolore */}
+              <motion.span
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.7, delay: 1.1 }}
+                className="absolute -bottom-2 left-0 right-0 h-[4px] origin-left"
+                style={{ background: 'linear-gradient(to right, #002395 0%, #002395 33%, #fff 33%, #fff 66%, #ED2939 66%, #ED2939 100%)' }}
+              />
+            </motion.span>
+            {' '}
+            <motion.span
+              initial={{ opacity: 0, y: 80, rotateX: -30 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ duration: 0.7, delay: 0.63, ease: [0.21, 0.47, 0.32, 0.98] }}
+              style={{ color: 'var(--white)', display: 'inline-block' }}
+            >
+              français
+            </motion.span>
           </h1>
 
-          {/* Description + CTAs */}
-          <motion.div
+          {/* Accroche */}
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="max-w-xl">
-            <p style={{ color: 'var(--gray)', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
-              L&apos;ANGB structure, développe et protège la pratique du poste de gardien de but
-              en France — de la formation jusqu&apos;à la carrière professionnelle.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/association"
-                style={{ display: 'inline-block', padding: '12px 28px', background: 'var(--white)', color: '#03060f', fontSize: 12, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', borderRadius: 6, textDecoration: 'none' }}>
-                Découvrir →
-              </Link>
-              <Link href="/annuaire"
-                style={{ display: 'inline-block', padding: '12px 28px', border: '1px solid rgba(255,255,255,0.15)', color: 'var(--white)', fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', borderRadius: 6, textDecoration: 'none' }}>
-                Annuaire
-              </Link>
+            transition={{ duration: 1, delay: 1.0 }}
+            className="max-w-2xl mx-auto text-base md:text-lg mb-10 leading-relaxed"
+            style={{ color: 'var(--gray)' }}
+          >
+            L&apos;ANGB structure, développe et protège la pratique du poste de gardien de but
+            en France — de la formation à la carrière professionnelle.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <Link href="/association"
+              className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+              style={{ background: 'var(--accent)', boxShadow: '0 8px 32px rgba(74,127,255,0.35)' }}>
+              Découvrir l&apos;ANGB
+            </Link>
+            <Link href="/annuaire"
+              className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
+              style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>
+              Annuaire des gardiens →
+            </Link>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1.8, duration: 1 }}
+            className="mt-16 flex justify-center"
+          >
+            <div className="w-5 h-8 rounded-full border flex items-start justify-center pt-1.5"
+              style={{ borderColor: 'var(--gray)' }}>
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-1 h-2 rounded-full"
+                style={{ background: 'var(--gray)' }}
+              />
             </div>
           </motion.div>
-
-          {/* Bande stats inline */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="flex flex-wrap gap-8 mt-16 pt-10"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            {[
-              { v: '1200+', l: 'gardiens en France' },
-              { v: '5',     l: 'divisions couvertes' },
-              { v: '2026',  l: 'année de fondation' },
-              { v: 'Loi',   l: '1901 · Association nationale' },
-            ].map(({ v, l }) => (
-              <div key={l}>
-                <span style={{ fontFamily: 'var(--font-bebas)', fontSize: 28, color: 'var(--white)', letterSpacing: '0.04em' }}>{v} </span>
-                <span style={{ fontSize: 11, color: 'var(--gray)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{l}</span>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────────────── MANIFESTE */}
-      <section style={{ borderTop: '1px solid var(--border)', padding: '100px 0' }}>
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
-          <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-start">
-
-            {/* Gauche — citation */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}>
-              <div style={{ width: 40, height: 3, background: 'var(--fr-red)', marginBottom: 28 }} />
-              <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, color: 'var(--white)', letterSpacing: '0.03em' }}>
-                Un poste unique.<br />
-                Une association<br />
-                à sa hauteur.
-              </h2>
-            </motion.div>
-
-            {/* Droite — texte */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-              className="flex flex-col gap-6 pt-2">
-              <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--gray-light)' }}>
-                Le gardien de but est le seul joueur dont la spécificité technique,
-                physique et psychologique est fondamentalement différente du reste de l&apos;équipe.
-                Pourtant, en France, il est resté longtemps sans représentation dédiée.
-              </p>
-              <p style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--gray)' }}>
-                L&apos;ANGB est née pour changer ça. Formation, santé, vivier, équipement —
-                nous construisons les outils que la communauté mérite.
-              </p>
-              <Link href="/association"
-                style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--white)', textDecoration: 'none', marginTop: 8 }}>
-                Notre mission →
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ───────────────────────────────────────────────────── CHIFFRES */}
-      <section style={{ background: 'var(--navy-mid)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4">
-            {[
-              { v: '1200+', l: 'Gardiens en France',  sub: 'Tous niveaux' },
-              { v: '5',     l: 'Divisions',           sub: 'Magnus → Féminine' },
-              { v: '3',     l: 'Workstreams FFHG',    sub: 'Commissions actives' },
-              { v: '6',     l: 'Fondateurs',          sub: 'Gardiens actifs' },
-            ].map(({ v, l, sub }, i) => (
-              <motion.div
-                key={l}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="py-10 px-6 text-center"
-                style={{ borderRight: i < 3 ? '1px solid var(--border)' : 'none' }}>
-                <p style={{ fontFamily: 'var(--font-bebas)', fontSize: 56, color: 'var(--white)', letterSpacing: '0.02em', lineHeight: 1 }}>
-                  <Counter value={v} delay={i * 0.1} />
-                </p>
-                <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--white)', marginTop: 6, letterSpacing: '0.05em' }}>{l}</p>
-                <p style={{ fontSize: 10, color: 'var(--gray)', marginTop: 3, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{sub}</p>
-              </motion.div>
+      {/* ── Stats ───────────────────────────────────────────────────── */}
+      <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <SectionHead
+            overline="L'ANGB en chiffres"
+            title="Un mouvement national"
+            sub="Fédérer et représenter l'ensemble des gardiens de but du hockey français."
+          />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {STATS.map(({ value, label, sub, color }, i) => (
+              <StatCard key={label} value={value} label={label} sub={sub} delay={i * 0.1} color={color} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ──────────────────────────────────────────────── LÉGENDES PHOTO */}
-      <section style={{ padding: '100px 0', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
+      {/* ── Galerie ─────────────────────────────────────────────────── */}
+      <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <SectionHead
+            overline="Légendes françaises"
+            title="Les gardiens en action"
+            sub="De la D3 au Magnus, jusqu'à la NHL — la communauté des gardiens français."
+          />
 
-          <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
-            <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: 'var(--white)', letterSpacing: '0.04em', lineHeight: 1 }}>
-              Légendes<br />françaises
-            </h2>
-            <p style={{ fontSize: 13, color: 'var(--gray)', maxWidth: 320, lineHeight: 1.6 }}>
-              De la France jusqu&apos;à la NHL — les gardiens qui ont tracé la voie.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {GALLERY.map(({ src, name, title, num }, i) => (
+          <div className="grid grid-cols-2 gap-3" style={{ height: 560 }}>
+            {GALLERY.map(({ src, name, title, badge }, i) => (
               <motion.div
                 key={name}
-                className="relative overflow-hidden rounded-xl group"
-                style={{ height: 'clamp(280px, 45vw, 520px)', background: 'var(--navy-light)' }}
-                initial={{ opacity: 0, scale: 0.97 }}
+                className="relative overflow-hidden rounded-2xl group"
+                initial={{ opacity: 0, scale: 0.96 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}>
-                <Image
-                  src={src} alt={name} fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  sizes="50vw" />
+                transition={{ duration: 0.6, delay: i * 0.15 }}
+                whileHover={{ scale: 1.01 }}
+                style={{ background: 'var(--navy-light)' }}
+              >
+                <Image src={src} alt={name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="50vw" />
                 <div className="absolute inset-0"
-                  style={{ background: 'linear-gradient(to top, rgba(3,6,15,0.9) 0%, rgba(3,6,15,0.2) 50%, transparent 100%)' }} />
-                {/* Numéro */}
-                <div className="absolute top-5 right-5"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 64, color: 'rgba(255,255,255,0.07)', lineHeight: 1 }}>
-                  {num}
-                </div>
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.15) 45%, transparent 100%)' }} />
                 {/* Barre tricolore top */}
-                <div className="absolute top-0 left-0 right-0 h-[3px] flex">
+                <div className="absolute top-0 left-0 right-0 h-[4px] flex">
                   <div className="flex-1" style={{ background: '#002395' }} />
-                  <div className="flex-1" style={{ background: '#fff' }} />
+                  <div className="flex-1" style={{ background: '#FFFFFF' }} />
                   <div className="flex-1" style={{ background: '#ED2939' }} />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
-                  <p style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(1.6rem, 3.5vw, 2.6rem)', color: 'var(--white)', letterSpacing: '0.05em', lineHeight: 1 }}>
+                {/* Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(0,35,149,0.85)', color: 'white', backdropFilter: 'blur(4px)' }}>
+                    {badge}
+                  </span>
+                </div>
+                {/* Infos bas */}
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <p className="font-bold mb-0.5 text-2xl md:text-3xl"
+                    style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
                     {name}
                   </p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>
+                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
                     {title}
                   </p>
                 </div>
@@ -289,89 +352,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ───────────────────────────────────────────────────── PILIERS */}
-      <section style={{ padding: '100px 0', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
-
-          <div className="flex items-end justify-between mb-16 flex-wrap gap-6">
-            <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: 'var(--white)', letterSpacing: '0.04em', lineHeight: 1 }}>
-              Nos axes
-            </h2>
-            <Link href="/association"
-              style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gray)', textDecoration: 'none' }}>
-              Tout voir →
-            </Link>
-          </div>
-
-          <div className="flex flex-col">
-            {PILLARS.map(({ num, icon, title, desc, href }, i) => (
-              <motion.div
-                key={num}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.07 }}>
-                <Link href={href}
-                  className="group flex items-start gap-8 md:gap-16 py-8 md:py-10"
-                  style={{ borderTop: '1px solid var(--border)', textDecoration: 'none' }}>
-                  {/* Numéro */}
-                  <span style={{ fontFamily: 'var(--font-bebas)', fontSize: 13, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', minWidth: 24, paddingTop: 6 }}>
-                    {num}
-                  </span>
-                  {/* Icône */}
-                  <span style={{ fontSize: 22, paddingTop: 4, flexShrink: 0 }}>{icon}</span>
-                  {/* Contenu */}
-                  <div className="flex-1 flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-8">
-                    <h3 className="group-hover:text-white transition-colors"
-                      style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', color: 'rgba(255,255,255,0.85)', letterSpacing: '0.04em', lineHeight: 1 }}>
-                      {title}
-                    </h3>
-                    <p style={{ fontSize: 13, color: 'var(--gray)', maxWidth: 420, lineHeight: 1.65 }}>
-                      {desc}
-                    </p>
-                  </div>
-                  {/* Flèche */}
-                  <span className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity pt-2"
-                    style={{ color: 'var(--white)', fontSize: 18 }}>→</span>
-                </Link>
-              </motion.div>
-            ))}
-            <div style={{ borderTop: '1px solid var(--border)' }} />
-          </div>
-        </div>
-      </section>
-
-      {/* ─────────────────────────────────────────────────── FONDATEURS */}
-      <section style={{ padding: '80px 0', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
-          <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
-            <div>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gray)', marginBottom: 8 }}>
-                À l'origine
-              </p>
-              <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--white)', letterSpacing: '0.04em', lineHeight: 1 }}>
-                6 gardiens fondateurs
-              </h2>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-6">
+      {/* ── Fondateurs ──────────────────────────────────────────────── */}
+      <section className="py-16" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <SectionHead
+            overline="Équipe fondatrice"
+            title="Les créateurs de l'ANGB"
+          />
+          <div className="flex flex-wrap justify-center gap-8">
             {FOUNDERS.map(({ src, name }, i) => (
               <motion.div
                 key={name}
                 className="flex flex-col items-center gap-3"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                whileHover={{ y: -4 }}>
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden"
-                  style={{ background: 'var(--navy-light)' }}>
-                  <Image src={src} alt={name} fill className="object-cover object-top" sizes="150px" />
-                  <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity"
-                    style={{ background: 'rgba(0,35,149,0.25)' }} />
+                transition={{ duration: 0.4, delay: i * 0.07 }}
+                whileHover={{ y: -5 }}
+              >
+                <div className="relative w-20 h-20 rounded-full overflow-hidden"
+                  style={{ border: '2px solid rgba(0,35,149,0.5)', background: 'var(--navy-light)', boxShadow: '0 0 0 1px rgba(255,255,255,0.06)' }}>
+                  <Image src={src} alt={name} fill className="object-cover object-top" sizes="80px" />
                 </div>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: 'var(--gray-light)', textAlign: 'center', lineHeight: 1.4 }}>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-center" style={{ color: 'var(--white)' }}>
                   {name}
                 </p>
               </motion.div>
@@ -380,35 +383,123 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ────────────────────────────────────────────────────────── CTA */}
-      <section style={{ padding: '120px 0' }}>
-        <div className="max-w-7xl mx-auto px-5 md:px-8 text-center">
+      {/* ── Features ────────────────────────────────────────────────── */}
+      <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <SectionHead
+            overline="Nos piliers"
+            title="Ce que fait l'ANGB"
+            sub="Six axes pour structurer, protéger et développer la communauté des gardiens français."
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map(({ href, icon, title, desc, color }, i) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.5, delay: i * 0.07 }}
+                whileHover={{ y: -6 }}
+              >
+                <Link href={href}
+                  className="group p-6 rounded-2xl border flex flex-col h-full transition-all duration-200 hover:border-white/10"
+                  style={{
+                    background: 'var(--navy-card)',
+                    borderColor: 'var(--border)',
+                    borderTop: `3px solid ${color === 'blue' ? '#002395' : '#ED2939'}`,
+                  }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4 transition-transform duration-200 group-hover:scale-110"
+                    style={{ background: 'var(--navy-light)' }}>
+                    {icon}
+                  </div>
+                  <h3 className="text-xl mb-2"
+                    style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed mb-4 flex-1" style={{ color: 'var(--gray)' }}>{desc}</p>
+                  <div className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide"
+                    style={{ color: color === 'blue' ? '#4a7fff' : '#ED2939' }}>
+                    En savoir plus →
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA Banner ──────────────────────────────────────────────── */}
+      <section className="py-24" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gray)', marginBottom: 20 }}>
-              Adhésion ouverte
-            </p>
-            <h2 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(3.5rem, 10vw, 8rem)', color: 'var(--white)', letterSpacing: '0.04em', lineHeight: 0.9, marginBottom: 24 }}>
-              Rejoins<br />
-              <span style={{ color: 'var(--fr-red)' }}>l&apos;ANGB</span>
-            </h2>
-            <p style={{ fontSize: 15, color: 'var(--gray)', maxWidth: 480, margin: '0 auto 40px', lineHeight: 1.7 }}>
-              Gardien actif, ancien gardien, entraîneur ou structure —
-              cotisation à partir de 0€ pour les mineurs et étudiants.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            transition={{ duration: 0.7 }}
+            className="relative overflow-hidden rounded-3xl p-12 md:p-20 text-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,35,149,0.22) 0%, var(--navy-card) 50%, rgba(237,41,57,0.12) 100%)',
+              border: '1px solid rgba(0,35,149,0.25)',
+            }}
+          >
+            {/* Barre tricolore top */}
+            <div className="absolute top-0 left-0 right-0 h-[4px] flex">
+              <div className="flex-1" style={{ background: '#002395' }} />
+              <div className="flex-1" style={{ background: 'rgba(255,255,255,0.5)' }} />
+              <div className="flex-1" style={{ background: '#ED2939' }} />
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <span className="overline-fr mb-4 inline-block">Adhésion ouverte</span>
+            </motion.div>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-5xl md:text-7xl mb-5 mt-3"
+              style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
+            >
+              Rejoins la communauté
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="max-w-lg mx-auto text-sm leading-relaxed mb-10"
+              style={{ color: 'var(--gray)' }}
+            >
+              Gardien actif, ancien gardien, entraîneur ou structure — l&apos;ANGB est ton association.
+              Cotisation à partir de 0€ pour les mineurs, étudiants et membres du bureau.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
               <Link href="/association"
-                style={{ padding: '14px 32px', background: 'var(--fr-red)', color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', borderRadius: 6, textDecoration: 'none', boxShadow: '0 8px 32px rgba(237,41,57,0.3)' }}>
+                className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+                style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
                 Rejoindre l&apos;ANGB
               </Link>
               <Link href="/forum"
-                style={{ padding: '14px 32px', border: '1px solid rgba(255,255,255,0.15)', color: 'var(--white)', fontSize: 12, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', borderRadius: 6, textDecoration: 'none' }}>
-                Forum →
+                className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
+                style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>
+                Accéder au forum
               </Link>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
