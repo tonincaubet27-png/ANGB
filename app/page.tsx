@@ -4,6 +4,7 @@ import { motion, useInView } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
+import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -308,44 +309,59 @@ export default function HomePage() {
             sub="De la D3 au Magnus, jusqu'à la NHL — la communauté des gardiens français."
           />
 
-          <div className="grid grid-cols-2 gap-3" style={{ height: 560 }}>
+          <div className="grid grid-cols-2 gap-4">
             {GALLERY.map(({ src, name, title, badge }, i) => (
               <motion.div
                 key={name}
-                className="relative overflow-hidden rounded-2xl group"
                 initial={{ opacity: 0, scale: 0.96 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                whileHover={{ scale: 1.01 }}
-                style={{ background: 'var(--navy-light)' }}
               >
-                <Image src={src} alt={name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="50vw" />
-                <div className="absolute inset-0"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.15) 45%, transparent 100%)' }} />
-                {/* Barre tricolore top */}
-                <div className="absolute top-0 left-0 right-0 h-[4px] flex">
-                  <div className="flex-1" style={{ background: '#002395' }} />
-                  <div className="flex-1" style={{ background: '#FFFFFF' }} />
-                  <div className="flex-1" style={{ background: '#ED2939' }} />
-                </div>
-                {/* Badge */}
-                <div className="absolute top-4 left-4">
-                  <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(0,35,149,0.85)', color: 'white', backdropFilter: 'blur(4px)' }}>
-                    {badge}
-                  </span>
-                </div>
-                {/* Infos bas */}
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <p className="font-bold mb-0.5 text-2xl md:text-3xl"
-                    style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
-                    {name}
-                  </p>
-                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                    {title}
-                  </p>
-                </div>
+                <CardContainer containerClassName="w-full">
+                  <CardBody
+                    className="relative overflow-hidden rounded-2xl"
+                    style={{ height: 500, background: 'var(--navy-light)' }}>
+
+                    {/* Photo flottante */}
+                    <CardItem translateZ={0} className="absolute inset-0">
+                      <Image src={src} alt={name} fill className="object-cover" sizes="50vw" />
+                      <div className="absolute inset-0"
+                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
+                    </CardItem>
+
+                    {/* Barre tricolore */}
+                    <CardItem translateZ={20} className="absolute top-0 left-0 right-0 h-[3px] flex">
+                      <div className="flex-1" style={{ background: '#002395' }} />
+                      <div className="flex-1" style={{ background: '#fff' }} />
+                      <div className="flex-1" style={{ background: '#ED2939' }} />
+                    </CardItem>
+
+                    {/* Badge */}
+                    <CardItem translateZ={60} className="absolute top-4 left-4">
+                      <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
+                        style={{ background: 'rgba(0,35,149,0.9)', color: 'white', backdropFilter: 'blur(4px)' }}>
+                        {badge}
+                      </span>
+                    </CardItem>
+
+                    {/* Nom flottant */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <CardItem translateZ={80}>
+                        <p className="font-bold text-3xl md:text-4xl"
+                          style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em', lineHeight: 1 }}>
+                          {name}
+                        </p>
+                      </CardItem>
+                      <CardItem translateZ={40} className="mt-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide"
+                          style={{ color: 'rgba(255,255,255,0.6)' }}>
+                          {title}
+                        </p>
+                      </CardItem>
+                    </div>
+                  </CardBody>
+                </CardContainer>
               </motion.div>
             ))}
           </div>
@@ -383,7 +399,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Features ────────────────────────────────────────────────── */}
+      {/* ── Features 3D ─────────────────────────────────────────────── */}
       <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <SectionHead
@@ -392,7 +408,7 @@ export default function HomePage() {
             sub="Six axes pour structurer, protéger et développer la communauté des gardiens français."
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {FEATURES.map(({ href, icon, title, desc, color }, i) => (
               <motion.div
                 key={title}
@@ -400,29 +416,46 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
-                whileHover={{ y: -6 }}
               >
-                <Link href={href}
-                  className="group p-6 rounded-2xl border flex flex-col h-full transition-all duration-200 hover:border-white/10"
-                  style={{
-                    background: 'var(--navy-card)',
-                    borderColor: 'var(--border)',
-                    borderTop: `3px solid ${color === 'blue' ? '#002395' : '#ED2939'}`,
-                  }}>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4 transition-transform duration-200 group-hover:scale-110"
-                    style={{ background: 'var(--navy-light)' }}>
-                    {icon}
-                  </div>
-                  <h3 className="text-xl mb-2"
-                    style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
-                    {title}
-                  </h3>
-                  <p className="text-sm leading-relaxed mb-4 flex-1" style={{ color: 'var(--gray)' }}>{desc}</p>
-                  <div className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide"
-                    style={{ color: color === 'blue' ? '#4a7fff' : '#ED2939' }}>
-                    En savoir plus →
-                  </div>
-                </Link>
+                <CardContainer containerClassName="w-full">
+                  <CardBody
+                    className="relative rounded-2xl p-6 flex flex-col h-full"
+                    style={{
+                      background: 'var(--navy-card)',
+                      border: '1px solid var(--border)',
+                      borderTop: `3px solid ${color === 'blue' ? '#002395' : '#ED2939'}`,
+                    }}>
+
+                    {/* Icône flottante */}
+                    <CardItem translateZ={80} className="mb-4">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                        style={{ background: 'var(--navy-light)' }}>
+                        {icon}
+                      </div>
+                    </CardItem>
+
+                    {/* Titre */}
+                    <CardItem translateZ={50} className="mb-2">
+                      <h3 className="text-xl"
+                        style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
+                        {title}
+                      </h3>
+                    </CardItem>
+
+                    {/* Description */}
+                    <CardItem as="p" translateZ={30} className="text-sm leading-relaxed flex-1 mb-4"
+                      style={{ color: 'var(--gray)' }}>
+                      {desc}
+                    </CardItem>
+
+                    {/* Lien */}
+                    <CardItem translateZ={20} as={Link} href={href}
+                      className="text-[11px] font-bold uppercase tracking-wide"
+                      style={{ color: color === 'blue' ? '#4a7fff' : '#ED2939' }}>
+                      En savoir plus →
+                    </CardItem>
+                  </CardBody>
+                </CardContainer>
               </motion.div>
             ))}
           </div>
