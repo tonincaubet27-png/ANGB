@@ -12,6 +12,7 @@ const bebas = Bebas_Neue({
 
 const dm = DM_Sans({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
   variable: '--font-dm',
   display: 'swap',
 })

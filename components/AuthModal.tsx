@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getClient } from '@/lib/supabase-client'
 import {
   createUserProfile, createGoalieProfile,
-  linkParentToGoalie, searchGoalieProfiles,
+  linkParentToGoalie, searchGoalieProfiles, uploadGoaliePhoto,
 } from '@/lib/data'
 import { useAuth } from '@/contexts/AuthContext'
+import PhotoUpload from '@/components/PhotoUpload'
 import type { GoalieProfile } from '@/lib/types'
 
 const DIVISIONS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
@@ -15,7 +16,7 @@ const DIVISIONS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
 type Step = 'auth' | 'role' | 'gardien' | 'parent' | 'success'
 
 export default function AuthModal() {
-  const { authOpen, authMode, closeAuth, refreshProfile, isConfigured } = useAuth()
+  const { user, authOpen, authMode, needsSetup, closeAuth, clearNeedsSetup, refreshProfile, isConfigured } = useAuth()
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [mode,     setMode]    = useState<'login' | 'register'>(authMode)
@@ -26,10 +27,11 @@ export default function AuthModal() {
   const [name,     setName]    = useState('')
   const [role,     setRole]    = useState<'gardien' | 'parent' | null>(null)
   // Gardien
-  const [club,     setClub]    = useState('')
-  const [division, setDiv]     = useState('D2')
-  const [region,   setRegion]  = useState('')
-  const [bio,      setBio]     = useState('')
+  const [club,      setClub]    = useState('')
+  const [division,  setDiv]     = useState('D2')
+  const [region,    setRegion]  = useState('')
+  const [bio,       setBio]     = useState('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
   // Parent - search
   const [query,    setQuery]   = useState('')
   const [results,  setResults] = useState<GoalieProfile[]>([])
@@ -42,11 +44,18 @@ export default function AuthModal() {
   // Sync mode quand le context change
   useEffect(() => {
     if (authOpen) {
-      setMode(authMode)
-      setStep('auth')
+      if (needsSetup && user) {
+        // Connexion Google OK mais pas de profil encore → sauter l'auth, aller au choix de rôle
+        setStep('role')
+        const googleName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
+        if (googleName) setName(googleName)
+      } else {
+        setMode(authMode)
+        setStep('auth')
+      }
       setError('')
     }
-  }, [authOpen, authMode])
+  }, [authOpen, authMode, needsSetup, user])
 
   // Fermer avec Escape
   useEffect(() => {
@@ -57,11 +66,12 @@ export default function AuthModal() {
   }, [authOpen])
 
   const handleClose = () => {
-    closeAuth()
+    if (needsSetup) clearNeedsSetup() // annule le setup sans recréer la modale
+    else closeAuth()
     setTimeout(() => {
       setStep('auth'); setError('')
       setEmail(''); setPass(''); setName(''); setRole(null)
-      setClub(''); setDiv('D2'); setRegion(''); setBio('')
+      setClub(''); setDiv('D2'); setRegion(''); setBio(''); setPhotoFile(null)
       setQuery(''); setResults([]); setSelect(null)
     }, 300)
   }
@@ -102,6 +112,20 @@ export default function AuthModal() {
     )
   }
 
+  // ── Google OAuth ───────────────────────────────────────────────────────────
+  const handleGoogleSignIn = async () => {
+    const client = getClient()
+    if (!client) return
+    setError('')
+    const { error } = await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    if (error) setError('Erreur connexion Google.')
+  }
+
   // ── Login ──────────────────────────────────────────────────────────────────
   const handleLogin = async () => {
     if (!email || !password) { setError('Email et mot de passe requis.'); return }
@@ -132,17 +156,43 @@ export default function AuthModal() {
     setLoading(true); setError('')
     const client = getClient()!
 
-    const { data, error: signUpErr } = await client.auth.signUp({ email, password })
-    if (signUpErr || !data.user) {
-      setLoading(false)
-      setError(signUpErr?.message ?? 'Erreur inscription.')
-      return
+    let userId: string
+    let displayName = name
+
+    if (user) {
+      // Déjà connecté (Google OAuth) — pas besoin de signUp
+      userId = user.id
+      if (!displayName) displayName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
+      // Met à jour le profil créé par le trigger (rôle + nom)
+      await createUserProfile(userId, 'gardien', displayName)
+    } else {
+      // Le trigger DB crée automatiquement la ligne profiles
+      const { data, error: signUpErr } = await client.auth.signUp({
+        email, password,
+        options: { data: { display_name: displayName, role: 'gardien' } },
+      })
+      if (signUpErr || !data.user) {
+        setLoading(false)
+        setError(signUpErr?.message ?? 'Erreur inscription.')
+        return
+      }
+      userId = data.user.id
     }
-    const userId = data.user.id
-    const { ok: p1 } = await createUserProfile(userId, 'gardien', name)
-    const { ok: p2 } = await createGoalieProfile({ user_id: userId, name, club, division, region, bio_note: bio })
+
+    // Upload photo si sélectionnée
+    let photoUrl: string | undefined
+    if (photoFile) {
+      const { url, error: upErr } = await uploadGoaliePhoto(userId, photoFile)
+      if (url) photoUrl = url
+      else if (upErr) console.warn('Photo upload:', upErr)
+    }
+
+    const { ok, error: gErr } = await createGoalieProfile({
+      user_id: userId, name: displayName, club, division, region, bio_note: bio,
+      ...(photoUrl ? { photo_url: photoUrl } : {}),
+    })
     setLoading(false)
-    if (!p1 || !p2) { setError('Erreur création profil. Réessayez.'); return }
+    if (!ok) { setError('Erreur création fiche gardien : ' + (gErr ?? '')); return }
     await refreshProfile()
     setStep('success')
   }
@@ -160,14 +210,28 @@ export default function AuthModal() {
     setLoading(true); setError('')
     const client = getClient()!
 
-    const { data, error: signUpErr } = await client.auth.signUp({ email, password })
-    if (signUpErr || !data.user) {
-      setLoading(false)
-      setError(signUpErr?.message ?? 'Erreur inscription.')
-      return
+    let userId: string
+    let displayName = name
+
+    if (user) {
+      // Déjà connecté (Google OAuth)
+      userId = user.id
+      if (!displayName) displayName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
+      await createUserProfile(userId, 'parent', displayName)
+    } else {
+      // Le trigger DB crée automatiquement la ligne profiles
+      const { data, error: signUpErr } = await client.auth.signUp({
+        email, password,
+        options: { data: { display_name: displayName, role: 'parent' } },
+      })
+      if (signUpErr || !data.user) {
+        setLoading(false)
+        setError(signUpErr?.message ?? 'Erreur inscription.')
+        return
+      }
+      userId = data.user.id
     }
-    const userId = data.user.id
-    await createUserProfile(userId, 'parent', name)
+
     if (selected) await linkParentToGoalie(userId, selected.id)
     setLoading(false)
     await refreshProfile()
@@ -256,6 +320,21 @@ export default function AuthModal() {
                         style={{ background: 'var(--accent)', color: '#fff' }}>
                         {loading ? '…' : mode === 'login' ? 'Se connecter' : 'Continuer →'}
                       </button>
+
+                      {/* ── Google ── */}
+                      <div className="flex items-center gap-3 mt-4">
+                        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>ou</span>
+                        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                      </div>
+
+                      <button
+                        onClick={handleGoogleSignIn}
+                        className="mt-3 w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-white/5"
+                        style={{ border: '1px solid rgba(255,255,255,0.12)', color: 'var(--white)' }}>
+                        <GoogleIcon />
+                        Continuer avec Google
+                      </button>
                     </motion.div>
                   )}
 
@@ -287,7 +366,12 @@ export default function AuthModal() {
                       <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>
                         Votre fiche apparaîtra dans l'annuaire. Vous pourrez la compléter à tout moment.
                       </p>
-                      <div className="space-y-3">
+                      <PhotoUpload
+                        name={name}
+                        onFileSelect={file => setPhotoFile(file)}
+                        size={88}
+                      />
+                      <div className="mt-4 space-y-3">
                         <Field label="Club actuel *" value={club} onChange={setClub} placeholder="Montpellier HC" />
                         <div>
                           <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--gray)' }}>Division *</label>
@@ -431,5 +515,16 @@ function BackBtn({ onClick }: { onClick: () => void }) {
       style={{ color: 'var(--gray)' }}>
       ← Retour
     </button>
+  )
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908C16.658 14.013 17.64 11.706 17.64 9.2z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+      <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.96L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+    </svg>
   )
 }

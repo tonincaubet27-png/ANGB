@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
-import { getGoalieProfiles, updateGoalieProfile } from '@/lib/data'
+import { getGoalieProfiles, updateGoalieProfile, uploadGoaliePhoto } from '@/lib/data'
+import PhotoUpload from '@/components/PhotoUpload'
 import type { GoalieProfile, CareerEntry, TrainingEntry, EtudesEntry } from '@/lib/types'
 
 // ── Constantes ───────────────────────────────────────────────────────────────
@@ -237,11 +238,22 @@ function EditForm({ goalie, onCancel, onSaved }: {
   const [palmares,  setPalmares]= useState<string[]>(goalie.palmares ?? [])
   const [saving,    setSaving]  = useState(false)
   const [err,       setErr]     = useState('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoUrl,  setPhotoUrl]  = useState(goalie.photo_url ?? '')
+  const { user } = useAuth()
 
   const handleSave = async () => {
     if (!name.trim()) { setErr('Le nom est requis.'); return }
     setSaving(true); setErr('')
-    const patch = { name, club, division, region, bio_note: bio, parcours, formation, etudes, palmares }
+
+    let finalPhotoUrl = photoUrl
+    if (photoFile && user) {
+      const { url, error: upErr } = await uploadGoaliePhoto(user.id, photoFile)
+      if (url) { finalPhotoUrl = url; setPhotoUrl(url) }
+      else if (upErr) { setErr('Erreur upload photo : ' + upErr); setSaving(false); return }
+    }
+
+    const patch = { name, club, division, region, bio_note: bio, parcours, formation, etudes, palmares, photo_url: finalPhotoUrl }
     const { ok, error } = await updateGoalieProfile(goalie.id, patch)
     setSaving(false)
     if (!ok) { setErr(error ?? 'Erreur lors de la sauvegarde.'); return }
@@ -263,6 +275,13 @@ function EditForm({ goalie, onCancel, onSaved }: {
       {err && <div className="mb-4 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(237,41,57,0.12)', color: '#f87171' }}>{err}</div>}
 
       <div className="space-y-5">
+        <PhotoUpload
+          currentUrl={photoUrl || null}
+          name={name}
+          onFileSelect={file => setPhotoFile(file)}
+          size={96}
+        />
+
         <EField label="Nom" value={name} onChange={setName} />
         <EField label="Club actuel" value={club} onChange={setClub} placeholder="Montpellier HC" />
         <div>

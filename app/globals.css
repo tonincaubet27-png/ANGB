@@ -3,26 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --navy: #0a0e1a;
-  --navy-mid: #111827;
-  --navy-light: #1e2a3d;
-  --accent: #4a7fff;
-  --red-fr: #ED2939;
-  --white: #f5f5f0;
-  --gray: #8a9ab5;
-  --border: rgba(255, 255, 255, 0.08);
-  --fr-blue: #002395;
-  --fr-white: #ffffff;
-  --fr-red: #ED2939;
+  --navy:        #070b15;
+  --navy-mid:    #0d1525;
+  --navy-light:  #162032;
+  --navy-card:   #111a2e;
+  --accent:      #4a7fff;
+  --red-fr:      #ED2939;
+  --white:       #f0f2f5;
+  --gray:        #7a8fa8;
+  --border:      rgba(255, 255, 255, 0.07);
+  --border-mid:  rgba(255, 255, 255, 0.12);
+  --fr-blue:     #002395;
+  --fr-white:    #ffffff;
+  --fr-red:      #ED2939;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--navy);
@@ -32,51 +29,75 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Barre tricolore */
+/* ── Barre tricolore horizontale ──────────────────────────────────────────── */
 .tricolor-bar {
-  height: 3px;
+  height: 5px;
   background: linear-gradient(
     to right,
-    var(--fr-blue) 0%,
-    var(--fr-blue) 33.33%,
+    var(--fr-blue)  0%,
+    var(--fr-blue)  33.33%,
     var(--fr-white) 33.33%,
     var(--fr-white) 66.66%,
-    var(--fr-red) 66.66%,
-    var(--fr-red) 100%
+    var(--fr-red)   66.66%,
+    var(--fr-red)   100%
   );
   width: 100%;
 }
 
-/* Barre tricolore verticale (navbar logo) */
+/* ── Barre tricolore verticale (navbar logo) ──────────────────────────────── */
 .tricolor-bar-vertical {
   width: 4px;
   background: linear-gradient(
     to bottom,
-    var(--fr-blue) 0%,
-    var(--fr-blue) 33.33%,
+    var(--fr-blue)  0%,
+    var(--fr-blue)  33.33%,
     var(--fr-white) 33.33%,
     var(--fr-white) 66.66%,
-    var(--fr-red) 66.66%,
-    var(--fr-red) 100%
+    var(--fr-red)   66.66%,
+    var(--fr-red)   100%
   );
 }
 
-/* Scrollbar custom */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--navy);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--navy-light);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+/* ── Overline label premium (dessus des titres de section) ───────────────── */
+.overline-fr {
+  display: inline-block;
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--fr-blue);
+  background: rgba(0, 35, 149, 0.12);
+  border: 1px solid rgba(0, 35, 149, 0.3);
+  padding: 3px 10px;
+  border-radius: 99px;
 }
 
-/* Focus visible */
+/* ── Diviseur tricolore ───────────────────────────────────────────────────── */
+.tricolor-divider {
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(to right, var(--fr-blue) 0%, var(--fr-blue) 33%, #fff 33%, #fff 66%, var(--fr-red) 66%, var(--fr-red) 100%);
+  border-radius: 2px;
+}
+
+/* ── Carte premium bleue (top border bleu) ────────────────────────────────── */
+.card-fr-blue {
+  border-top: 3px solid var(--fr-blue) !important;
+}
+.card-fr-red {
+  border-top: 3px solid var(--fr-red) !important;
+}
+.card-fr-accent {
+  border-top: 3px solid var(--accent) !important;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── Focus visible ────────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

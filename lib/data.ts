@@ -260,6 +260,31 @@ export async function createContactRequest(
   return { ok: true }
 }
 
+// ── Storage — upload photo ──────────────────────────────────────────────────
+
+export async function uploadGoaliePhoto(
+  userId: string,
+  file: File,
+): Promise<{ url?: string; error?: string }> {
+  const client = getClient()
+  if (!client) return { error: 'Non configuré' }
+
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const path = `${userId}/${Date.now()}.${ext}`
+
+  const { error: uploadErr } = await client.storage
+    .from('goalie-avatars')
+    .upload(path, file, { upsert: true, contentType: file.type })
+
+  if (uploadErr) return { error: uploadErr.message }
+
+  const { data: { publicUrl } } = client.storage
+    .from('goalie-avatars')
+    .getPublicUrl(path)
+
+  return { url: publicUrl }
+}
+
 // ── Auth helpers (profils utilisateurs) ────────────────────────────────────
 
 export async function createUserProfile(
@@ -267,9 +292,10 @@ export async function createUserProfile(
 ): Promise<{ ok: boolean; error?: string }> {
   const client = getClient()
   if (!client) return { ok: true }
-  const { error } = await client.from('profiles').insert({
-    id: userId, role, display_name: displayName,
-  })
+  const { error } = await client.from('profiles').upsert(
+    { id: userId, role, display_name: displayName },
+    { onConflict: 'id' }
+  )
   if (error) return { ok: false, error: error.message }
   return { ok: true }
 }

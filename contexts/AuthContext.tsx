@@ -10,24 +10,26 @@ import type { GoalieProfile, UserProfile } from '@/lib/types'
 import { getLinkedGoalieProfiles } from '@/lib/data'
 
 interface AuthContextType {
-  user:           User | null
-  profile:        UserProfile | null
-  goalieProfile:  GoalieProfile | null
-  linkedGoalies:  GoalieProfile[]
-  loading:        boolean
-  authOpen:       boolean
-  authMode:       'login' | 'register'
-  openAuth:       (mode?: 'login' | 'register') => void
-  closeAuth:      () => void
-  signOut:        () => Promise<void>
-  refreshProfile: () => Promise<void>
-  isConfigured:   boolean
+  user:            User | null
+  profile:         UserProfile | null
+  goalieProfile:   GoalieProfile | null
+  linkedGoalies:   GoalieProfile[]
+  loading:         boolean
+  authOpen:        boolean
+  authMode:        'login' | 'register'
+  needsSetup:      boolean   // vrai si connecté OAuth mais sans profil encore
+  openAuth:        (mode?: 'login' | 'register') => void
+  closeAuth:       () => void
+  clearNeedsSetup: () => void
+  signOut:         () => Promise<void>
+  refreshProfile:  () => Promise<void>
+  isConfigured:    boolean
 }
 
 const DEFAULT: AuthContextType = {
   user: null, profile: null, goalieProfile: null, linkedGoalies: [],
-  loading: false, authOpen: false, authMode: 'login',
-  openAuth: () => {}, closeAuth: () => {},
+  loading: false, authOpen: false, authMode: 'login', needsSetup: false,
+  openAuth: () => {}, closeAuth: () => {}, clearNeedsSetup: () => {},
   signOut: async () => {}, refreshProfile: async () => {},
   isConfigured: false,
 }
@@ -40,9 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile,       setProfile] = useState<UserProfile | null>(null)
   const [goalieProfile, setGoalie]  = useState<GoalieProfile | null>(null)
   const [linkedGoalies, setLinked]  = useState<GoalieProfile[]>([])
-  const [loading,       setLoading] = useState(true)
-  const [authOpen,      setAuthOpen]  = useState(false)
-  const [authMode,      setAuthMode]  = useState<'login' | 'register'>('login')
+  const [loading,       setLoading]    = useState(true)
+  const [authOpen,      setAuthOpen]   = useState(false)
+  const [authMode,      setAuthMode]   = useState<'login' | 'register'>('login')
+  const [needsSetup,    setNeedsSetup] = useState(false)
 
   const isConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -56,7 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: prof } = await client
       .from('profiles').select('*').eq('id', userId).single()
 
-    if (!prof) return
+    if (!prof) {
+      // Utilisateur connecté (ex. Google OAuth) mais sans profil → déclenche la config
+      setNeedsSetup(true)
+      setAuthOpen(true)
+      return
+    }
+    setNeedsSetup(false)
     setProfile(prof as UserProfile)
 
     if (prof.role === 'gardien') {
@@ -102,9 +111,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, profile, goalieProfile, linkedGoalies, loading,
-      authOpen, authMode,
-      openAuth:  (mode = 'login') => { setAuthMode(mode); setAuthOpen(true) },
-      closeAuth: () => setAuthOpen(false),
+      authOpen, authMode, needsSetup,
+      openAuth:        (mode = 'login') => { setAuthMode(mode); setAuthOpen(true) },
+      closeAuth:       () => setAuthOpen(false),
+      clearNeedsSetup: () => { setNeedsSetup(false); setAuthOpen(false) },
       signOut,
       refreshProfile: () => user ? loadUserData(user.id) : Promise.resolve(),
       isConfigured,
