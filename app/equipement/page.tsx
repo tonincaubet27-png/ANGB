@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getListings, createListing, createContactRequest } from '@/lib/data'
 import type { Listing } from '@/lib/types'
+import { useAuth } from '@/contexts/AuthContext'
 
 const CATEGORIES = ['Tout', 'jambières', 'plastron', 'masque', 'gants', 'crosse', 'complet', 'autre']
 const CONDITIONS = ['Tout', 'très bon état', 'bon état', 'usage']
@@ -38,6 +39,7 @@ interface ContactForm {
 }
 
 export default function EquipementPage() {
+  const { user, profile, openAuth } = useAuth()
   const [listings, setListings]         = useState<Listing[]>([])
   const [loading, setLoading]           = useState(true)
   const [catFilter, setCat]             = useState('Tout')
@@ -111,7 +113,7 @@ export default function EquipementPage() {
       city: depotForm.city,
       seller_name: depotForm.seller_name,
       seller_division: depotForm.seller_division,
-    })
+    }, user?.id)
     setDepotSub(false)
     if (res.ok) {
       setDepotDone(true)
@@ -159,10 +161,16 @@ export default function EquipementPage() {
             <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Équipement</h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>Achat et vente de matériel de gardien entre membres de la communauté</p>
           </div>
-          <button onClick={() => setDepot(true)}
+          <button
+            onClick={() => {
+              if (!user) { openAuth('register'); return }
+              // Pré-remplir le nom vendeur depuis le profil
+              if (profile?.display_name) setDepotForm(f => ({ ...f, seller_name: profile.display_name }))
+              setDepot(true)
+            }}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90 transition-opacity"
             style={{ background: 'var(--accent)' }}>
-            + Déposer une annonce
+            {user ? '+ Déposer une annonce' : '🔒 Connexion pour déposer'}
           </button>
         </div>
       </div>
