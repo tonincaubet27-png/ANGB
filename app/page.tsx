@@ -208,18 +208,9 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 80, rotateX: -30 }}
               animate={{ opacity: 1, y: 0, rotateX: 0 }}
               transition={{ duration: 0.7, delay: 0.51, ease: [0.21, 0.47, 0.32, 0.98] }}
-              className="relative inline-block"
-              style={{ color: '#4a7fff', marginRight: '0.25em' }}
+              style={{ color: '#4a7fff', display: 'inline-block', marginRight: '0.25em' }}
             >
               gardiens
-              {/* Soulignement tricolore */}
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.7, delay: 1.1 }}
-                className="absolute -bottom-2 left-0 right-0 h-[4px] origin-left"
-                style={{ background: 'linear-gradient(to right, #002395 0%, #002395 33%, #fff 33%, #fff 66%, #ED2939 66%, #ED2939 100%)' }}
-              />
             </motion.span>
             {' '}
             <motion.span
@@ -231,6 +222,15 @@ export default function HomePage() {
               français
             </motion.span>
           </h1>
+
+          {/* Ligne tricolore pleine largeur sous le titre */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.0, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="origin-left mb-8 -mt-2"
+            style={{ height: 4, background: 'linear-gradient(to right, #002395 0%, #002395 33%, #ffffff 33%, #ffffff 66%, #ED2939 66%, #ED2939 100%)', borderRadius: 2 }}
+          />
 
           {/* Accroche */}
           <motion.p
