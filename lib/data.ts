@@ -48,12 +48,12 @@ const MOCK_POSTS: Record<string, Post[]> = {
 
 const MOCK_GOALIES: Goalie[] = [
   // ── Fondateurs ANGB ───────────────────────────────────────────────────────
-  { id:'f1', name:'Tonin Caubet',         club:'Montpellier Vipers',  division:'Magnus',         region:'Occitanie',          bio_note:'Président fondateur ANGB · Gardien professionnel · Ex-Rouen Dragons · 2× Champion Ligue Magnus · International jeunes', is_active:true, created_at:'2026-01-01' },
-  { id:'f2', name:'Pacôme Courtoison',    club:'Grenoble Brûleurs',   division:'Magnus',         region:'Auvergne-Rhône-Alpes', bio_note:'Fondateur ANGB · Gardien professionnel · Représentant des gardiens Division Magnus', is_active:true, created_at:'2026-01-01' },
-  { id:'f3', name:'Steven Catelin',       club:'Rouen Dragons',       division:'Magnus',         region:'Normandie',          bio_note:'Fondateur ANGB · Trésorier · Gardien expérimenté · Formateur certifié', is_active:true, created_at:'2026-01-01' },
-  { id:'f4', name:'Flo Gourdin',          club:'Bordeaux Boxers',     division:'D1',             region:'Nouvelle-Aquitaine', bio_note:'Fondateur ANGB · Référent technique · Entraîneur gardiens certifié DE', is_active:true, created_at:'2026-01-01' },
-  { id:'f5', name:'Jean-JP Fontaine',     club:'Amiens Gothiques',    division:'D1',             region:'Hauts-de-France',    bio_note:'Fondateur ANGB · Secrétaire général · Gardien senior · Responsable formation régionale', is_active:true, created_at:'2026-01-01' },
-  { id:'f6', name:'Adrien Vazzaz',        club:'Paris Hockey 92',     division:'D2',             region:'Île-de-France',      bio_note:'Fondateur ANGB · Responsable communication · Jeune gardien · Étudiant STAPS', is_active:true, created_at:'2026-01-01' },
+  { id:'f1', name:'Tonin Caubet',         club:'Montpellier HC',      division:'D2',             region:'Occitanie',          bio_note:'Président fondateur ANGB · Gardien · Rouen Dragons (Magnus 2022-24) · Valenciennes (D2 2024-26) · International France U16, U18, U20', is_active:true, created_at:'2026-01-01' },
+  { id:'f2', name:'Pacôme Courtoison',    club:undefined,             division:undefined,        region:undefined,            bio_note:'Fondateur ANGB', is_active:true, created_at:'2026-01-01' },
+  { id:'f3', name:'Steven Catelin',       club:undefined,             division:undefined,        region:undefined,            bio_note:'Fondateur ANGB', is_active:true, created_at:'2026-01-01' },
+  { id:'f4', name:'Flo Gourdin',          club:undefined,             division:undefined,        region:undefined,            bio_note:'Fondateur ANGB', is_active:true, created_at:'2026-01-01' },
+  { id:'f5', name:'Jean-JP Fontaine',     club:undefined,             division:undefined,        region:undefined,            bio_note:'Fondateur ANGB', is_active:true, created_at:'2026-01-01' },
+  { id:'f6', name:'Adrien Vazzaz',        club:undefined,             division:undefined,        region:undefined,            bio_note:'Fondateur ANGB', is_active:true, created_at:'2026-01-01' },
   // ── Autres gardiens ───────────────────────────────────────────────────────
   { id:'1',  name:'Julien Martin',        club:'Rouen Dragons',       division:'Magnus',         region:'Normandie',          bio_note:'Gardien professionnel · Expérience internationale clubs', is_active:true, created_at:'2026-06-01' },
   { id:'2',  name:'Alexandre Bonnard',    club:'Bordeaux Boxers',     division:'D1',             region:'Nouvelle-Aquitaine', bio_note:'Titulaire · Formation Bordeaux · En progression vers le pro', is_active:true, created_at:'2026-06-01' },

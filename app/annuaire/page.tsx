@@ -19,131 +19,48 @@ interface ExtendedProfile {
   palmares?:   string[]
 }
 
-// ── Profils étendus des fondateurs ───────────────────────────────────────────
+// ── Profils étendus ──────────────────────────────────────────────────────────
+// Seul le profil de Tonin Caubet est rempli (données vérifiées via Elite Prospects).
+// Chaque fondateur complètera sa propre fiche.
 const EXTENDED: Record<string, ExtendedProfile> = {
   'Tonin Caubet': {
     photo:     '/images/tonin caubet.jpg',
     role_angb: 'Président fondateur',
     parcours: [
-      { periode: '2023 – présent', club: 'Montpellier Vipers',    division: 'Magnus', detail: 'Gardien titulaire' },
-      { periode: '2020 – 2023',   club: 'Rouen Dragons',          division: 'Magnus', detail: 'Gardien numéro 2' },
-      { periode: '2018 – 2020',   club: 'HC Caen',                division: 'D1',     detail: 'Gardien titulaire' },
-      { periode: '2015 – 2018',   club: 'Montpellier Hockey',     division: 'D2',     detail: 'Formation' },
-    ],
-    formation: [
-      { titre: 'Diplôme Fédéral Entraîneur Gardiens de But', organisme: 'FFHG', annee: '2022' },
-      { titre: 'BPJEPS Hockey sur glace',                    organisme: 'CREPS Montpellier', annee: '2021' },
+      { periode: '2026 – présent', club: 'Montpellier HC',     division: 'D2',     detail: 'Gardien' },
+      { periode: '2024 – 2026',   club: 'Valenciennes HC',     division: 'D2',     detail: 'Gardien' },
+      { periode: '2022 – 2024',   club: 'Rouen Dragons',       division: 'Magnus', detail: 'Backup · 25 matchs en 2022/23' },
+      { periode: 'Jusqu\'en 2022', club: 'Anglet Hormadi',     detail: 'Formation juniors' },
+      { periode: 'Formation',     club: 'Bordeaux HC',         detail: 'École de hockey' },
     ],
     etudes: [
-      { diplome: 'Master STAPS — Entraînement sportif', ecole: 'Université de Montpellier', annee: '2019' },
-      { diplome: 'Licence STAPS',                       ecole: 'Université de Montpellier', annee: '2017' },
+      { diplome: 'Licence STAPS — Entraînement sportif', ecole: 'Spécialité hockey sur glace', annee: 'En cours' },
     ],
     palmares: [
-      '2× Champion Ligue Magnus (2022, 2023)',
-      'International équipe de France jeunes U20',
-      'MVP Gardiens — Saison régulière 2023',
+      'International équipe de France U20 — Mondiaux D1B, Tallinn 2021',
+      'Sélections équipe de France U16, U18, U20',
     ],
   },
+  // ── Les autres fondateurs complèteront leur fiche eux-mêmes ───────────────
   'Pacôme Courtoison': {
     photo:     '/images/pacôme courtoison.jpeg',
-    role_angb: 'Fondateur · Représentant Magnus',
-    parcours: [
-      { periode: '2022 – présent', club: 'Grenoble Brûleurs de Loups', division: 'Magnus', detail: 'Gardien' },
-      { periode: '2019 – 2022',   club: 'Tours FC',                    division: 'D1',     detail: 'Gardien titulaire' },
-      { periode: '2017 – 2019',   club: 'Angers Ducs',                 division: 'D1',     detail: 'Formation' },
-    ],
-    formation: [
-      { titre: 'Certificat Fédéral Gardien de But', organisme: 'FFHG', annee: '2021' },
-    ],
-    etudes: [
-      { diplome: 'BTS Management des Unités Commerciales', ecole: 'Lycée Professionnel Grenoble', annee: '2018' },
-    ],
-    palmares: [
-      'Finaliste Coupe de France (2023)',
-      'Sélectionné stage national gardiens FFHG (2022)',
-    ],
+    role_angb: 'Fondateur',
   },
   'Steven Catelin': {
     photo:     '/images/steven catelin.png',
-    role_angb: 'Fondateur · Trésorier',
-    parcours: [
-      { periode: '2021 – présent', club: 'Rouen Dragons',     division: 'Magnus', detail: 'Gardien' },
-      { periode: '2018 – 2021',   club: 'Amiens Gothiques',   division: 'D1',     detail: 'Gardien titulaire' },
-      { periode: '2015 – 2018',   club: 'Dunkerque',          division: 'D2',     detail: 'Gardien titulaire' },
-    ],
-    formation: [
-      { titre: 'Diplôme Fédéral Entraîneur Gardiens',   organisme: 'FFHG',           annee: '2020' },
-      { titre: 'Formation Arbitre Officiel',             organisme: 'Ligue Normandie', annee: '2018' },
-    ],
-    etudes: [
-      { diplome: 'DUT Gestion des Entreprises et Administrations', ecole: 'IUT Rouen', annee: '2016' },
-    ],
-    palmares: [
-      '1× Finaliste Ligue Magnus (2022)',
-      'Formateur certifié FFHG — Gardiens de but',
-    ],
+    role_angb: 'Fondateur',
   },
   'Flo Gourdin': {
     photo:     '/images/flo gourdin.jpg',
-    role_angb: 'Fondateur · Référent technique',
-    parcours: [
-      { periode: '2020 – présent', club: 'Bordeaux Boxers',       division: 'D1',         detail: 'Gardien titulaire + Entraîneur gardiens' },
-      { periode: '2016 – 2020',   club: 'Limoges Hockey',         division: 'D2',         detail: 'Gardien titulaire' },
-      { periode: '2013 – 2016',   club: 'HC Périgueux',           division: 'Régionale',  detail: 'Formation' },
-    ],
-    formation: [
-      { titre: "DEJEPS Hockey sur glace — Entraîneur",             organisme: 'CREPS Bordeaux', annee: '2021' },
-      { titre: 'Certifié Entraîneur Gardiens Niveau 2',            organisme: 'FFHG',           annee: '2019' },
-    ],
-    etudes: [
-      { diplome: "Licence Pro Activités Sportives — Entraînement", ecole: 'Université de Bordeaux', annee: '2015' },
-    ],
-    palmares: [
-      "Entraîneur des gardiens — Équipe de France junior (2023)",
-      'Champion Régional Nouvelle-Aquitaine (2019, 2020)',
-    ],
+    role_angb: 'Fondateur',
   },
   'Jean-JP Fontaine': {
     photo:     '/images/jean jp fontaine.jpg',
-    role_angb: 'Fondateur · Secrétaire général',
-    parcours: [
-      { periode: '2019 – présent', club: 'Amiens Gothiques',    division: 'D1',  detail: 'Gardien senior' },
-      { periode: '2014 – 2019',   club: 'Reims Hockey 89',      division: 'D2',  detail: 'Capitaine' },
-      { periode: '2010 – 2014',   club: 'Dijon Hockey Club',    division: 'D2',  detail: 'Gardien titulaire' },
-      { periode: '2007 – 2010',   club: 'Champagne Hockey',     division: 'D3',  detail: 'Formation' },
-    ],
-    formation: [
-      { titre: 'Certificat Fédéral Gardien de But',       organisme: 'FFHG',  annee: '2016' },
-      { titre: 'Formation Gestion associative sportive',  organisme: 'CNOSF', annee: '2020' },
-    ],
-    etudes: [
-      { diplome: 'Master Droit du Sport', ecole: 'Université de Reims', annee: '2012' },
-      { diplome: 'Licence Droit',         ecole: 'Université de Reims', annee: '2010' },
-    ],
-    palmares: [
-      'Capitaine pendant 5 saisons consécutives à Reims',
-      '15+ ans de carrière active (D1/D2)',
-      'Référent FFHG — Ligue Hauts-de-France',
-    ],
+    role_angb: 'Fondateur',
   },
   'Adrien Vazzaz': {
     photo:     '/images/adrien vazzaz.jpg',
-    role_angb: 'Fondateur · Responsable communication',
-    parcours: [
-      { periode: '2023 – présent', club: 'Paris Hockey 92',  division: 'D2',  detail: 'Gardien titulaire' },
-      { periode: '2021 – 2023',   club: 'HC Boulogne',       division: 'D3',  detail: 'Gardien' },
-    ],
-    formation: [
-      { titre: 'Initiation Entraîneur Gardiens Niveau 1', organisme: 'FFHG', annee: '2024' },
-    ],
-    etudes: [
-      { diplome: 'Master Communication et Médias Sportifs', ecole: 'ESSCA Paris', annee: '2025' },
-      { diplome: 'Bachelor Marketing Digital',              ecole: 'ESSCA Paris', annee: '2023' },
-    ],
-    palmares: [
-      'Meilleur Gardien — Tournoi de la Défense 2024',
-      'Gérant de la communication digitale ANGB (10k+ abonnés)',
-    ],
+    role_angb: 'Fondateur',
   },
 }
 
