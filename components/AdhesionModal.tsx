@@ -8,7 +8,9 @@ interface Props {
   onClose: () => void
 }
 
-const DIVISIONS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale', 'Loisir', 'Sans club']
+const DIVISIONS_SENIORS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine']
+const DIVISIONS_JEUNES  = ['U21', 'U18', 'U15', 'U13', 'U11', 'U9', 'U7', 'École de hockey']
+const DIVISIONS_AUTRES  = ['Loisir', 'Sans club']
 
 type Step = 1 | 2 | 3 | 4 | 5
 
@@ -22,6 +24,7 @@ interface FormData {
   club: string
   statut: string
   division: string
+  categorie_enfant: string   // optionnel — visible si statut === 'parent'
   cotisation: string
   accept_statuts: boolean
   accept_rgpd: boolean
@@ -38,6 +41,7 @@ const emptyForm: FormData = {
   club: '',
   statut: '',
   division: '',
+  categorie_enfant: '',
   cotisation: '',
   accept_statuts: false,
   accept_rgpd: false,
@@ -285,10 +289,11 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                   <Field label="Statut *" error={errors.statut}>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { value: 'gardien_actif', label: 'Gardien actif' },
-                        { value: 'ancien_gardien', label: 'Ancien gardien' },
+                        { value: 'gardien_actif',      label: 'Gardien actif' },
+                        { value: 'ancien_gardien',     label: 'Ancien gardien' },
                         { value: 'entraineur_gardien', label: 'Entraîneur gardien' },
-                        { value: 'membre_soutien', label: 'Membre soutien' },
+                        { value: 'parent',             label: 'Parent / tuteur' },
+                        { value: 'membre_soutien',     label: 'Membre soutien' },
                       ].map(opt => (
                         <button
                           key={opt.value}
@@ -314,11 +319,37 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                       onChange={e => set('division', e.target.value)}
                     >
                       <option value="">Choisir une division</option>
-                      {DIVISIONS.map(d => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
+                      <optgroup label="Compétitions seniors">
+                        {DIVISIONS_SENIORS.map(d => <option key={d} value={d}>{d}</option>)}
+                      </optgroup>
+                      <optgroup label="Catégories jeunes">
+                        {DIVISIONS_JEUNES.map(d => <option key={d} value={d}>{d}</option>)}
+                      </optgroup>
+                      <optgroup label="Autre">
+                        {DIVISIONS_AUTRES.map(d => <option key={d} value={d}>{d}</option>)}
+                      </optgroup>
                     </select>
                   </Field>
+
+                  {/* Champ optionnel pour les parents : catégorie de l'enfant */}
+                  {form.statut === 'parent' && (
+                    <Field label="Catégorie de l'enfant (optionnel)" error={errors.categorie_enfant}>
+                      <select
+                        className={inputCls('categorie_enfant')}
+                        style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                        value={form.categorie_enfant}
+                        onChange={e => set('categorie_enfant', e.target.value)}
+                      >
+                        <option value="">Choisir une catégorie</option>
+                        <optgroup label="Catégories jeunes">
+                          {DIVISIONS_JEUNES.map(d => <option key={d} value={d}>{d}</option>)}
+                        </optgroup>
+                        <optgroup label="Compétitions seniors">
+                          {DIVISIONS_SENIORS.map(d => <option key={d} value={d}>{d}</option>)}
+                        </optgroup>
+                      </select>
+                    </Field>
+                  )}
                 </div>
               )}
 

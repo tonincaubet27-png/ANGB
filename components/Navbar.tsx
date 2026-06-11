@@ -88,6 +88,7 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
 
             {user ? (
               /* ── User connecté ── */
+              <>
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenu(v => !v)}
@@ -133,6 +134,15 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
                   </div>
                 )}
               </div>
+
+              {/* Bouton Adhésion — visible même connecté */}
+              <button
+                onClick={onOpenAdhesion}
+                className="px-4 py-2 rounded-lg text-[11px] font-extrabold uppercase tracking-[0.12em] transition-all hover:opacity-90 active:scale-95"
+                style={{ background: 'var(--accent)', color: '#fff', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
+                Adhésion
+              </button>
+              </>
             ) : (
               /* ── Non connecté ── */
               <div className="flex items-center gap-2">
@@ -146,7 +156,7 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
                   onClick={onOpenAdhesion}
                   className="px-4 py-2 rounded-lg text-[11px] font-extrabold uppercase tracking-[0.12em] transition-all hover:opacity-90 active:scale-95"
                   style={{ background: 'var(--accent)', color: '#fff', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
-                  Rejoindre
+                  Adhésion
                 </button>
               </div>
             )}
