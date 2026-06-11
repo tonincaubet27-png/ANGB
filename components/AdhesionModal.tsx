@@ -53,6 +53,8 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
   const [form, setForm] = useState<FormData>(emptyForm)
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
   const [submitted, setSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [docOpen, setDocOpen] = useState<'statuts' | 'reglement' | null>(null)
 
   if (!isOpen) return null
@@ -106,7 +108,9 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
 
   const submit = async () => {
     if (!validateStep()) return
-    await submitAdhesion({
+    setSubmitting(true)
+    setSubmitError('')
+    const result = await submitAdhesion({
       nom:               form.nom,
       prenom:            form.prenom,
       date_naissance:    form.date_naissance || null,
@@ -116,12 +120,18 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
       club:              form.club || null,
       statut:            form.statut.length > 0 ? form.statut.join(', ') : null,
       division:          form.division || null,
+      categorie_enfant:  form.categorie_enfant || null,
       cotisation:        form.cotisation || null,
       accept_statuts:    form.accept_statuts,
       accept_rgpd:       form.accept_rgpd,
       autorisation_image: form.autorisation_image,
     })
-    setSubmitted(true)
+    setSubmitting(false)
+    if (!result.ok) {
+      setSubmitError(result.error ?? 'Une erreur est survenue, veuillez réessayer.')
+    } else {
+      setSubmitted(true)
+    }
   }
 
   const handleClose = () => {
@@ -502,7 +512,12 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
               )}
 
               {/* Navigation */}
-              <div className="flex gap-3 mt-6 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+              {submitError && (
+                <div className="mt-4 px-4 py-3 rounded-lg text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5' }}>
+                  ⚠️ {submitError}
+                </div>
+              )}
+              <div className="flex gap-3 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 {step > 1 && (
                   <button
                     onClick={prev}
@@ -523,10 +538,11 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                 ) : (
                   <button
                     onClick={submit}
-                    className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                     style={{ background: 'var(--accent)' }}
                   >
-                    Envoyer ma demande d'adhésion
+                    {submitting ? '⏳ Envoi en cours…' : 'Envoyer ma demande d\'adhésion'}
                   </button>
                 )}
               </div>

@@ -243,11 +243,21 @@ export async function createPost(payload: {
 export async function submitAdhesion(
   payload: Record<string, unknown>
 ): Promise<{ ok: boolean; error?: string }> {
-  const client = getClient()
-  if (!client) return { ok: true }
-  const { error } = await client.from('adhesion_requests').insert(payload)
-  if (error) return { ok: false, error: error.message }
-  return { ok: true }
+  // Passe par l'API route server-side : sauvegarde Supabase + email Resend
+  try {
+    const res = await fetch('/api/adhesion', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({})) as { error?: string }
+      return { ok: false, error: data.error ?? 'Erreur serveur' }
+    }
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Erreur réseau — vérifiez votre connexion' }
+  }
 }
 
 export async function createContactRequest(
