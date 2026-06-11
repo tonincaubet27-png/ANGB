@@ -5,6 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card'
+import { HoverEffect } from '@/components/ui/card-hover-effect'
+import type { HoverItem } from '@/components/ui/card-hover-effect'
+import { Spotlight } from '@/components/ui/spotlight'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -94,13 +97,13 @@ const STATS = [
   { value: '2026',  label: 'Année de fondation',  sub: 'Association loi 1901',    color: 'red'   as const },
 ]
 
-const FEATURES = [
-  { href: '/association', icon: '🏒', title: "L'association",     desc: "Mission, équipe, axes stratégiques et fonctionnement de l'ANGB.", color: 'blue' },
-  { href: '/association', icon: '🎓', title: 'Formation',         desc: "Diplôme d'État gardien, label Club Formateur, réseau d'entraîneurs.", color: 'red' },
-  { href: '/association', icon: '🩺', title: 'Santé',             desc: '67% jouent blessés. Protocoles de prévention et suivi médical.', color: 'blue' },
-  { href: '/equipement',  icon: '🛡️', title: 'Bourse équipement', desc: 'Achat et vente de matériel entre membres de la communauté.', color: 'red' },
-  { href: '/forum',       icon: '💬', title: 'Forum',             desc: 'Échanges entre gardiens, entraîneurs et structures de tous niveaux.', color: 'blue' },
-  { href: '/annuaire',    icon: '📋', title: 'Annuaire',          desc: 'Répertoire des gardiens actifs en France par division et région.', color: 'red' },
+const FEATURES: HoverItem[] = [
+  { link: '/association', icon: '🏒', title: "L'association",     description: "Mission, équipe, axes stratégiques et fonctionnement de l'ANGB.", accent: '#002395' },
+  { link: '/association', icon: '🎓', title: 'Formation',         description: "Diplôme d'État gardien, label Club Formateur, réseau d'entraîneurs.", accent: '#ED2939' },
+  { link: '/association', icon: '🩺', title: 'Santé',             description: '67% jouent blessés. Protocoles de prévention et suivi médical.', accent: '#002395' },
+  { link: '/equipement',  icon: '🛡️', title: 'Bourse équipement', description: 'Achat et vente de matériel entre membres de la communauté.', accent: '#ED2939' },
+  { link: '/forum',       icon: '💬', title: 'Forum',             description: 'Échanges entre gardiens, entraîneurs et structures de tous niveaux.', accent: '#002395' },
+  { link: '/annuaire',    icon: '📋', title: 'Annuaire',          description: 'Répertoire des gardiens actifs en France par division et région.', accent: '#ED2939' },
 ]
 
 const GALLERY = [
@@ -408,57 +411,7 @@ export default function HomePage() {
             sub="Six axes pour structurer, protéger et développer la communauté des gardiens français."
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {FEATURES.map(({ href, icon, title, desc, color }, i) => (
-              <motion.div
-                key={title}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ duration: 0.5, delay: i * 0.07 }}
-              >
-                <CardContainer containerClassName="w-full">
-                  <CardBody
-                    className="relative rounded-2xl p-6 flex flex-col h-full"
-                    style={{
-                      background: 'var(--navy-card)',
-                      border: '1px solid var(--border)',
-                      borderTop: `3px solid ${color === 'blue' ? '#002395' : '#ED2939'}`,
-                    }}>
-
-                    {/* Icône flottante */}
-                    <CardItem translateZ={80} className="mb-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                        style={{ background: 'var(--navy-light)' }}>
-                        {icon}
-                      </div>
-                    </CardItem>
-
-                    {/* Titre */}
-                    <CardItem translateZ={50} className="mb-2">
-                      <h3 className="text-xl"
-                        style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
-                        {title}
-                      </h3>
-                    </CardItem>
-
-                    {/* Description */}
-                    <CardItem as="p" translateZ={30} className="text-sm leading-relaxed flex-1 mb-4"
-                      style={{ color: 'var(--gray)' }}>
-                      {desc}
-                    </CardItem>
-
-                    {/* Lien */}
-                    <CardItem translateZ={20} as={Link} href={href}
-                      className="text-[11px] font-bold uppercase tracking-wide"
-                      style={{ color: color === 'blue' ? '#4a7fff' : '#ED2939' }}>
-                      En savoir plus →
-                    </CardItem>
-                  </CardBody>
-                </CardContainer>
-              </motion.div>
-            ))}
-          </div>
+          <HoverEffect items={FEATURES} />
         </div>
       </section>
 
@@ -470,12 +423,35 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative overflow-hidden rounded-3xl p-12 md:p-20 text-center"
+            className="relative overflow-hidden rounded-3xl p-12 md:p-20 text-center antialiased"
             style={{
-              background: 'linear-gradient(135deg, rgba(0,35,149,0.22) 0%, var(--navy-card) 50%, rgba(237,41,57,0.12) 100%)',
+              background: 'rgba(7,11,21,0.97)',
               border: '1px solid rgba(0,35,149,0.25)',
             }}
           >
+            {/* Grille décorative (fond) */}
+            <div
+              className="pointer-events-none absolute inset-0 select-none"
+              style={{
+                backgroundImage: [
+                  'linear-gradient(to right, rgba(0,35,149,0.07) 1px, transparent 1px)',
+                  'linear-gradient(to bottom, rgba(0,35,149,0.07) 1px, transparent 1px)',
+                ].join(', '),
+                backgroundSize: '40px 40px',
+              }}
+            />
+
+            {/* Spotlight bleu France */}
+            <Spotlight
+              className="-top-40 left-0 md:-top-20 md:left-60"
+              fill="#002395"
+            />
+            {/* Second spotlight rouge discret */}
+            <Spotlight
+              className="-top-20 right-0 md:right-20"
+              fill="#ED2939"
+            />
+
             {/* Barre tricolore top */}
             <div className="absolute top-0 left-0 right-0 h-[4px] flex">
               <div className="flex-1" style={{ background: '#002395' }} />

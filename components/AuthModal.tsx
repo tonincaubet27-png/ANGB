@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getClient } from '@/lib/supabase-client'
 import {
@@ -13,7 +13,7 @@ import type { GoalieProfile } from '@/lib/types'
 
 const DIVISIONS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
 
-type Step = 'auth' | 'role' | 'gardien' | 'parent' | 'success'
+type Step = 'auth' | 'role' | 'gardien' | 'parent' | 'success' | 'confirm'
 
 export default function AuthModal() {
   const { user, authOpen, authMode, needsSetup, closeAuth, clearNeedsSetup, refreshProfile, isConfigured } = useAuth()
@@ -41,21 +41,38 @@ export default function AuthModal() {
   const [loading,  setLoading] = useState(false)
   const [error,    setError]   = useState('')
 
+  // Ref pour éviter la race condition : onAuthStateChange se déclenche
+  // pendant la création de compte et réinitialiserait le step
+  const registeringRef = useRef(false)
+  // Ref non-réactive sur user (évite closure périmée dans l'effet)
+  const userRef = useRef(user)
+  useEffect(() => { userRef.current = user }, [user])
+  // Ref pour détecter si la modale vient de s'ouvrir (ouverture fraîche)
+  const prevAuthOpenRef = useRef(authOpen)
+
   // Sync mode quand le context change
   useEffect(() => {
-    if (authOpen) {
-      if (needsSetup && user) {
-        // Connexion Google OK mais pas de profil encore → sauter l'auth, aller au choix de rôle
-        setStep('role')
-        const googleName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
-        if (googleName) setName(googleName)
-      } else {
-        setMode(authMode)
-        setStep('auth')
-      }
-      setError('')
+    const justOpened = !prevAuthOpenRef.current && authOpen
+    prevAuthOpenRef.current = authOpen
+
+    if (!authOpen) return
+    if (registeringRef.current) return   // inscription en cours → ne pas toucher au step
+
+    if (needsSetup && userRef.current) {
+      // OAuth sans profil encore → aller au choix de rôle
+      setStep('role')
+      const googleName = userRef.current.user_metadata?.full_name ?? userRef.current.user_metadata?.name ?? ''
+      if (googleName) setName(googleName)
+    } else if (justOpened) {
+      // Réinitialiser UNIQUEMENT quand la modale s'ouvre pour la première fois,
+      // pas sur les changements de needsSetup/authMode en cours de flow
+      setMode(authMode)
+      setStep('auth')
     }
-  }, [authOpen, authMode, needsSetup, user])
+    if (justOpened) setError('')
+    // `user` intentionnellement absent des deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authOpen, authMode, needsSetup])
 
   // Fermer avec Escape
   useEffect(() => {
@@ -66,6 +83,7 @@ export default function AuthModal() {
   }, [authOpen])
 
   const handleClose = () => {
+    registeringRef.current = false   // reset au cas où l'utilisateur ferme en pleine inscription
     if (needsSetup) clearNeedsSetup() // annule le setup sans recréer la modale
     else closeAuth()
     setTimeout(() => {
@@ -133,7 +151,15 @@ export default function AuthModal() {
     const client = getClient()!
     const { error: err } = await client.auth.signInWithPassword({ email, password })
     setLoading(false)
-    if (err) { setError('Email ou mot de passe incorrect.'); return }
+    if (err) {
+      const msg = err.message.toLowerCase()
+      if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
+        setError('Email non confirmé. Vérifiez votre boîte mail et cliquez sur le lien de confirmation.')
+      } else {
+        setError('Email ou mot de passe incorrect.')
+      }
+      return
+    }
     await refreshProfile()
     handleClose()
   }
@@ -153,6 +179,7 @@ export default function AuthModal() {
   // ── Étape 3a : créer profil gardien ───────────────────────────────────────
   const handleCreateGardien = async () => {
     if (!club || !region) { setError('Club et région requis.'); return }
+    registeringRef.current = true   // bloque toute réinitialisation du step
     setLoading(true); setError('')
     const client = getClient()!
 
@@ -166,14 +193,21 @@ export default function AuthModal() {
       // Met à jour le profil créé par le trigger (rôle + nom)
       await createUserProfile(userId, 'gardien', displayName)
     } else {
-      // Le trigger DB crée automatiquement la ligne profiles
       const { data, error: signUpErr } = await client.auth.signUp({
         email, password,
         options: { data: { display_name: displayName, role: 'gardien' } },
       })
       if (signUpErr || !data.user) {
+        registeringRef.current = false
         setLoading(false)
         setError(signUpErr?.message ?? 'Erreur inscription.')
+        return
+      }
+      // Pas de session → confirmation email requise
+      if (!data.session) {
+        registeringRef.current = false
+        setLoading(false)
+        setStep('confirm')
         return
       }
       userId = data.user.id
@@ -192,9 +226,14 @@ export default function AuthModal() {
       ...(photoUrl ? { photo_url: photoUrl } : {}),
     })
     setLoading(false)
-    if (!ok) { setError('Erreur création fiche gardien : ' + (gErr ?? '')); return }
+    if (!ok) {
+      registeringRef.current = false
+      setError('Erreur création fiche gardien : ' + (gErr ?? ''))
+      return
+    }
     await refreshProfile()
     setStep('success')
+    registeringRef.current = false   // libéré APRÈS le success pour éviter tout reset
   }
 
   // ── Étape 3b : parent — recherche enfant ──────────────────────────────────
@@ -207,6 +246,7 @@ export default function AuthModal() {
 
   // ── Étape 3b : créer compte parent + lier ────────────────────────────────
   const handleCreateParent = async () => {
+    registeringRef.current = true   // bloque toute réinitialisation du step
     setLoading(true); setError('')
     const client = getClient()!
 
@@ -219,14 +259,21 @@ export default function AuthModal() {
       if (!displayName) displayName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
       await createUserProfile(userId, 'parent', displayName)
     } else {
-      // Le trigger DB crée automatiquement la ligne profiles
       const { data, error: signUpErr } = await client.auth.signUp({
         email, password,
         options: { data: { display_name: displayName, role: 'parent' } },
       })
       if (signUpErr || !data.user) {
+        registeringRef.current = false
         setLoading(false)
         setError(signUpErr?.message ?? 'Erreur inscription.')
+        return
+      }
+      // Pas de session → confirmation email requise
+      if (!data.session) {
+        registeringRef.current = false
+        setLoading(false)
+        setStep('confirm')
         return
       }
       userId = data.user.id
@@ -236,6 +283,7 @@ export default function AuthModal() {
     setLoading(false)
     await refreshProfile()
     setStep('success')
+    registeringRef.current = false   // libéré APRÈS le success
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -443,6 +491,37 @@ export default function AuthModal() {
                         {loading ? 'Création…' : selected ? `Relier à ${selected.name} →` : 'Continuer sans relier'}
                       </button>
                       <BackBtn onClick={() => setStep('role')} />
+                    </motion.div>
+                  )}
+
+                  {/* ── STEP CONFIRM EMAIL ── */}
+                  {step === 'confirm' && (
+                    <motion.div key="confirm"
+                      initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                      className="text-center py-4">
+                      <div className="text-5xl mb-4">📧</div>
+                      <h3 className="text-xl font-bold mb-2"
+                        style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em' }}>
+                        Confirmez votre email
+                      </h3>
+                      <p className="text-sm mb-2" style={{ color: 'var(--gray)' }}>
+                        Un lien de confirmation a été envoyé à
+                      </p>
+                      <p className="text-sm font-bold mb-4" style={{ color: '#4a7fff' }}>{email}</p>
+                      <div className="px-4 py-3 rounded-xl text-xs text-left space-y-1.5 mb-5"
+                        style={{ background: 'rgba(74,127,255,0.08)', border: '1px solid rgba(74,127,255,0.2)' }}>
+                        <p style={{ color: 'var(--white)' }}>① Ouvrez votre boîte mail</p>
+                        <p style={{ color: 'var(--white)' }}>② Cliquez sur le lien de confirmation</p>
+                        <p style={{ color: 'var(--white)' }}>③ Revenez ici et connectez-vous</p>
+                        <p className="pt-1" style={{ color: 'var(--gray)' }}>
+                          Votre profil (club, division, région) sera complété à la première connexion.
+                        </p>
+                      </div>
+                      <button onClick={handleClose}
+                        className="px-6 py-2.5 rounded-xl text-sm font-bold"
+                        style={{ background: 'var(--accent)', color: '#fff' }}>
+                        J'ai compris
+                      </button>
                     </motion.div>
                   )}
 
