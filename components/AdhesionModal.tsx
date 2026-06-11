@@ -53,6 +53,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
   const [form, setForm] = useState<FormData>(emptyForm)
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
   const [submitted, setSubmitted] = useState(false)
+  const [docOpen, setDocOpen] = useState<'statuts' | 'reglement' | null>(null)
 
   if (!isOpen) return null
 
@@ -187,6 +188,34 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
             </div>
           )}
         </div>
+
+        {/* ── Overlay documents ──────────────────────────────────── */}
+        {docOpen && (
+          <div className="absolute inset-0 z-20 rounded-2xl flex flex-col overflow-hidden" style={{ background: 'var(--navy-mid)' }}>
+            {/* Header */}
+            <div className="sticky top-0 z-10 px-6 pt-6 pb-4 flex items-center justify-between flex-shrink-0"
+              style={{ background: 'var(--navy-mid)', borderBottom: '1px solid var(--border)' }}>
+              <h3 className="text-xl tracking-widest" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)' }}>
+                {docOpen === 'statuts' ? 'Statuts de l\'ANGB' : 'Règlement intérieur'}
+              </h3>
+              <button onClick={() => setDocOpen(null)} className="p-2 rounded-lg hover:bg-white/10 text-lg" style={{ color: 'var(--gray)' }}>✕</button>
+            </div>
+            {/* Contenu scrollable */}
+            <div className="overflow-y-auto flex-1 px-6 py-5">
+              {docOpen === 'statuts' ? <StatutsContent /> : <ReglementContent />}
+            </div>
+            {/* Footer */}
+            <div className="flex-shrink-0 px-6 pb-6 pt-3" style={{ borderTop: '1px solid var(--border)', background: 'var(--navy-mid)' }}>
+              <button
+                onClick={() => setDocOpen(null)}
+                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ background: 'var(--accent)' }}
+              >
+                ← Retour au bulletin
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="px-6 pb-6">
           {/* SUCCESS */}
@@ -446,9 +475,9 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                     required
                   >
                     J'accepte les{' '}
-                    <a href="#" className="underline" style={{ color: 'var(--accent)' }}>statuts</a>
+                    <button type="button" onClick={() => setDocOpen('statuts')} className="underline font-semibold" style={{ color: 'var(--accent)' }}>statuts</button>
                     {' '}et le{' '}
-                    <a href="#" className="underline" style={{ color: 'var(--accent)' }}>règlement intérieur</a>
+                    <button type="button" onClick={() => setDocOpen('reglement')} className="underline font-semibold" style={{ color: 'var(--accent)' }}>règlement intérieur</button>
                     {' '}de l'ANGB *
                   </CheckboxField>
 
@@ -529,6 +558,143 @@ function Field({
   )
 }
 
+// ── Contenu des documents ──────────────────────────────────────────────────────
+
+function DocSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-5">
+      <h4 className="text-sm font-bold mb-2 uppercase tracking-wider" style={{ color: 'var(--white)' }}>{title}</h4>
+      <div className="text-sm leading-relaxed space-y-1.5" style={{ color: 'var(--gray)' }}>{children}</div>
+    </div>
+  )
+}
+
+function StatutsContent() {
+  return (
+    <div>
+      <p className="text-xs mb-5 px-3 py-2 rounded-lg" style={{ background: 'rgba(74,127,255,0.08)', color: 'var(--gray)', border: '1px solid rgba(74,127,255,0.15)' }}>
+        Statuts adoptés lors de l'Assemblée Générale constitutive — Association régie par la loi du 1er juillet 1901.
+      </p>
+
+      <DocSection title="Article 1 — Dénomination">
+        <p>Il est fondé entre les adhérents aux présents statuts une association régie par la loi du 1er juillet 1901 et le décret du 16 août 1901, ayant pour titre : <strong style={{ color: 'var(--white)' }}>Association Nationale des Gardiens de But (ANGB)</strong>.</p>
+      </DocSection>
+
+      <DocSection title="Article 2 — Objet">
+        <p>L'association a pour objet :</p>
+        <ul className="list-disc list-inside space-y-1 mt-1 ml-2">
+          <li>La promotion et le développement du poste de gardien de but en hockey sur glace en France</li>
+          <li>La mise en réseau des gardiens de but amateurs et professionnels</li>
+          <li>Le soutien technique, moral et administratif de ses membres</li>
+          <li>L'organisation d'événements, stages et formations liés au poste de gardien de but</li>
+          <li>La représentation des intérêts des gardiens de but auprès des instances fédérales</li>
+        </ul>
+      </DocSection>
+
+      <DocSection title="Article 3 — Siège social">
+        <p>Le siège social est fixé en France. Il pourra être transféré par décision du Conseil d'Administration.</p>
+      </DocSection>
+
+      <DocSection title="Article 4 — Durée">
+        <p>L'association est constituée pour une durée indéterminée.</p>
+      </DocSection>
+
+      <DocSection title="Article 5 — Membres">
+        <p>L'association comprend :</p>
+        <ul className="list-disc list-inside space-y-1 mt-1 ml-2">
+          <li><strong style={{ color: 'var(--white)' }}>Membres actifs</strong> — gardiens de but ou anciens gardiens en règle de cotisation, disposant du droit de vote en Assemblée Générale</li>
+          <li><strong style={{ color: 'var(--white)' }}>Membres soutien</strong> — clubs, entraîneurs gardiens, parents, professionnels de santé contribuant à l'objet associatif</li>
+          <li><strong style={{ color: 'var(--white)' }}>Membres d'honneur</strong> — personnes ayant rendu des services signalés à l'association, sur décision du Conseil d'Administration</li>
+        </ul>
+      </DocSection>
+
+      <DocSection title="Article 6 — Cotisations">
+        <p>Le montant des cotisations annuelles est fixé chaque année par l'Assemblée Générale sur proposition du Conseil d'Administration. Des exonérations peuvent être accordées aux mineurs, aux étudiants et aux membres du bureau sur justificatif.</p>
+      </DocSection>
+
+      <DocSection title="Article 7 — Assemblée Générale">
+        <p>L'Assemblée Générale comprend tous les membres à jour de leur cotisation. Elle se réunit au moins une fois par an. Elle délibère sur les rapports moral et financier, et élit les membres du Conseil d'Administration. Les décisions sont prises à la majorité simple des membres présents ou représentés.</p>
+      </DocSection>
+
+      <DocSection title="Article 8 — Conseil d'Administration">
+        <p>Le Conseil d'Administration est composé de 3 à 12 membres élus pour 2 ans. Il se réunit au moins deux fois par an et est chargé de l'administration courante de l'association.</p>
+      </DocSection>
+
+      <DocSection title="Article 9 — Bureau">
+        <p>Le Conseil d'Administration élit parmi ses membres un Bureau composé d'un(e) Président(e), d'un(e) Vice-Président(e), d'un(e) Secrétaire et d'un(e) Trésorier(ère).</p>
+      </DocSection>
+
+      <DocSection title="Article 10 — Ressources">
+        <p>Les ressources de l'association comprennent les cotisations, les subventions, les dons et toute autre ressource autorisée par la loi.</p>
+      </DocSection>
+
+      <DocSection title="Article 11 — Dissolution">
+        <p>En cas de dissolution volontaire ou judiciaire, les biens de l'association seront dévolus à une association ayant un objet similaire, désignée par l'Assemblée Générale extraordinaire.</p>
+      </DocSection>
+    </div>
+  )
+}
+
+function ReglementContent() {
+  return (
+    <div>
+      <p className="text-xs mb-5 px-3 py-2 rounded-lg" style={{ background: 'rgba(74,127,255,0.08)', color: 'var(--gray)', border: '1px solid rgba(74,127,255,0.15)' }}>
+        Le présent règlement intérieur précise et complète les statuts de l'ANGB. Il s'impose à tous les membres.
+      </p>
+
+      <DocSection title="Article 1 — Adhésion">
+        <p>Toute personne souhaitant adhérer doit remplir le bulletin d'adhésion et régler la cotisation correspondant à son statut. L'adhésion est valable pour l'année civile en cours. Le bureau se réserve le droit de refuser toute adhésion incompatible avec l'objet associatif.</p>
+      </DocSection>
+
+      <DocSection title="Article 2 — Comportement des membres">
+        <p>Les membres s'engagent à respecter les valeurs de l'association : <strong style={{ color: 'var(--white)' }}>bienveillance, fair-play, partage et solidarité</strong>. Tout comportement contraire — notamment toute forme de discrimination, de harcèlement ou de dénigrement — pourra faire l'objet de sanctions.</p>
+      </DocSection>
+
+      <DocSection title="Article 3 — Droits des membres actifs">
+        <p>Les membres actifs bénéficient :</p>
+        <ul className="list-disc list-inside space-y-1 mt-1 ml-2">
+          <li>Du droit de vote en Assemblée Générale</li>
+          <li>D'un accès préférentiel aux événements organisés par l'ANGB</li>
+          <li>D'une inscription dans l'annuaire des gardiens</li>
+          <li>D'un accompagnement dans leurs démarches sportives</li>
+        </ul>
+      </DocSection>
+
+      <DocSection title="Article 4 — Obligations des membres">
+        <p>Les membres s'engagent à :</p>
+        <ul className="list-disc list-inside space-y-1 mt-1 ml-2">
+          <li>Régler leur cotisation annuelle dans les délais impartis</li>
+          <li>Informer l'association de tout changement de coordonnées</li>
+          <li>Ne pas engager l'association auprès de tiers sans habilitation expresse du bureau</li>
+          <li>Respecter la confidentialité des informations partagées au sein de l'association</li>
+        </ul>
+      </DocSection>
+
+      <DocSection title="Article 5 — Protection des données (RGPD)">
+        <p>Conformément au Règlement Général sur la Protection des Données, les données personnelles des membres sont collectées dans le seul but de gérer les adhésions. Elles ne sont ni vendues ni transmises à des tiers. Chaque membre dispose d'un droit d'accès, de rectification et de suppression de ses données en contactant le bureau.</p>
+      </DocSection>
+
+      <DocSection title="Article 6 — Utilisation de l'image">
+        <p>L'ANGB peut utiliser le nom et l'image de ses membres dans ses communications officielles uniquement avec leur accord exprès, recueilli lors de l'adhésion ou par écrit ultérieurement.</p>
+      </DocSection>
+
+      <DocSection title="Article 7 — Sanctions">
+        <p>En cas de manquement aux présents statuts ou au règlement intérieur, le Conseil d'Administration peut prononcer :</p>
+        <ul className="list-disc list-inside space-y-1 mt-1 ml-2">
+          <li>Un avertissement écrit</li>
+          <li>Une suspension temporaire</li>
+          <li>Une radiation définitive</li>
+        </ul>
+        <p className="mt-1.5">Le membre concerné est informé par écrit et peut présenter ses observations avant toute décision.</p>
+      </DocSection>
+
+      <DocSection title="Article 8 — Modification du règlement">
+        <p>Le présent règlement intérieur peut être modifié par le Conseil d'Administration à la majorité absolue de ses membres. Les modifications sont portées à la connaissance des adhérents lors de la plus prochaine Assemblée Générale.</p>
+      </DocSection>
+    </div>
+  )
+}
+
 function CheckboxField({
   checked,
   onChange,
@@ -553,7 +719,6 @@ function CheckboxField({
             className="sr-only"
           />
           <div
-            onClick={() => onChange(!checked)}
             className="w-5 h-5 rounded border flex items-center justify-center transition-all cursor-pointer"
             style={{
               background: checked ? 'var(--accent)' : 'var(--navy-light)',
