@@ -22,7 +22,7 @@ interface FormData {
   email: string
   adresse: string
   club: string
-  statut: string
+  statut: string[]   // multi-sélection
   division: string
   categorie_enfant: string   // optionnel — visible si statut === 'parent'
   cotisation: string
@@ -39,7 +39,7 @@ const emptyForm: FormData = {
   email: '',
   adresse: '',
   club: '',
-  statut: '',
+  statut: [],
   division: '',
   categorie_enfant: '',
   cotisation: '',
@@ -61,6 +61,17 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
     setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
+  // Bascule un statut dans le tableau (toggle multi-sélection)
+  const toggleStatut = (value: string) => {
+    setForm(prev => ({
+      ...prev,
+      statut: prev.statut.includes(value)
+        ? prev.statut.filter(s => s !== value)
+        : [...prev.statut, value],
+    }))
+    setErrors(prev => ({ ...prev, statut: undefined }))
+  }
+
   const validateStep = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {}
 
@@ -72,7 +83,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
       if (!form.date_naissance) newErrors.date_naissance = 'Requis'
     }
     if (step === 2) {
-      if (!form.statut) newErrors.statut = 'Requis'
+      if (form.statut.length === 0) newErrors.statut = 'Sélectionne au moins un statut'
     }
     if (step === 3) {
       if (!form.cotisation) newErrors.cotisation = 'Requis'
@@ -102,7 +113,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
       email:             form.email,
       adresse:           form.adresse || null,
       club:              form.club || null,
-      statut:            form.statut || null,
+      statut:            form.statut.length > 0 ? form.statut.join(', ') : null,
       division:          form.division || null,
       cotisation:        form.cotisation || null,
       accept_statuts:    form.accept_statuts,
@@ -286,7 +297,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                       placeholder="Rouen Dragons"
                     />
                   </Field>
-                  <Field label="Statut *" error={errors.statut}>
+                  <Field label="Statut * (plusieurs choix possibles)" error={errors.statut}>
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { value: 'gardien_actif',      label: 'Gardien actif' },
@@ -294,21 +305,33 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                         { value: 'entraineur_gardien', label: 'Entraîneur gardien' },
                         { value: 'parent',             label: 'Parent / tuteur' },
                         { value: 'membre_soutien',     label: 'Membre soutien' },
-                      ].map(opt => (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => set('statut', opt.value)}
-                          className="px-3 py-2.5 rounded-lg text-sm text-left transition-all border"
-                          style={{
-                            background: form.statut === opt.value ? 'rgba(74,127,255,0.15)' : 'var(--navy-light)',
-                            borderColor: form.statut === opt.value ? 'var(--accent)' : 'transparent',
-                            color: form.statut === opt.value ? 'var(--white)' : 'var(--gray)',
-                          }}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
+                      ].map(opt => {
+                        const selected = form.statut.includes(opt.value)
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => toggleStatut(opt.value)}
+                            className="px-3 py-2.5 rounded-lg text-sm text-left transition-all border flex items-center gap-2"
+                            style={{
+                              background: selected ? 'rgba(74,127,255,0.15)' : 'var(--navy-light)',
+                              borderColor: selected ? 'var(--accent)' : 'transparent',
+                              color: selected ? 'var(--white)' : 'var(--gray)',
+                            }}
+                          >
+                            <span
+                              className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 text-[10px]"
+                              style={{
+                                background: selected ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
+                                color: 'white',
+                              }}
+                            >
+                              {selected ? '✓' : ''}
+                            </span>
+                            {opt.label}
+                          </button>
+                        )
+                      })}
                     </div>
                   </Field>
                   <Field label="Division / niveau" error={errors.division}>
@@ -332,7 +355,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                   </Field>
 
                   {/* Champ optionnel pour les parents : catégorie de l'enfant */}
-                  {form.statut === 'parent' && (
+                  {form.statut.includes('parent') && (
                     <Field label="Catégorie de l'enfant (optionnel)" error={errors.categorie_enfant}>
                       <select
                         className={inputCls('categorie_enfant')}
