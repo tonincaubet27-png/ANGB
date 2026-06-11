@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, warnings: errors.length ? errors : undefined })
+  if (errors.length) {
+    return NextResponse.json({ ok: false, error: errors.join(' | ') }, { status: 500 })
+  }
+  return NextResponse.json({ ok: true })
 }
 
 // ── Template email ────────────────────────────────────────────────────────────
