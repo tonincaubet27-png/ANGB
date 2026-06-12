@@ -159,7 +159,7 @@ function DocCard({ doc }: { doc: Doc }) {
   const tag = TAG_STYLES[doc.tagColor]
   return (
     <div
-      className="flex flex-col gap-3 p-5 rounded-xl transition-colors hover:border-white/10"
+      className="flex flex-col gap-3 p-5 rounded-xl transition-colors hover:border-white/10 card-lift"
       style={{
         background: 'var(--navy-mid)',
         border: '1px solid var(--border)',
@@ -293,33 +293,37 @@ export default function RessourcesPage() {
         <SectionDivider />
 
         {/* ── Section 2 — Règlements ────────────────────────────────────────── */}
-        <SectionHeader
-          label="Réglementation sportive"
-          labelColor="blue"
-          title="Règlements FFHG"
-          intro="Les textes qui encadrent directement le statut du gardien : participation aux compétitions, licences, mutations entre clubs et conditions spécifiques par division."
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {REGLEMENTS.map(doc => <DocCard key={doc.title} doc={doc} />)}
+        <div data-reveal>
+          <SectionHeader
+            label="Réglementation sportive"
+            labelColor="blue"
+            title="Règlements FFHG"
+            intro="Les textes qui encadrent directement le statut du gardien : participation aux compétitions, licences, mutations entre clubs et conditions spécifiques par division."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {REGLEMENTS.map(doc => <DocCard key={doc.title} doc={doc} />)}
+          </div>
         </div>
 
         <SectionDivider />
 
         {/* ── Section 3 — Éthique ───────────────────────────────────────────── */}
-        <SectionHeader
-          label="Cadre institutionnel"
-          labelColor="gray"
-          title="Éthique & discipline"
-          intro="Les textes de référence sur les valeurs, le cadre disciplinaire et les engagements éthiques au sein du hockey français."
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {ETHIQUE.map(doc => <DocCard key={doc.title} doc={doc} />)}
+        <div data-reveal>
+          <SectionHeader
+            label="Cadre institutionnel"
+            labelColor="gray"
+            title="Éthique & discipline"
+            intro="Les textes de référence sur les valeurs, le cadre disciplinaire et les engagements éthiques au sein du hockey français."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ETHIQUE.map(doc => <DocCard key={doc.title} doc={doc} />)}
+          </div>
         </div>
 
         <SectionDivider />
 
         {/* ── Bloc bas de page ──────────────────────────────────────────────── */}
-        <div
+        <div data-reveal
           className="p-6 md:p-8 rounded-2xl"
           style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
         >

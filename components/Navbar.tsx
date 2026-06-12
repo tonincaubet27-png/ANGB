@@ -11,6 +11,7 @@ interface NavbarProps {
 export default function Navbar({ onOpenAdhesion }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [userMenu, setUserMenu] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const userMenuRef             = useRef<HTMLDivElement>(null)
   const { user, profile, goalieProfile, openAuth, signOut } = useAuth()
 
@@ -21,6 +22,12 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
     }
     document.addEventListener('mousedown', h)
     return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const initials = (name: string) =>
@@ -42,10 +49,12 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
       <nav
         className="px-4 md:px-8 py-0"
         style={{
-          background: 'rgba(7,11,21,0.92)',
+          background: scrolled ? 'rgba(7,11,21,0.98)' : 'rgba(7,11,21,0.92)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.07)'}`,
+          boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.4)' : 'none',
+          transition: 'background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
         }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between" style={{ height: 56 }}>

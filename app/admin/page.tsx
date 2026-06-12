@@ -128,9 +128,6 @@ export default async function AdminPage({
             Administration — Demandes d'adhésion
           </h1>
           <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Association Nationale des Gardiens de But</p>
-          <p style={{ fontSize: 12, color: '#f59e0b', margin: '8px 0 0', fontFamily: 'monospace' }}>
-            DEBUG — requests.length: {requests.length} | dbError: &quot;{dbError}&quot;
-          </p>
         </div>
 
         {/* Erreur DB */}

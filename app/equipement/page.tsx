@@ -213,7 +213,7 @@ export default function EquipementPage() {
                     {filtered.map(l => {
                       const cond = CONDITION_COLOR[l.condition] ?? CONDITION_COLOR['usage']
                       return (
-                        <div key={l.id} className="p-5 rounded-2xl border flex flex-col gap-3 hover:border-accent/30 transition-colors"
+                        <div key={l.id} className="p-5 rounded-2xl border flex flex-col gap-3 hover:border-accent/30 transition-colors card-lift"
                           style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
                           {/* Image emoji */}
                           <div className="w-full h-24 rounded-xl flex items-center justify-center text-5xl"

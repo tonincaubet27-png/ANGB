@@ -49,7 +49,7 @@ function ThreadRow({ thread }: { thread: Thread }) {
   return (
     <Link
       href={`/forum/${thread.id}`}
-      className="flex items-center gap-4 p-4 rounded-xl border transition-all group"
+      className="flex items-center gap-4 p-4 rounded-xl border transition-all group card-lift"
       style={{ background: 'var(--navy-card)', borderColor: 'var(--border)' }}
     >
       {/* Avatar */}

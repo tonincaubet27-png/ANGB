@@ -6,10 +6,12 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import AdhesionModal from '@/components/AdhesionModal'
 import AuthModal from '@/components/AuthModal'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 /** Contenu intérieur — a accès au AuthContext */
 function Inner({ children }: { children: React.ReactNode }) {
   const [adhesionOpen, setAdhesionOpen] = useState(false)
+  useScrollReveal()
 
   return (
     <div className="flex flex-col min-h-screen">
