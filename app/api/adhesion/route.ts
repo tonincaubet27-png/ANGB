@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 
-const ADMIN_EMAIL = 'tonincaubet27@gmail.com'
+const ADMIN_EMAIL = 'tonin.caubet27@gmail.com'
 
 // ── Libellés lisibles ─────────────────────────────────────────────────────────
 const STATUT_LABELS: Record<string, string> = {
@@ -65,10 +65,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (errors.length) {
-    return NextResponse.json({ ok: false, error: errors.join(' | ') }, { status: 500 })
+  // Seule une erreur Supabase est fatale — Resend est best-effort
+  const supabaseError = errors.find(e => e.startsWith('Supabase'))
+  if (supabaseError) {
+    return NextResponse.json({ ok: false, error: supabaseError }, { status: 500 })
   }
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, warnings: errors.length ? errors : undefined })
 }
 
 // ── Template email ────────────────────────────────────────────────────────────
