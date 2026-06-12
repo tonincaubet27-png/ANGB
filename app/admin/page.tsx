@@ -86,7 +86,10 @@ export default async function AdminPage({
 
   if (url && serviceKey && url.startsWith('http')) {
     try {
-      const supabase = createClient(url, serviceKey)
+      // cache: 'no-store' obligatoire — Next.js 14 met en cache les fetch des Server Components
+    const supabase = createClient(url, serviceKey, {
+      global: { fetch: (input, init = {}) => fetch(input, { ...init, cache: 'no-store' }) },
+    })
       const filter = searchParams.filter ?? 'all'
       let query = supabase
         .from('adhesion_requests')
