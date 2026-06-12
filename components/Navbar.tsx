@@ -29,6 +29,7 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
   const navLinks = [
     { href: '/association', label: "L'association" },
     { href: '/annuaire',    label: 'Annuaire' },
+    { href: '/ressources',  label: 'Ressources' },
     { href: '/forum',       label: 'Forum' },
     { href: '/equipement',  label: 'Équipement' },
   ]
