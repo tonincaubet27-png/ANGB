@@ -16,7 +16,7 @@ const STATUT_LABELS: Record<string, string> = {
 const COTISATION_LABELS: Record<string, string> = {
   actif_20:   'Membre actif — 20€/an',
   soutien_10: 'Membre soutien — 10€/an',
-  gratuit_0:  'Gratuité de lancement — 0€',
+  gratuit_0:  'Gratuité 1re année — 0€',
 }
 
 function formatStatut(raw: unknown): string {
@@ -27,28 +27,89 @@ function formatStatut(raw: unknown): string {
     .join(', ')
 }
 
+/** Déduit le rôle de compte (gardien/parent) à partir des statuts cochés */
+function deriveRole(statut: unknown): 'gardien' | 'parent' {
+  const arr = String(statut ?? '').split(',').map(s => s.trim())
+  const isGardien = arr.some(s => ['gardien_actif', 'ancien_gardien', 'entraineur_gardien'].includes(s))
+  if (arr.includes('parent') && !isGardien) return 'parent'
+  return 'gardien'
+}
+
 // ── POST /api/adhesion ────────────────────────────────────────────────────────
+// L'adhésion fait aussi office d'inscription : on crée le compte (en attente),
+// on enregistre la demande, et le bureau valide ensuite dans /admin.
 export async function POST(req: NextRequest) {
   const payload = await req.json() as Record<string, unknown>
-  const errors: string[] = []
+  const warnings: string[] = []
 
-  // 1 — Sauvegarde Supabase (service_role pour contourner RLS)
+  const email    = String(payload.email ?? '').trim().toLowerCase()
+  const password = String(payload.password ?? '')
+
+  // Validation minimale
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ ok: false, error: 'Email invalide.' }, { status: 400 })
+  }
+  if (password.length < 6) {
+    return NextResponse.json({ ok: false, error: 'Mot de passe : 6 caractères minimum.' }, { status: 400 })
+  }
+
+  // Le mot de passe ne doit jamais être stocké hors de l'auth Supabase
+  const { password: _pw, ...adhesionFields } = payload
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (supabaseUrl && serviceKey && supabaseUrl.startsWith('http')) {
-    try {
-      const supabase = createClient(supabaseUrl, serviceKey)
-      const { error } = await supabase.from('adhesion_requests').insert({
-        ...payload,
-        status: 'pending',
-      })
-      if (error) errors.push(`Supabase : ${error.message}`)
-    } catch (e) {
-      errors.push(`Supabase exception : ${String(e)}`)
+  const configured  = Boolean(supabaseUrl && serviceKey && supabaseUrl.startsWith('http'))
+
+  if (configured) {
+    const supabase = createClient(supabaseUrl!, serviceKey!)
+    const displayName = `${payload.prenom ?? ''} ${payload.nom ?? ''}`.trim()
+    const role = deriveRole(payload.statut)
+
+    // 1 — Création du compte (confirmé d'office → connexion immédiate possible)
+    const { data: created, error: authErr } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: displayName, role },
+    })
+
+    if (authErr || !created?.user) {
+      const msg = (authErr?.message ?? '').toLowerCase()
+      if (msg.includes('already') || msg.includes('registered') || msg.includes('exists')) {
+        return NextResponse.json(
+          { ok: false, code: 'email_exists', error: 'Un compte existe déjà avec cet email. Connectez-vous pour adhérer.' },
+          { status: 409 },
+        )
+      }
+      return NextResponse.json({ ok: false, error: `Création du compte : ${authErr?.message ?? 'inconnue'}` }, { status: 500 })
+    }
+
+    const userId = created.user.id
+
+    // 2 — Profil (en attente de validation)
+    const { error: profErr } = await supabase.from('profiles').upsert(
+      { id: userId, role, display_name: displayName, membership_status: 'pending' },
+      { onConflict: 'id' },
+    )
+    if (profErr) {
+      // Compte créé mais profil KO → on supprime le compte pour permettre une nouvelle tentative propre
+      await supabase.auth.admin.deleteUser(userId).catch(() => {})
+      return NextResponse.json({ ok: false, error: `Profil : ${profErr.message}` }, { status: 500 })
+    }
+
+    // 3 — Demande d'adhésion liée au compte
+    const { error: adhErr } = await supabase.from('adhesion_requests').insert({
+      ...adhesionFields,
+      email,
+      user_id: userId,
+      status: 'pending',
+    })
+    if (adhErr) {
+      return NextResponse.json({ ok: false, error: `Adhésion : ${adhErr.message}` }, { status: 500 })
     }
   }
 
-  // 2 — Email de notification via Resend
+  // 4 — Email de notification au bureau (best-effort)
   const resendKey = process.env.RESEND_API_KEY
   if (resendKey) {
     try {
@@ -59,18 +120,13 @@ export async function POST(req: NextRequest) {
         subject: `🏒 Nouvelle adhésion — ${payload.prenom} ${payload.nom}`,
         html:    buildEmailHtml(payload),
       })
-      if (error) errors.push(`Resend : ${error.message}`)
+      if (error) warnings.push(`Resend : ${error.message}`)
     } catch (e) {
-      errors.push(`Resend exception : ${String(e)}`)
+      warnings.push(`Resend exception : ${String(e)}`)
     }
   }
 
-  // Seule une erreur Supabase est fatale — Resend est best-effort
-  const supabaseError = errors.find(e => e.startsWith('Supabase'))
-  if (supabaseError) {
-    return NextResponse.json({ ok: false, error: supabaseError }, { status: 500 })
-  }
-  return NextResponse.json({ ok: true, warnings: errors.length ? errors : undefined })
+  return NextResponse.json({ ok: true, warnings: warnings.length ? warnings : undefined })
 }
 
 // ── Template email ────────────────────────────────────────────────────────────
@@ -115,6 +171,11 @@ function buildEmailHtml(p: Record<string, unknown>): string {
       <!-- Titre -->
       <h1 style="margin:0 0 4px;color:#fff;font-size:22px;letter-spacing:0.05em">🏒 Nouvelle demande d'adhésion</h1>
       <p style="margin:0 0 24px;color:#64748b;font-size:13px">Association Nationale des Gardiens de But</p>
+
+      <!-- Encart action -->
+      <div style="margin:0 0 20px;padding:12px 16px;background:rgba(251,191,36,0.1);border-radius:8px;border:1px solid rgba(251,191,36,0.3)">
+        <p style="margin:0;font-size:13px;color:#fbbf24">⏳ Compte créé en attente — à valider dans l'espace admin pour activer l'accès.</p>
+      </div>
 
       <!-- Tableau des infos -->
       <table style="width:100%;border-collapse:collapse;background:#0a0f1e;border-radius:8px;overflow:hidden">

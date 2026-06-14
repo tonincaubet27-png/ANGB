@@ -242,8 +242,8 @@ export async function createPost(payload: {
 
 export async function submitAdhesion(
   payload: Record<string, unknown>
-): Promise<{ ok: boolean; error?: string }> {
-  // Passe par l'API route server-side : sauvegarde Supabase + email Resend
+): Promise<{ ok: boolean; error?: string; code?: string }> {
+  // Passe par l'API route server-side : crée le compte + sauvegarde + email Resend
   try {
     const res = await fetch('/api/adhesion', {
       method:  'POST',
@@ -251,8 +251,8 @@ export async function submitAdhesion(
       body:    JSON.stringify(payload),
     })
     if (!res.ok) {
-      const data = await res.json().catch(() => ({})) as { error?: string }
-      return { ok: false, error: data.error ?? 'Erreur serveur' }
+      const data = await res.json().catch(() => ({})) as { error?: string; code?: string }
+      return { ok: false, error: data.error ?? 'Erreur serveur', code: data.code }
     }
     return { ok: true }
   } catch {

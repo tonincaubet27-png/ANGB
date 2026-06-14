@@ -18,6 +18,7 @@ interface AuthContextType {
   authOpen:        boolean
   authMode:        'login' | 'register'
   needsSetup:      boolean   // vrai si connecté OAuth mais sans profil encore
+  isMember:        boolean   // vrai si adhésion validée par le bureau
   openAuth:        (mode?: 'login' | 'register') => void
   closeAuth:       () => void
   clearNeedsSetup: () => void
@@ -29,6 +30,7 @@ interface AuthContextType {
 const DEFAULT: AuthContextType = {
   user: null, profile: null, goalieProfile: null, linkedGoalies: [],
   loading: false, authOpen: false, authMode: 'login', needsSetup: false,
+  isMember: false,
   openAuth: () => {}, closeAuth: () => {}, clearNeedsSetup: () => {},
   signOut: async () => {}, refreshProfile: async () => {},
   isConfigured: false,
@@ -130,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       user, profile, goalieProfile, linkedGoalies, loading,
       authOpen, authMode, needsSetup,
+      isMember: profile?.membership_status === 'active',
       openAuth:        (mode = 'login') => { setAuthMode(mode); setAuthOpen(true) },
       closeAuth:       () => setAuthOpen(false),
       clearNeedsSetup: () => { setNeedsSetup(false); setAuthOpen(false) },

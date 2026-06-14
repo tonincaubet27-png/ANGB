@@ -19,7 +19,7 @@ function Inner({ children }: { children: React.ReactNode }) {
       <main className="flex-1">{children}</main>
       <Footer />
       <AdhesionModal isOpen={adhesionOpen} onClose={() => setAdhesionOpen(false)} />
-      <AuthModal />
+      <AuthModal onOpenAdhesion={() => setAdhesionOpen(true)} />
     </div>
   )
 }

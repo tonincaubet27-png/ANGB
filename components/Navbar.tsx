@@ -153,13 +153,18 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
                 )}
               </div>
 
-              {/* Bouton Adhésion — visible même connecté */}
-              <button
-                onClick={onOpenAdhesion}
-                className="px-4 py-2 rounded-lg text-[11px] font-extrabold uppercase tracking-[0.12em] transition-all hover:opacity-90 active:scale-95"
-                style={{ background: 'var(--accent)', color: '#fff', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
-                Adhésion
-              </button>
+              {/* Statut de membre — l'adhésion fait office d'inscription */}
+              {profile?.membership_status === 'active' ? (
+                <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em]"
+                  style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)' }}>
+                  ✓ Membre
+                </span>
+              ) : profile?.membership_status === 'pending' ? (
+                <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em]"
+                  style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>
+                  ⏳ Adhésion en attente
+                </span>
+              ) : null}
               </>
             ) : (
               /* ── Non connecté ── */

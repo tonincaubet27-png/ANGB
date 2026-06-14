@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { submitAdhesion } from '@/lib/data'
+import { getClient } from '@/lib/supabase-client'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Props {
   isOpen: boolean
@@ -20,6 +22,7 @@ interface FormData {
   date_naissance: string
   telephone: string
   email: string
+  password: string   // l'adhésion crée le compte
   adresse: string
   club: string
   statut: string[]   // multi-sélection
@@ -37,23 +40,26 @@ const emptyForm: FormData = {
   date_naissance: '',
   telephone: '',
   email: '',
+  password: '',
   adresse: '',
   club: '',
   statut: [],
   division: '',
   categorie_enfant: '',
-  cotisation: '',
+  cotisation: 'gratuit_0',   // 1re année gratuite pour tout le monde
   accept_statuts: false,
   accept_rgpd: false,
   autorisation_image: false,
 }
 
 export default function AdhesionModal({ isOpen, onClose }: Props) {
+  const { openAuth, refreshProfile } = useAuth()
   const [step, setStep] = useState<Step>(1)
   const [form, setForm] = useState<FormData>(emptyForm)
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [emailExists, setEmailExists] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [docOpen, setDocOpen] = useState<'statuts' | 'reglement' | null>(null)
 
@@ -83,6 +89,8 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
       if (!form.prenom.trim()) newErrors.prenom = 'Requis'
       if (!form.email.trim()) newErrors.email = 'Requis'
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = 'Email invalide'
+      if (!form.password) newErrors.password = 'Requis'
+      else if (form.password.length < 6) newErrors.password = '6 caractères minimum'
       if (!form.date_naissance) newErrors.date_naissance = 'Requis'
     }
     if (step === 2) {
@@ -110,12 +118,15 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
     if (!validateStep()) return
     setSubmitting(true)
     setSubmitError('')
+    setEmailExists(false)
+    const email = form.email.trim().toLowerCase()
     const result = await submitAdhesion({
       nom:               form.nom,
       prenom:            form.prenom,
       date_naissance:    form.date_naissance || null,
       telephone:         form.telephone || null,
-      email:             form.email,
+      email,
+      password:          form.password,
       adresse:           form.adresse || null,
       club:              form.club || null,
       statut:            form.statut.length > 0 ? form.statut.join(', ') : null,
@@ -126,12 +137,22 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
       accept_rgpd:       form.accept_rgpd,
       autorisation_image: form.autorisation_image,
     })
-    setSubmitting(false)
+
     if (!result.ok) {
+      setSubmitting(false)
+      if (result.code === 'email_exists') setEmailExists(true)
       setSubmitError(result.error ?? 'Une erreur est survenue, veuillez réessayer.')
-    } else {
-      setSubmitted(true)
+      return
     }
+
+    // Connexion automatique : l'adhésion a créé le compte
+    const client = getClient()
+    if (client) {
+      await client.auth.signInWithPassword({ email, password: form.password }).catch(() => {})
+      await refreshProfile()
+    }
+    setSubmitting(false)
+    setSubmitted(true)
   }
 
   const handleClose = () => {
@@ -139,6 +160,8 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
     setForm(emptyForm)
     setErrors({})
     setSubmitted(false)
+    setSubmitError('')
+    setEmailExists(false)
     onClose()
   }
 
@@ -238,12 +261,18 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                 ✓
               </div>
               <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--white)' }}>
-                Demande envoyée !
+                Bienvenue à l'ANGB !
               </h3>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--gray)' }}>
-                Le bureau de l'ANGB reviendra vers vous à l'adresse{' '}
-                <strong style={{ color: 'var(--white)' }}>{form.email}</strong> pour finaliser votre adhésion.
+              <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--gray)' }}>
+                Votre compte est créé et vous êtes connecté(e). Votre adhésion est{' '}
+                <strong style={{ color: '#fbbf24' }}>en attente de validation</strong> par le bureau.
               </p>
+              <div className="text-left text-xs leading-relaxed mb-6 px-4 py-3 rounded-lg mx-auto max-w-sm"
+                style={{ background: 'var(--navy-light)', color: 'var(--gray)' }}>
+                <p className="mb-1.5">✅ Dès maintenant : vous pouvez naviguer sur tout le site.</p>
+                <p>⏳ Après validation : vous pourrez poster sur le forum et déposer des annonces.
+                Vous restez connecté(e) avec <strong style={{ color: 'var(--white)' }}>{form.email}</strong>.</p>
+              </div>
               <button
                 onClick={handleClose}
                 className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white"
@@ -298,6 +327,20 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                       onChange={e => set('email', e.target.value)}
                       placeholder="gardien@club.fr"
                     />
+                  </Field>
+                  <Field label="Mot de passe *" error={errors.password}>
+                    <input
+                      type="password"
+                      className={inputCls('password')}
+                      style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                      value={form.password}
+                      onChange={e => set('password', e.target.value)}
+                      placeholder="6 caractères minimum"
+                      autoComplete="new-password"
+                    />
+                    <p className="text-[11px] mt-1" style={{ color: 'var(--gray)' }}>
+                      Votre adhésion crée votre compte ANGB — ce mot de passe servira à vous connecter.
+                    </p>
                   </Field>
                   <Field label="Téléphone" error={errors.telephone}>
                     <input
@@ -417,57 +460,36 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
 
               {/* STEP 3 — Cotisation */}
               {step === 3 && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--white)' }}>
                     3 · Cotisation
                   </h3>
-                  {errors.cotisation && (
-                    <p className="text-xs" style={{ color: 'var(--red-fr)' }}>{errors.cotisation}</p>
-                  )}
-                  {[
-                    {
-                      value: 'actif_20',
-                      label: 'Membre actif',
-                      price: '20€ / an',
-                      desc: 'Droit de vote en AG — gardiens et anciens gardiens',
-                      color: 'var(--accent)',
-                    },
-                    {
-                      value: 'soutien_10',
-                      label: 'Membre soutien',
-                      price: '10€ / an',
-                      desc: 'Clubs, structures, professionnels de santé, parents',
-                      color: '#a78bfa',
-                    },
-                    {
-                      value: 'gratuit_0',
-                      label: 'Gratuité de lancement',
-                      price: '0€',
-                      desc: 'Mineurs, étudiants, membres du bureau — exonération sur justificatif',
-                      color: '#34d399',
-                    },
-                  ].map(opt => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => set('cotisation', opt.value)}
-                      className="w-full px-4 py-3 rounded-xl text-left transition-all border"
-                      style={{
-                        background: form.cotisation === opt.value ? 'rgba(74,127,255,0.08)' : 'var(--navy-light)',
-                        borderColor: form.cotisation === opt.value ? opt.color : 'transparent',
-                      }}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-semibold text-sm" style={{ color: 'var(--white)' }}>
-                          {opt.label}
-                        </span>
-                        <span className="font-bold text-base" style={{ fontFamily: 'var(--font-bebas)', color: opt.color, letterSpacing: '0.05em' }}>
-                          {opt.price}
-                        </span>
-                      </div>
-                      <p className="text-xs" style={{ color: 'var(--gray)' }}>{opt.desc}</p>
-                    </button>
-                  ))}
+
+                  {/* 1re année offerte pour tout le monde */}
+                  <div
+                    className="px-5 py-5 rounded-xl border text-center"
+                    style={{ background: 'rgba(52,211,153,0.08)', borderColor: '#34d399' }}
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#34d399' }}>
+                      Offre de lancement
+                    </span>
+                    <p className="text-4xl mt-2 mb-1" style={{ fontFamily: 'var(--font-bebas)', color: '#34d399', letterSpacing: '0.04em' }}>
+                      1ʳᵉ année gratuite
+                    </p>
+                    <p className="text-sm" style={{ color: 'var(--white)' }}>0 € — pour tous les nouveaux adhérents</p>
+                    <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--gray)' }}>
+                      Aucun paiement maintenant. La cotisation des années suivantes sera votée
+                      en Assemblée Générale et communiquée aux membres.
+                    </p>
+                  </div>
+
+                  <div
+                    className="px-4 py-3 rounded-lg text-xs leading-relaxed"
+                    style={{ background: 'var(--navy-light)', color: 'var(--gray)' }}
+                  >
+                    💡 Votre adhésion est <strong style={{ color: 'var(--white)' }}>soumise à validation</strong> par
+                    le bureau. Une fois validée, vous pourrez participer au forum et déposer des annonces.
+                  </div>
                 </div>
               )}
 
@@ -515,6 +537,16 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
               {submitError && (
                 <div className="mt-4 px-4 py-3 rounded-lg text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5' }}>
                   ⚠️ {submitError}
+                  {emailExists && (
+                    <button
+                      type="button"
+                      onClick={() => { handleClose(); openAuth('login') }}
+                      className="mt-2 block w-full py-2 rounded-lg text-sm font-semibold text-white"
+                      style={{ background: 'var(--accent)' }}
+                    >
+                      Se connecter
+                    </button>
+                  )}
                 </div>
               )}
               <div className="flex gap-3 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>

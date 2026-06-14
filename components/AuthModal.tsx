@@ -15,7 +15,7 @@ const DIVISIONS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
 
 type Step = 'auth' | 'role' | 'gardien' | 'parent' | 'success' | 'confirm'
 
-export default function AuthModal() {
+export default function AuthModal({ onOpenAdhesion }: { onOpenAdhesion?: () => void }) {
   const { user, authOpen, authMode, needsSetup, closeAuth, clearNeedsSetup, refreshProfile, isConfigured } = useAuth()
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -164,14 +164,7 @@ export default function AuthModal() {
     handleClose()
   }
 
-  // ── Étape 1 register : valider email/password/nom ─────────────────────────
-  const handleStartRegister = () => {
-    if (!email || !password || !name) { setError('Tous les champs sont requis.'); return }
-    if (password.length < 6) { setError('Mot de passe : 6 caractères minimum.'); return }
-    setError(''); setStep('role')
-  }
-
-  // ── Étape 2 : choisir rôle ─────────────────────────────────────────────────
+  // ── Étape 2 : choisir rôle (parcours OAuth sans profil) ───────────────────
   const handleSelectRole = (r: 'gardien' | 'parent') => {
     setRole(r); setStep(r)
   }
@@ -350,39 +343,57 @@ export default function AuthModal() {
                         ))}
                       </div>
 
-                      <div className="space-y-4">
-                        {mode === 'register' && (
-                          <Field label="Nom complet" value={name} onChange={setName} placeholder="Jean Dupont" />
-                        )}
-                        <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="jean@example.com" />
-                        <Field label="Mot de passe" type="password" value={password} onChange={setPass} placeholder="••••••••"
-                          hint={mode === 'register' ? '6 caractères minimum' : undefined} />
-                      </div>
+                      {mode === 'login' ? (
+                        <>
+                          <div className="space-y-4">
+                            <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="jean@example.com" />
+                            <Field label="Mot de passe" type="password" value={password} onChange={setPass} placeholder="••••••••" />
+                          </div>
 
-                      {error && <ErrMsg msg={error} />}
+                          {error && <ErrMsg msg={error} />}
 
-                      <button
-                        onClick={mode === 'login' ? handleLogin : handleStartRegister}
-                        disabled={loading}
-                        className="mt-5 w-full py-3 rounded-xl text-sm font-bold transition-opacity disabled:opacity-60"
-                        style={{ background: 'var(--accent)', color: '#fff' }}>
-                        {loading ? '…' : mode === 'login' ? 'Se connecter' : 'Continuer →'}
-                      </button>
+                          <button
+                            onClick={handleLogin}
+                            disabled={loading}
+                            className="mt-5 w-full py-3 rounded-xl text-sm font-bold transition-opacity disabled:opacity-60"
+                            style={{ background: 'var(--accent)', color: '#fff' }}>
+                            {loading ? '…' : 'Se connecter'}
+                          </button>
 
-                      {/* ── Google ── */}
-                      <div className="flex items-center gap-3 mt-4">
-                        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>ou</span>
-                        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                      </div>
+                          {/* ── Google ── */}
+                          <div className="flex items-center gap-3 mt-4">
+                            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>ou</span>
+                            <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                          </div>
 
-                      <button
-                        onClick={handleGoogleSignIn}
-                        className="mt-3 w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-white/5"
-                        style={{ border: '1px solid rgba(255,255,255,0.12)', color: 'var(--white)' }}>
-                        <GoogleIcon />
-                        Continuer avec Google
-                      </button>
+                          <button
+                            onClick={handleGoogleSignIn}
+                            className="mt-3 w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-white/5"
+                            style={{ border: '1px solid rgba(255,255,255,0.12)', color: 'var(--white)' }}>
+                            <GoogleIcon />
+                            Continuer avec Google
+                          </button>
+                        </>
+                      ) : (
+                        /* Inscription → via le bulletin d'adhésion (adhésion = inscription) */
+                        <div className="text-center py-2">
+                          <div className="text-4xl mb-3">🏒</div>
+                          <p className="text-sm font-semibold mb-1.5" style={{ color: 'var(--white)' }}>
+                            L&apos;inscription se fait via l&apos;adhésion
+                          </p>
+                          <p className="text-xs leading-relaxed mb-5" style={{ color: 'var(--gray)' }}>
+                            Remplissez le bulletin d&apos;adhésion pour créer votre compte ANGB.
+                            <strong style={{ color: 'var(--white)' }}> La 1ʳᵉ année est gratuite</strong> pour tout le monde.
+                          </p>
+                          <button
+                            onClick={() => { handleClose(); onOpenAdhesion?.() }}
+                            className="w-full py-3 rounded-xl text-sm font-bold transition-opacity hover:opacity-90"
+                            style={{ background: 'var(--accent)', color: '#fff' }}>
+                            Adhérer / créer mon compte →
+                          </button>
+                        </div>
+                      )}
                     </motion.div>
                   )}
 

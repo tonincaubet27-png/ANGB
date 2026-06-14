@@ -47,6 +47,8 @@ function formatStatut(raw: string | null): string {
 }
 
 // ── Server action — changer le statut ─────────────────────────────────────────
+// Valider/refuser une adhésion met aussi à jour le statut de membre du compte lié
+// (membership_status), ce qui débloque ou bloque l'accès au forum / dépôt d'annonce.
 async function changeStatus(formData: FormData) {
   'use server'
   const id     = formData.get('id') as string
@@ -55,7 +57,25 @@ async function changeStatus(formData: FormData) {
   const key    = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) return
   const supabase = createClient(url, key)
-  await supabase.from('adhesion_requests').update({ status }).eq('id', id)
+
+  // 1 — statut de la demande
+  const { data: updated } = await supabase
+    .from('adhesion_requests')
+    .update({ status })
+    .eq('id', id)
+    .select('user_id')
+    .single()
+
+  // 2 — statut de membre sur le compte lié
+  const userId = (updated as { user_id?: string } | null)?.user_id
+  if (userId) {
+    const membership =
+      status === 'validated' ? 'active'
+      : status === 'rejected' ? 'rejected'
+      : 'pending'
+    await supabase.from('profiles').update({ membership_status: membership }).eq('id', userId)
+  }
+
   revalidatePath('/admin')
 }
 

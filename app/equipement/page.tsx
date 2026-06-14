@@ -39,7 +39,7 @@ interface ContactForm {
 }
 
 export default function EquipementPage() {
-  const { user, profile, openAuth } = useAuth()
+  const { user, profile, isMember, openAuth } = useAuth()
   const [listings, setListings]         = useState<Listing[]>([])
   const [loading, setLoading]           = useState(true)
   const [catFilter, setCat]             = useState('Tout')
@@ -163,14 +163,16 @@ export default function EquipementPage() {
           </div>
           <button
             onClick={() => {
-              if (!user) { openAuth('register'); return }
+              if (!user) { openAuth('login'); return }
+              if (!isMember) return   // adhésion en attente
               // Pré-remplir le nom vendeur depuis le profil
               if (profile?.display_name) setDepotForm(f => ({ ...f, seller_name: profile.display_name }))
               setDepot(true)
             }}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90 transition-opacity"
+            disabled={!!user && !isMember}
+            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: 'var(--accent)' }}>
-            {user ? '+ Déposer une annonce' : '🔒 Connexion pour déposer'}
+            {!user ? '🔒 Connexion pour déposer' : !isMember ? '⏳ Adhésion en attente' : '+ Déposer une annonce'}
           </button>
         </div>
       </div>

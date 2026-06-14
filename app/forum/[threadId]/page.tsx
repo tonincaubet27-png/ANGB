@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getThread, getPosts, createPost } from '@/lib/data'
 import type { Thread, Post } from '@/lib/types'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function ThreadPage({ params }: { params: { threadId: string } }) {
+  const { user, profile, isMember, openAuth } = useAuth()
   const [thread, setThread]   = useState<Thread | null>(null)
   const [posts, setPosts]     = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [reply, setReply]     = useState('')
-  const [replyName, setName]  = useState('')
   const [sending, setSending] = useState(false)
 
   useEffect(() => {
@@ -25,15 +26,14 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
   }, [params.threadId])
 
   const handleReply = async () => {
-    if (!reply.trim()) return
+    if (!reply.trim() || !isMember) return
     setSending(true)
-    const initials = replyName.trim()
-      ? replyName.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-      : '?'
+    const authorName = profile?.display_name?.trim() || 'Membre ANGB'
+    const initials = authorName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
     const res = await createPost({
       thread_id: params.threadId,
       content: reply.trim(),
-      author_name: replyName.trim() || 'Anonyme',
+      author_name: authorName,
       author_initials: initials,
     })
     setSending(false)
@@ -43,7 +43,7 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
         id: Date.now().toString(),
         thread_id: params.threadId,
         content: reply.trim(),
-        author_name: replyName.trim() || 'Anonyme',
+        author_name: authorName,
         author_initials: initials,
         created_at: new Date().toISOString(),
       }])
@@ -123,25 +123,48 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
         )}
       </div>
 
-      {/* Reply form */}
-      <div className="mt-6 p-5 rounded-2xl border" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
-        <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--white)' }}>Répondre</h3>
-        <textarea rows={3} value={reply} onChange={e => setReply(e.target.value)}
-          placeholder="Votre réponse…"
-          className="w-full px-3 py-2.5 rounded-lg text-sm resize-none outline-none mb-3"
-          style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
-        <div className="flex gap-3">
-          <input value={replyName} onChange={e => setName(e.target.value)}
-            placeholder="Votre nom"
-            className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
+      {/* Reply form — réservé aux membres validés */}
+      {isMember ? (
+        <div className="mt-6 p-5 rounded-2xl border" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--white)' }}>
+            Répondre <span className="font-normal" style={{ color: 'var(--gray)' }}>en tant que {profile?.display_name}</span>
+          </h3>
+          <textarea rows={3} value={reply} onChange={e => setReply(e.target.value)}
+            placeholder="Votre réponse…"
+            className="w-full px-3 py-2.5 rounded-lg text-sm resize-none outline-none mb-3"
             style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
-          <button onClick={handleReply} disabled={!reply.trim() || sending}
-            className="px-5 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-            style={{ background: 'var(--accent)' }}>
-            {sending ? '…' : 'Envoyer'}
-          </button>
+          <div className="flex justify-end">
+            <button onClick={handleReply} disabled={!reply.trim() || sending}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
+              style={{ background: 'var(--accent)' }}>
+              {sending ? '…' : 'Envoyer'}
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mt-6 p-6 rounded-2xl border text-center" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
+          {!user ? (
+            <>
+              <p className="text-sm mb-1" style={{ color: 'var(--white)' }}>Réservé aux adhérents</p>
+              <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>
+                Adhérez à l'ANGB (gratuit la 1ʳᵉ année) pour participer aux discussions.
+              </p>
+              <button onClick={() => openAuth('login')}
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ background: 'var(--accent)' }}>
+                Se connecter / adhérer
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm mb-1" style={{ color: '#fbbf24' }}>⏳ Adhésion en attente de validation</p>
+              <p className="text-xs" style={{ color: 'var(--gray)' }}>
+                Vous pourrez répondre dès que le bureau aura validé votre adhésion.
+              </p>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

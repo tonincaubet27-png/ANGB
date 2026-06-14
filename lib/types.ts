@@ -91,10 +91,11 @@ export type Goalie = GoalieProfile
 
 // ── Auth ────────────────────────────────────────────────────────────────────
 export interface UserProfile {
-  id:           string
-  role:         'gardien' | 'parent' | 'admin'
-  display_name: string
-  created_at:   string
+  id:                string
+  role:              'gardien' | 'parent' | 'admin'
+  display_name:      string
+  membership_status: 'pending' | 'active' | 'rejected'
+  created_at:        string
 }
 
 // ── Contacts (équipement) ───────────────────────────────────────────────────
