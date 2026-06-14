@@ -37,6 +37,17 @@ function deriveRole(statut: unknown): 'gardien' | 'parent' {
   return 'gardien'
 }
 
+/** Déduit la catégorie d'annuaire à partir des statuts cochés (null = pas de fiche, ex. parent seul) */
+function deriveCategory(statut: unknown): string | null {
+  const arr = String(statut ?? '').split(',').map(s => s.trim())
+  if (arr.includes('gardien_actif') || arr.includes('ancien_gardien')) return 'gardien'
+  if (arr.includes('entraineur_gardien')) return 'entraineur_gardien'
+  if (arr.includes('entraineur'))         return 'entraineur'
+  if (arr.includes('joueur'))             return 'joueur'
+  if (arr.includes('membre_soutien'))     return 'membre_soutien'
+  return null
+}
+
 // ── POST /api/adhesion ────────────────────────────────────────────────────────
 // L'adhésion fait aussi office d'inscription : on crée le compte (en attente),
 // on enregistre la demande, et le bureau valide ensuite dans /admin.
@@ -108,6 +119,21 @@ export async function POST(req: NextRequest) {
     })
     if (adhErr) {
       return NextResponse.json({ ok: false, error: `Adhésion : ${adhErr.message}` }, { status: 500 })
+    }
+
+    // 4 — Fiche annuaire (catégorie selon le statut) — cachée jusqu'à validation
+    //     du bureau (is_active = false). « parent seul » → pas de fiche.
+    const category = deriveCategory(payload.statut)
+    if (category) {
+      const { error: profileErr } = await supabase.from('goalie_profiles').insert({
+        user_id:  userId,
+        name:     displayName,
+        category,
+        club:     payload.club || null,
+        division: payload.division || null,
+        is_active: false,
+      })
+      if (profileErr) warnings.push(`Fiche annuaire : ${profileErr.message}`)  // non bloquant
     }
   }
 

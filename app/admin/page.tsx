@@ -68,7 +68,7 @@ async function changeStatus(formData: FormData) {
     .select('user_id')
     .single()
 
-  // 2 — statut de membre sur le compte lié
+  // 2 — statut de membre sur le compte lié + visibilité de la fiche annuaire
   const userId = (updated as { user_id?: string } | null)?.user_id
   if (userId) {
     const membership =
@@ -76,6 +76,8 @@ async function changeStatus(formData: FormData) {
       : status === 'rejected' ? 'rejected'
       : 'pending'
     await supabase.from('profiles').update({ membership_status: membership }).eq('id', userId)
+    // La fiche annuaire n'est visible qu'une fois la demande validée
+    await supabase.from('goalie_profiles').update({ is_active: status === 'validated' }).eq('user_id', userId)
   }
 
   revalidatePath('/admin')
