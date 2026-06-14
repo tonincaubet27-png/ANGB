@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 
-const ADMIN_EMAIL = 'tonin.caubet27@gmail.com'
+const ADMIN_EMAIL = 'angbcontact@gmail.com'
 
 // ── Libellés lisibles ─────────────────────────────────────────────────────────
 const STATUT_LABELS: Record<string, string> = {
