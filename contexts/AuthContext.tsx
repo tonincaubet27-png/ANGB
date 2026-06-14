@@ -52,18 +52,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   )
 
-  const loadUserData = useCallback(async (userId: string) => {
+  const loadUserData = useCallback(async (userId: string): Promise<{ needsSetup: boolean }> => {
     const client = getClient()
-    if (!client) return
+    if (!client) return { needsSetup: false }
 
     const { data: prof } = await client
       .from('profiles').select('*').eq('id', userId).single()
 
     if (!prof) {
-      // Utilisateur connecté (ex. Google OAuth) mais sans profil → déclenche la config
+      // Connecté (Google OAuth ou inscription email non finalisée) mais sans profil.
+      // On marque le besoin de configuration SANS forcer l'ouverture du modal :
+      // sinon l'utilisateur est piégé — le modal « choisissez votre profil » repasse
+      // au-dessus du bulletin d'adhésion à chaque chargement et l'empêche d'adhérer.
+      // L'ouverture auto n'a lieu qu'au retour d'un login OAuth (cf. ?setup=1) ;
+      // sinon une entrée non bloquante reste proposée dans la Navbar.
       setNeedsSetup(true)
-      setAuthOpen(true)
-      return
+      return { needsSetup: true }
     }
     setNeedsSetup(false)
     setProfile(prof as UserProfile)
@@ -78,16 +82,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const linked = await getLinkedGoalieProfiles(userId)
       setLinked(linked)
     }
+    return { needsSetup: false }
   }, [])
 
   useEffect(() => {
     const client = getClient()
     if (!client) { setLoading(false); return }
 
-    client.auth.getSession().then(({ data: { session } }) => {
+    client.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        loadUserData(session.user.id).finally(() => setLoading(false))
+        const { needsSetup: ns } = await loadUserData(session.user.id)
+        setLoading(false)
+        // Ouverture auto du setup UNIQUEMENT juste après un login OAuth
+        // (la route /auth/callback ajoute ?setup=1). Jamais sur une visite normale,
+        // pour ne pas piéger un utilisateur connecté sans profil.
+        if (ns && typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search)
+          if (params.get('setup') === '1') {
+            setAuthOpen(true)
+            params.delete('setup')
+            const qs = params.toString()
+            window.history.replaceState({}, '', window.location.pathname + (qs ? `?${qs}` : ''))
+          }
+        }
       } else {
         setLoading(false)
       }
@@ -116,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       closeAuth:       () => setAuthOpen(false),
       clearNeedsSetup: () => { setNeedsSetup(false); setAuthOpen(false) },
       signOut,
-      refreshProfile: () => user ? loadUserData(user.id) : Promise.resolve(),
+      refreshProfile: async () => { if (user) await loadUserData(user.id) },
       isConfigured,
     }}>
       {children}

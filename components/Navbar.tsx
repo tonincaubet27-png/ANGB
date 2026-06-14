@@ -13,7 +13,7 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
   const [userMenu, setUserMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const userMenuRef             = useRef<HTMLDivElement>(null)
-  const { user, profile, goalieProfile, openAuth, signOut } = useAuth()
+  const { user, profile, goalieProfile, needsSetup, openAuth, signOut } = useAuth()
 
   useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -99,6 +99,14 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
             {user ? (
               /* ── User connecté ── */
               <>
+              {needsSetup && (
+                <button
+                  onClick={() => openAuth()}
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] transition-opacity hover:opacity-90"
+                  style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>
+                  Finaliser l&apos;inscription
+                </button>
+              )}
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenu(v => !v)}
@@ -207,8 +215,15 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
               {user ? (
                 <>
                   <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--white)' }}>
-                    👋 {profile?.display_name}
+                    👋 {profile?.display_name ?? 'Mon compte'}
                   </p>
+                  {needsSetup && (
+                    <button onClick={() => { setMenuOpen(false); openAuth() }}
+                      className="text-xs font-bold uppercase tracking-wide py-2.5 rounded-lg text-center"
+                      style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>
+                      Finaliser mon inscription
+                    </button>
+                  )}
                   <button onClick={() => { setMenuOpen(false); signOut() }}
                     className="text-xs font-bold uppercase tracking-wide py-2 rounded-lg"
                     style={{ color: '#f87171' }}>

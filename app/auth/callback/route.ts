@@ -11,7 +11,11 @@ export async function GET(request: NextRequest) {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (url && key) {
-      const response = NextResponse.redirect(`${origin}${next}`)
+      // ?setup=1 : signale au client que c'est un retour OAuth frais → le modal
+      // de configuration du profil peut s'ouvrir automatiquement (une seule fois).
+      const redirectTarget = new URL(next, origin)
+      redirectTarget.searchParams.set('setup', '1')
+      const response = NextResponse.redirect(redirectTarget)
 
       const supabase = createServerClient(url, key, {
         cookies: {
