@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useAdhesion } from '@/contexts/AdhesionContext'
 import MissionSection from '@/components/about/MissionSection'
 import FormationSection from '@/components/about/FormationSection'
 import SanteSection from '@/components/about/SanteSection'
@@ -22,6 +23,7 @@ const TABS = [
 export default function AssociationPage() {
   const [activeTab, setActiveTab] = useState('mission')
   const ActiveSection = TABS.find(t => t.id === activeTab)?.component ?? MissionSection
+  const { openAdhesion } = useAdhesion()
 
   return (
     <div>
@@ -33,19 +35,28 @@ export default function AssociationPage() {
           borderBottom: '1px solid var(--border)',
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
-            L'association
-          </p>
-          <h1
-            className="text-5xl md:text-7xl"
-            style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
+              L'association
+            </p>
+            <h1
+              className="text-5xl md:text-7xl"
+              style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
+            >
+              ANGB
+            </h1>
+            <p className="mt-2 max-w-xl text-sm" style={{ color: 'var(--gray)' }}>
+              Association Nationale des Gardiens de But — Loi 1901 · Fondée en 2026
+            </p>
+          </div>
+          <button
+            onClick={openAdhesion}
+            className="flex-shrink-0 px-6 py-3 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}
           >
-            ANGB
-          </h1>
-          <p className="mt-2 max-w-xl text-sm" style={{ color: 'var(--gray)' }}>
-            Association Nationale des Gardiens de But — Loi 1901 · Fondée en 2026
-          </p>
+            Rejoindre l&apos;ANGB
+          </button>
         </div>
       </div>
 
@@ -80,6 +91,31 @@ export default function AssociationPage() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
         <ActiveSection />
+      </div>
+
+      {/* CTA bas de page */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
+        <div
+          className="rounded-2xl p-8 md:p-10 text-center"
+          style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
+        >
+          <h3
+            className="text-2xl md:text-3xl mb-2"
+            style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
+          >
+            Prêt à rejoindre l&apos;ANGB ?
+          </h3>
+          <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--gray)' }}>
+            Adhésion gratuite la première année — gardiens, anciens gardiens, entraîneurs, parents et structures.
+          </p>
+          <button
+            onClick={openAdhesion}
+            className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}
+          >
+            Rejoindre l&apos;ANGB
+          </button>
+        </div>
       </div>
     </div>
   )

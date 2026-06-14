@@ -8,6 +8,7 @@ import {
   linkParentToGoalie, searchGoalieProfiles, uploadGoaliePhoto,
 } from '@/lib/data'
 import { useAuth } from '@/contexts/AuthContext'
+import { useAdhesion } from '@/contexts/AdhesionContext'
 import PhotoUpload from '@/components/PhotoUpload'
 import type { GoalieProfile } from '@/lib/types'
 
@@ -15,8 +16,9 @@ const DIVISIONS = ['Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
 
 type Step = 'auth' | 'role' | 'gardien' | 'parent' | 'success' | 'confirm'
 
-export default function AuthModal({ onOpenAdhesion }: { onOpenAdhesion?: () => void }) {
+export default function AuthModal() {
   const { user, authOpen, authMode, needsSetup, closeAuth, clearNeedsSetup, refreshProfile, isConfigured } = useAuth()
+  const { openAdhesion } = useAdhesion()
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [mode,     setMode]    = useState<'login' | 'register'>(authMode)
@@ -387,7 +389,7 @@ export default function AuthModal({ onOpenAdhesion }: { onOpenAdhesion?: () => v
                             <strong style={{ color: 'var(--white)' }}> La 1ʳᵉ année est gratuite</strong> pour tout le monde.
                           </p>
                           <button
-                            onClick={() => { handleClose(); onOpenAdhesion?.() }}
+                            onClick={() => { handleClose(); openAdhesion() }}
                             className="w-full py-3 rounded-xl text-sm font-bold transition-opacity hover:opacity-90"
                             style={{ background: 'var(--accent)', color: '#fff' }}>
                             Adhérer / créer mon compte →

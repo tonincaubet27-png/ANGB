@@ -8,6 +8,7 @@ import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card'
 import { HoverEffect } from '@/components/ui/card-hover-effect'
 import type { HoverItem } from '@/components/ui/card-hover-effect'
 import { Spotlight } from '@/components/ui/spotlight'
+import { useAdhesion } from '@/contexts/AdhesionContext'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -133,6 +134,7 @@ const FOUNDERS = [
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const { openAdhesion } = useAdhesion()
   return (
     <div>
 
@@ -498,11 +500,11 @@ export default function HomePage() {
               transition={{ delay: 0.5 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Link href="/association"
+              <button onClick={openAdhesion}
                 className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
                 style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
                 Rejoindre l&apos;ANGB
-              </Link>
+              </button>
               <Link href="/forum"
                 className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
                 style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>

@@ -3,17 +3,15 @@
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useAdhesion } from '@/contexts/AdhesionContext'
 
-interface NavbarProps {
-  onOpenAdhesion: () => void
-}
-
-export default function Navbar({ onOpenAdhesion }: NavbarProps) {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [userMenu, setUserMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const userMenuRef             = useRef<HTMLDivElement>(null)
   const { user, profile, goalieProfile, needsSetup, openAuth, signOut } = useAuth()
+  const { openAdhesion } = useAdhesion()
 
   useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -176,7 +174,7 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
                   Connexion
                 </button>
                 <button
-                  onClick={onOpenAdhesion}
+                  onClick={openAdhesion}
                   className="px-4 py-2 rounded-lg text-[11px] font-extrabold uppercase tracking-[0.12em] transition-all hover:opacity-90 active:scale-95"
                   style={{ background: 'var(--accent)', color: '#fff', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
                   Adhésion
@@ -242,7 +240,7 @@ export default function Navbar({ onOpenAdhesion }: NavbarProps) {
                     style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'var(--gray)' }}>
                     Connexion
                   </button>
-                  <button onClick={() => { setMenuOpen(false); onOpenAdhesion() }}
+                  <button onClick={() => { setMenuOpen(false); openAdhesion() }}
                     className="py-3 rounded-lg text-xs font-extrabold uppercase tracking-[0.12em] text-center"
                     style={{ background: 'var(--accent)', color: '#fff' }}>
                     Rejoindre l'ANGB
