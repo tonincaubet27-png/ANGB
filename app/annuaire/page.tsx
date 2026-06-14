@@ -4,9 +4,19 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
+import { useAdhesion } from '@/contexts/AdhesionContext'
 import { getGoalieProfiles, updateGoalieProfile, uploadGoaliePhoto } from '@/lib/data'
 import PhotoUpload from '@/components/PhotoUpload'
-import type { GoalieProfile, CareerEntry, TrainingEntry, EtudesEntry } from '@/lib/types'
+import type { GoalieProfile, MemberCategory, CareerEntry, TrainingEntry, EtudesEntry } from '@/lib/types'
+
+// Sections de l'annuaire par catégorie de membre — on accueille tout le monde
+const CATEGORY_SECTIONS: { key: MemberCategory; label: string; singular: string; icon: string }[] = [
+  { key: 'gardien',            label: 'Gardiens',             singular: 'gardien',            icon: '🥅' },
+  { key: 'entraineur_gardien', label: 'Entraîneurs gardiens', singular: 'entraîneur gardien', icon: '🧤' },
+  { key: 'entraineur',         label: 'Entraîneurs',          singular: 'entraîneur',         icon: '📋' },
+  { key: 'joueur',             label: 'Joueurs',              singular: 'joueur',             icon: '🏒' },
+  { key: 'membre_soutien',     label: 'Membres soutien',      singular: 'membre soutien',     icon: '🤝' },
+]
 
 // ── Constantes ───────────────────────────────────────────────────────────────
 const FOUNDER_NAMES = new Set([
@@ -485,9 +495,68 @@ function STitle({ icon, label }: { icon: string; label: string }) {
   )
 }
 
+// ── Carte membre ───────────────────────────────────────────────────────────────
+function MemberCard({ g, index, owner, onSelect }: {
+  g: GoalieProfile; index: number; owner: boolean; onSelect: () => void
+}) {
+  const dv = dc(g.division)
+  const av = AP[index % AP.length]
+  return (
+    <motion.div whileHover={{ y: -4 }} onClick={onSelect}
+      className="p-5 rounded-2xl border cursor-pointer flex flex-col"
+      style={{ background: 'var(--navy-mid)', borderColor: g.is_founder ? 'rgba(74,127,255,0.3)' : owner ? 'rgba(74,127,255,0.5)' : 'var(--border)', transition: 'border-color 0.2s' }}>
+
+      <div className="flex justify-end mb-2 gap-1.5 h-5">
+        {owner && <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,127,255,0.2)', color: '#4a7fff', border: '1px solid rgba(74,127,255,0.4)' }}>Ma fiche</span>}
+        {g.is_founder && !owner && <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,127,255,0.12)', color: '#4a7fff', border: '1px solid rgba(74,127,255,0.25)' }}>Fondateur</span>}
+      </div>
+
+      <div className="flex items-start gap-3.5 mb-3">
+        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center text-lg font-bold"
+          style={{ background: av.bg, color: av.color, border: g.is_founder ? '2px solid rgba(74,127,255,0.3)' : 'none' }}>
+          {g.photo_url ? (
+            <Image src={g.photo_url} alt={g.name} width={56} height={56} className="w-full h-full object-cover" />
+          ) : ini(g.name)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--white)' }}>{g.name}</h3>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--gray)' }}>{g.club ?? '—'}</p>
+          {g.role_angb && <p className="text-[11px] font-medium mt-0.5" style={{ color: '#4a7fff' }}>{g.role_angb}</p>}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5 mb-3">
+        {g.division && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: dv.bg, color: dv.color }}>{g.division}</span>}
+        {g.region && <span className="text-xs" style={{ color: 'var(--gray)' }}>📍 {g.region}</span>}
+      </div>
+
+      <div className="mt-auto pt-3 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <span className="text-xs" style={{ color: 'var(--gray)' }}>
+          {owner ? '✏️ Modifier ma fiche' : g.parcours?.length ? 'Fiche complète' : 'Profil'}
+        </span>
+        <span className="text-xs font-semibold" style={{ color: '#4a7fff' }}>Voir →</span>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Carte d'invitation (section vide) ───────────────────────────────────────────
+function InviteCard({ singular, onJoin }: { singular: string; onJoin: () => void }) {
+  return (
+    <button onClick={onJoin}
+      className="w-full p-6 rounded-2xl border border-dashed text-center transition-colors hover:bg-white/5"
+      style={{ borderColor: 'rgba(255,255,255,0.12)' }}>
+      <p className="text-sm mb-1" style={{ color: 'var(--white)' }}>Aucun {singular} pour l&apos;instant</p>
+      <p className="text-xs mb-3" style={{ color: 'var(--gray)' }}>On accueille tout le monde avec plaisir — soyez le premier !</p>
+      <span className="text-sm font-semibold" style={{ color: '#4a7fff' }}>Rejoindre l&apos;ANGB →</span>
+    </button>
+  )
+}
+
 // ── Page principale ──────────────────────────────────────────────────────────
 export default function AnnuairePage() {
   const { user, profile, goalieProfile, linkedGoalies } = useAuth()
+  const { openAdhesion } = useAdhesion()
   const [goalies,   setGoalies]  = useState<GoalieProfile[]>([])
   const [loading,   setLoading]  = useState(true)
   const [search,    setSearch]   = useState('')
@@ -541,10 +610,10 @@ export default function AnnuairePage() {
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Annuaire</p>
           <h1 style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em', fontSize: 'clamp(3rem, 8vw, 5rem)' }}>
-            Annuaire des gardiens
+            Annuaire des membres
           </h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>
-            Répertoire des gardiens actifs en France · <span style={{ color: '#4a7fff' }}>Cliquez sur une fiche pour en savoir plus</span>
+            Gardiens, entraîneurs, joueurs et soutiens de la communauté ANGB · <span style={{ color: '#4a7fff' }}>Cliquez sur une fiche pour en savoir plus</span>
           </p>
         </div>
       </div>
@@ -578,58 +647,45 @@ export default function AnnuairePage() {
           </div>
         ) : (
           <>
-            <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>
-              {filtered.length} gardien{filtered.length !== 1 ? 's' : ''} trouvé{filtered.length !== 1 ? 's' : ''}
+            <p className="text-xs mb-6" style={{ color: 'var(--gray)' }}>
+              {filtered.length} membre{filtered.length !== 1 ? 's' : ''}
             </p>
-            {sorted.length === 0 ? (
-              <p className="text-center py-16 text-sm" style={{ color: 'var(--gray)' }}>Aucun gardien trouvé pour ces critères.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sorted.map((g, i) => {
-                  const dv = dc(g.division)
-                  const av = AP[i % AP.length]
-                  const owner = canEdit(g)
 
-                  return (
-                    <motion.div key={g.id} whileHover={{ y: -4 }} onClick={() => setSelected(g)}
-                      className="p-5 rounded-2xl border cursor-pointer flex flex-col"
-                      style={{ background: 'var(--navy-mid)', borderColor: g.is_founder ? 'rgba(74,127,255,0.3)' : owner ? 'rgba(74,127,255,0.5)' : 'var(--border)', transition: 'border-color 0.2s' }}>
+            {(() => {
+              const isBrowsing = !search && divFilter === 'Toutes' && regFilter === 'Toutes'
+              const sections = CATEGORY_SECTIONS
+                .map(section => ({ section, members: sorted.filter(g => (g.category ?? 'gardien') === section.key) }))
+                .filter(({ members }) => members.length > 0 || isBrowsing)
 
-                      <div className="flex justify-end mb-2 gap-1.5 h-5">
-                        {owner && <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,127,255,0.2)', color: '#4a7fff', border: '1px solid rgba(74,127,255,0.4)' }}>Ma fiche</span>}
-                        {g.is_founder && !owner && <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,127,255,0.12)', color: '#4a7fff', border: '1px solid rgba(74,127,255,0.25)' }}>Fondateur</span>}
-                      </div>
+              if (sections.length === 0) {
+                return <p className="text-center py-16 text-sm" style={{ color: 'var(--gray)' }}>Aucun membre trouvé pour ces critères.</p>
+              }
 
-                      <div className="flex items-start gap-3.5 mb-3">
-                        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center text-lg font-bold"
-                          style={{ background: av.bg, color: av.color, border: g.is_founder ? '2px solid rgba(74,127,255,0.3)' : 'none' }}>
-                          {g.photo_url ? (
-                            <Image src={g.photo_url} alt={g.name} width={56} height={56} className="w-full h-full object-cover" />
-                          ) : ini(g.name)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm" style={{ color: 'var(--white)' }}>{g.name}</h3>
-                          <p className="text-xs mt-0.5" style={{ color: 'var(--gray)' }}>{g.club ?? '—'}</p>
-                          {g.role_angb && <p className="text-[11px] font-medium mt-0.5" style={{ color: '#4a7fff' }}>{g.role_angb}</p>}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                        {g.division && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: dv.bg, color: dv.color }}>{g.division}</span>}
-                        {g.region && <span className="text-xs" style={{ color: 'var(--gray)' }}>📍 {g.region}</span>}
-                      </div>
-
-                      <div className="mt-auto pt-3 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span className="text-xs" style={{ color: 'var(--gray)' }}>
-                          {owner ? '✏️ Modifier ma fiche' : g.parcours?.length ? 'Fiche complète' : 'Profil'}
-                        </span>
-                        <span className="text-xs font-semibold" style={{ color: '#4a7fff' }}>Voir →</span>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </div>
-            )}
+              return sections.map(({ section, members }) => (
+                <section key={section.key} className="mb-10">
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <span className="text-lg">{section.icon}</span>
+                    <h2 className="text-xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
+                      {section.label}
+                    </h2>
+                    {members.length > 0 && (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,127,255,0.12)', color: '#4a7fff' }}>
+                        {members.length}
+                      </span>
+                    )}
+                  </div>
+                  {members.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {members.map((g, i) => (
+                        <MemberCard key={g.id} g={g} index={i} owner={canEdit(g)} onSelect={() => setSelected(g)} />
+                      ))}
+                    </div>
+                  ) : (
+                    <InviteCard singular={section.singular} onJoin={openAdhesion} />
+                  )}
+                </section>
+              ))
+            })()}
           </>
         )}
 

@@ -32,6 +32,8 @@ const STATUT_LABELS: Record<string, string> = {
   gardien_actif:      'Gardien actif',
   ancien_gardien:     'Ancien gardien',
   entraineur_gardien: 'Entraîneur gardien',
+  entraineur:         'Entraîneur',
+  joueur:             'Joueur',
   parent:             'Parent / tuteur',
   membre_soutien:     'Membre soutien',
 }

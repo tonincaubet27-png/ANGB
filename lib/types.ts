@@ -67,10 +67,15 @@ export interface EtudesEntry {
  * Profil complet d'un gardien (remplace l'ancien Goalie + EXTENDED).
  * user_id est renseigné quand le gardien a créé un compte.
  */
+/** Catégorie de membre — sert au classement de l'annuaire et au bulletin */
+export type MemberCategory =
+  | 'gardien' | 'entraineur_gardien' | 'entraineur' | 'joueur' | 'membre_soutien'
+
 export interface GoalieProfile {
   id:          string
   user_id?:    string
   name:        string
+  category?:   MemberCategory
   club?:       string
   division?:   string
   region?:     string

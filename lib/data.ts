@@ -49,7 +49,7 @@ const MOCK_POSTS: Record<string, Post[]> = {
 // Les autres fondateurs complèteront leur fiche via le système de profil.
 export const MOCK_GOALIE_PROFILES: GoalieProfile[] = [
   {
-    id: 'f1', name: 'Tonin Caubet',
+    id: 'f1', name: 'Tonin Caubet', category: 'gardien',
     club: 'Montpellier HC', division: 'D2', region: 'Occitanie',
     photo_url: '/images/tonin caubet.jpg',
     bio_note: 'Président fondateur ANGB · Gardien · Rouen Dragons (Magnus 2022-24) · International France U16, U18, U20',
@@ -70,11 +70,11 @@ export const MOCK_GOALIE_PROFILES: GoalieProfile[] = [
     ],
     is_active: true, is_founder: true, created_at: '2026-01-01',
   },
-  { id:'f2', name:'Pacôme Courtoison', photo_url:'/images/pacôme courtoison.jpeg', role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
-  { id:'f3', name:'Steven Catelin',    photo_url:'/images/steven catelin.png',      role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
-  { id:'f4', name:'Flo Gourdin',       photo_url:'/images/flo gourdin.jpg',          role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
-  { id:'f5', name:'Jean-JP Fontaine',  photo_url:'/images/jean jp fontaine.jpg',     role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
-  { id:'f6', name:'Adrien Vazzaz',     photo_url:'/images/adrien vazzaz.jpg',        role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
+  { id:'f2', name:'Pacôme Courtoison', category:'gardien', photo_url:'/images/pacôme courtoison.jpeg', role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
+  { id:'f3', name:'Steven Catelin',    category:'gardien', photo_url:'/images/steven catelin.png',      role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
+  { id:'f4', name:'Flo Gourdin',       category:'gardien', photo_url:'/images/flo gourdin.jpg',          role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
+  { id:'f5', name:'Jean-JP Fontaine',  category:'gardien', photo_url:'/images/jean jp fontaine.jpg',     role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
+  { id:'f6', name:'Adrien Vazzaz',     category:'gardien', photo_url:'/images/adrien vazzaz.jpg',        role_angb:'Fondateur', bio_note:'Fondateur ANGB', is_active:true, is_founder:true, created_at:'2026-01-01' },
   // Démo
   { id:'1',  name:'Julien Martin',     club:'Rouen Dragons',   division:'Magnus',         region:'Normandie',          bio_note:'Gardien professionnel', is_active:true, created_at:'2026-06-01' },
   { id:'2',  name:'Alexandre Bonnard', club:'Bordeaux Boxers',  division:'D1',             region:'Nouvelle-Aquitaine', bio_note:'Titulaire D1',          is_active:true, created_at:'2026-06-01' },
@@ -136,7 +136,12 @@ export async function getGoalieProfiles(): Promise<GoalieProfile[]> {
       .order('is_founder', { ascending: false })
       .order('name', { ascending: true })
     if (error || !data) return MOCK_GOALIE_PROFILES
-    return data as GoalieProfile[]
+    // Les fondateurs (contenu curaté avec photos) sont toujours affichés ;
+    // on ajoute ensuite les membres réels de la base (hors doublons de nom).
+    const founders = MOCK_GOALIE_PROFILES.filter(g => g.is_founder)
+    const founderNames = new Set(founders.map(f => f.name))
+    const dbMembers = (data as GoalieProfile[]).filter(d => !founderNames.has(d.name))
+    return [...founders, ...dbMembers]
   } catch { return MOCK_GOALIE_PROFILES }
 }
 

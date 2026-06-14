@@ -385,6 +385,8 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                         { value: 'gardien_actif',      label: 'Gardien actif' },
                         { value: 'ancien_gardien',     label: 'Ancien gardien' },
                         { value: 'entraineur_gardien', label: 'Entraîneur gardien' },
+                        { value: 'entraineur',         label: 'Entraîneur' },
+                        { value: 'joueur',             label: 'Joueur' },
                         { value: 'parent',             label: 'Parent / tuteur' },
                         { value: 'membre_soutien',     label: 'Membre soutien' },
                       ].map(opt => {
