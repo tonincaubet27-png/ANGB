@@ -225,6 +225,12 @@ function RequestCard({
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
 
+  // « Répondre » → ouvre Gmail en rédaction (depuis angbcontact@gmail.com si connecté),
+  // adressé à l'adhérent, avec sujet + message pré-remplis.
+  const replySubject = `Votre adhésion à l'ANGB`
+  const replyBody = `Bonjour ${r.prenom},\n\nNous revenons vers vous concernant votre demande d'adhésion à l'Association Nationale des Gardiens de But.\n\n\n\nSportivement,\nLe bureau de l'ANGB`
+  const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}&su=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyBody)}`
+
   return (
     <div style={{ background: '#0d1525', border: '1px solid #1e293b', borderRadius: 12, padding: '20px 24px' }}>
       {/* En-tête de la carte */}
@@ -301,7 +307,9 @@ function RequestCard({
           </form>
         )}
         <a
-          href={`mailto:${r.email}?subject=Votre adhésion à l'ANGB`}
+          href={gmailHref}
+          target="_blank"
+          rel="noopener noreferrer"
           style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', background: 'rgba(74,127,255,0.08)', border: '1px solid rgba(74,127,255,0.2)', color: '#4a7fff' }}
         >
           📧 Répondre

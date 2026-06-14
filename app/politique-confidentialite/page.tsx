@@ -33,7 +33,7 @@ export default function PolitiqueConfidentialitePage() {
           <p>
             Conformément au RGPD (Règlement UE 2016/679), vous disposez d'un droit d'accès, de rectification,
             d'effacement et de portabilité de vos données. Pour exercer ces droits, contactez-nous à{' '}
-            <a href="mailto:contact@angb.fr" style={{ color: 'var(--accent)' }}>contact@angb.fr</a>.
+            <a href="mailto:angbcontact@gmail.com" style={{ color: 'var(--accent)' }}>angbcontact@gmail.com</a>.
           </p>
         </section>
 

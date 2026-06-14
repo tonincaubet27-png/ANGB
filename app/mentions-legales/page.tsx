@@ -15,7 +15,7 @@ export default function MentionsLegalesPage() {
             Association Nationale des Gardiens de But (ANGB)<br />
             Association loi 1901<br />
             Fondée en 2026<br />
-            Email : <a href="mailto:contact@angb.fr" style={{ color: 'var(--accent)' }}>contact@angb.fr</a>
+            Email : <a href="mailto:angbcontact@gmail.com" style={{ color: 'var(--accent)' }}>angbcontact@gmail.com</a>
           </p>
         </section>
 

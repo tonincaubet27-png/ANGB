@@ -21,11 +21,11 @@ export default function Footer() {
               Structurer, développer et protéger la pratique du poste de gardien de but en France.
             </p>
             <a
-              href="mailto:contact@angb.fr"
+              href="mailto:angbcontact@gmail.com"
               className="inline-block mt-4 text-sm font-medium transition-colors hover:text-white"
               style={{ color: 'var(--accent)' }}
             >
-              contact@angb.fr
+              angbcontact@gmail.com
             </a>
           </div>
 

@@ -70,8 +70,8 @@ export default function ConseilSection() {
       >
         <p className="text-sm" style={{ color: 'var(--gray)' }}>
           Pour toute demande d'accompagnement, contactez-nous à{' '}
-          <a href="mailto:contact@angb.fr" className="underline" style={{ color: 'var(--accent)' }}>
-            contact@angb.fr
+          <a href="mailto:angbcontact@gmail.com" className="underline" style={{ color: 'var(--accent)' }}>
+            angbcontact@gmail.com
           </a>
           {' '}— le bureau répondra dans les 48h ouvrées.
         </p>
