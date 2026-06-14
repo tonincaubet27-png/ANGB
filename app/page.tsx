@@ -108,16 +108,16 @@ const FEATURES: HoverItem[] = [
 
 const GALLERY = [
   {
-    src: '/images/christobal huet.jpeg',
+    src: '/images/cristobal-huet-cup.jpg',
     name: 'Cristobal Huet',
-    title: 'Champion NHL · Stanley Cup 2010',
-    badge: '🏆 Légende française',
+    title: '1ᵉʳ gardien français drafté en NHL',
+    badge: '🏆 Stanley Cup 2010',
   },
   {
     src: '/images/antoine keller.jpg',
     name: 'Antoine Keller',
-    title: '1er gardien français drafté en NHL',
-    badge: '⭐ Pionnier NHL',
+    title: '2ᵉ gardien français drafté en NHL',
+    badge: '⭐ NHL',
   },
 ]
 
