@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { useAuth } from '@/contexts/AuthContext'
 import MissionSection from '@/components/about/MissionSection'
 import FormationSection from '@/components/about/FormationSection'
 import SanteSection from '@/components/about/SanteSection'
@@ -24,6 +25,7 @@ export default function AssociationPage() {
   const [activeTab, setActiveTab] = useState('mission')
   const ActiveSection = TABS.find(t => t.id === activeTab)?.component ?? MissionSection
   const { openAdhesion } = useAdhesion()
+  const { user } = useAuth()
 
   return (
     <div>
@@ -50,13 +52,15 @@ export default function AssociationPage() {
               Association Nationale des Gardiens de But — Loi 1901 · Fondée en 2026
             </p>
           </div>
-          <button
-            onClick={openAdhesion}
-            className="flex-shrink-0 px-6 py-3 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-            style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}
-          >
-            Rejoindre l&apos;ANGB
-          </button>
+          {!user && (
+            <button
+              onClick={openAdhesion}
+              className="flex-shrink-0 px-6 py-3 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+              style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}
+            >
+              Rejoindre l&apos;ANGB
+            </button>
+          )}
         </div>
       </div>
 
@@ -93,7 +97,8 @@ export default function AssociationPage() {
         <ActiveSection />
       </div>
 
-      {/* CTA bas de page */}
+      {/* CTA bas de page — masqué pour les membres déjà connectés */}
+      {!user && (
       <div className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
         <div
           className="rounded-2xl p-8 md:p-10 text-center"
@@ -117,6 +122,7 @@ export default function AssociationPage() {
           </button>
         </div>
       </div>
+      )}
     </div>
   )
 }

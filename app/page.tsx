@@ -9,6 +9,7 @@ import { HoverEffect } from '@/components/ui/card-hover-effect'
 import type { HoverItem } from '@/components/ui/card-hover-effect'
 import { Spotlight } from '@/components/ui/spotlight'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -135,6 +136,7 @@ const FOUNDERS = [
 
 export default function HomePage() {
   const { openAdhesion } = useAdhesion()
+  const { user } = useAuth()
   return (
     <div>
 
@@ -417,7 +419,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA Banner ──────────────────────────────────────────────── */}
+      {/* ── CTA Banner — masqué pour les membres déjà connectés ──────── */}
+      {!user && (
       <section className="py-24" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <motion.div
@@ -514,6 +517,7 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+      )}
 
     </div>
   )
