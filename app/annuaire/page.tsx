@@ -605,21 +605,9 @@ export default function AnnuairePage() {
         )}
       </AnimatePresence>
 
-      {/* Header — photo de gardien en fondu (discret) */}
-      <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
-        {/* Photo en fond, désaturée et très atténuée */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'url(/images/cristobal-huet-cup.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 25%',
-          opacity: 0.16,
-          filter: 'grayscale(70%)',
-        }} />
-        {/* Dégradés : navy à gauche pour la lisibilité du texte + teinte bleue */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'linear-gradient(90deg, var(--navy) 0%, rgba(7,11,21,0.65) 45%, rgba(7,11,21,0.15) 100%), linear-gradient(180deg, rgba(74,127,255,0.10) 0%, transparent 100%)',
-        }} />
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8">
+      {/* Header */}
+      <div className="py-16" style={{ background: 'linear-gradient(180deg, rgba(74,127,255,0.08) 0%, transparent 100%)', borderBottom: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
           <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Annuaire</p>
           <h1 style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em', fontSize: 'clamp(3rem, 8vw, 5rem)' }}>
             Annuaire des membres
