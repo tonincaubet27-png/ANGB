@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { sendMail } from '@/lib/email'
 import { createClient } from '@supabase/supabase-js'
 
 const ADMIN_EMAIL = 'angbcontact@gmail.com'
@@ -137,22 +137,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 4 — Email de notification au bureau (best-effort)
-  const resendKey = process.env.RESEND_API_KEY
-  if (resendKey) {
-    try {
-      const resend = new Resend(resendKey)
-      const { error } = await resend.emails.send({
-        from:    'ANGB <onboarding@resend.dev>',
-        to:      ADMIN_EMAIL,
-        subject: `🏒 Nouvelle adhésion — ${payload.prenom} ${payload.nom}`,
-        html:    buildEmailHtml(payload),
-      })
-      if (error) warnings.push(`Resend : ${error.message}`)
-    } catch (e) {
-      warnings.push(`Resend exception : ${String(e)}`)
-    }
-  }
+  // 5 — Email de notification au bureau (best-effort, via Gmail)
+  const notif = await sendMail({
+    to:      ADMIN_EMAIL,
+    subject: `🏒 Nouvelle adhésion — ${payload.prenom} ${payload.nom}`,
+    html:    buildEmailHtml(payload),
+  })
+  if (!notif.ok && notif.error) warnings.push(`Email : ${notif.error}`)
 
   return NextResponse.json({ ok: true, warnings: warnings.length ? warnings : undefined })
 }

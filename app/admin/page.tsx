@@ -3,6 +3,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { sendMail, buildMemberCardEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic' // pas de cache — données en temps réel
 
@@ -48,6 +49,17 @@ function formatStatut(raw: string | null): string {
   return raw.split(',').map(s => STATUT_LABELS[s.trim()] ?? s.trim()).join(', ')
 }
 
+/** Catégorie d'annuaire déduite des statuts (pour la carte de membre) */
+function deriveCategory(statut?: string | null): string | null {
+  const arr = (statut ?? '').split(',').map(s => s.trim())
+  if (arr.includes('gardien_actif') || arr.includes('ancien_gardien')) return 'gardien'
+  if (arr.includes('entraineur_gardien')) return 'entraineur_gardien'
+  if (arr.includes('entraineur'))         return 'entraineur'
+  if (arr.includes('joueur'))             return 'joueur'
+  if (arr.includes('membre_soutien'))     return 'membre_soutien'
+  return null
+}
+
 // ── Server action — changer le statut ─────────────────────────────────────────
 // Valider/refuser une adhésion met aussi à jour le statut de membre du compte lié
 // (membership_status), ce qui débloque ou bloque l'accès au forum / dépôt d'annonce.
@@ -65,11 +77,13 @@ async function changeStatus(formData: FormData) {
     .from('adhesion_requests')
     .update({ status })
     .eq('id', id)
-    .select('user_id')
+    .select('user_id, prenom, nom, email, statut')
     .single()
 
+  const row = updated as { user_id?: string; prenom?: string; nom?: string; email?: string; statut?: string } | null
+
   // 2 — statut de membre sur le compte lié + visibilité de la fiche annuaire
-  const userId = (updated as { user_id?: string } | null)?.user_id
+  const userId = row?.user_id
   if (userId) {
     const membership =
       status === 'validated' ? 'active'
@@ -78,6 +92,21 @@ async function changeStatus(formData: FormData) {
     await supabase.from('profiles').update({ membership_status: membership }).eq('id', userId)
     // La fiche annuaire n'est visible qu'une fois la demande validée
     await supabase.from('goalie_profiles').update({ is_active: status === 'validated' }).eq('user_id', userId)
+  }
+
+  // 3 — Email « carte de membre » à la validation (best-effort)
+  if (status === 'validated' && row?.email) {
+    const memberNumber = `ANGB-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(-6).toUpperCase()}`
+    await sendMail({
+      to:      row.email,
+      subject: '🎉 Bienvenue à l’ANGB — votre carte de membre',
+      html:    buildMemberCardEmail({
+        prenom: row.prenom ?? '',
+        nom: row.nom ?? '',
+        category: deriveCategory(row.statut),
+        memberNumber,
+      }),
+    })
   }
 
   revalidatePath('/admin')
