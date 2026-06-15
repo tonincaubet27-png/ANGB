@@ -25,6 +25,7 @@ interface AdhesionRequest {
   accept_rgpd: boolean
   autorisation_image: boolean
   status: 'pending' | 'validated' | 'rejected'
+  member_no: number | null
   created_at: string
 }
 
@@ -77,10 +78,10 @@ async function changeStatus(formData: FormData) {
     .from('adhesion_requests')
     .update({ status })
     .eq('id', id)
-    .select('user_id, prenom, nom, email, statut')
+    .select('user_id, prenom, nom, email, statut, member_no')
     .single()
 
-  const row = updated as { user_id?: string; prenom?: string; nom?: string; email?: string; statut?: string } | null
+  const row = updated as { user_id?: string; prenom?: string; nom?: string; email?: string; statut?: string; member_no?: number | null } | null
 
   // 2 — statut de membre sur le compte lié + visibilité de la fiche annuaire
   const userId = row?.user_id
@@ -94,9 +95,21 @@ async function changeStatus(formData: FormData) {
     await supabase.from('goalie_profiles').update({ is_active: status === 'validated' }).eq('user_id', userId)
   }
 
-  // 3 — Email « carte de membre » à la validation (best-effort)
+  // 3 — À la validation : numéro d'adhérent séquentiel (1, 2, 3…) + email carte
   if (status === 'validated' && row?.email) {
-    const memberNumber = `ANGB-${new Date().getFullYear()}-${id.replace(/-/g, '').slice(-6).toUpperCase()}`
+    // Attribue le n° une seule fois : le 1er validé = 1, puis max + 1
+    let memberNo = row.member_no ?? null
+    if (memberNo == null) {
+      const { data: maxRow } = await supabase
+        .from('adhesion_requests')
+        .select('member_no')
+        .not('member_no', 'is', null)
+        .order('member_no', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      memberNo = (((maxRow as { member_no?: number } | null)?.member_no) ?? 0) + 1
+      await supabase.from('adhesion_requests').update({ member_no: memberNo }).eq('id', id)
+    }
     await sendMail({
       to:      row.email,
       subject: '🎉 Bienvenue à l’ANGB — votre carte de membre',
@@ -104,7 +117,7 @@ async function changeStatus(formData: FormData) {
         prenom: row.prenom ?? '',
         nom: row.nom ?? '',
         category: deriveCategory(row.statut),
-        memberNumber,
+        memberNumber: String(memberNo),
       }),
     })
   }
@@ -288,6 +301,7 @@ function RequestCard({
           ['Club',         r.club || '—'],
           ['Cotisation',   COTISATION_LABELS[r.cotisation ?? ''] ?? r.cotisation ?? '—'],
           ['Téléphone',    r.telephone || '—'],
+          ...(r.member_no ? [['N° membre', `#${r.member_no}`] as [string, string]] : []),
           ...(r.categorie_enfant ? [['Cat. enfant', r.categorie_enfant] as [string, string]] : []),
         ].map(([label, value]) => (
           <div key={label}>
