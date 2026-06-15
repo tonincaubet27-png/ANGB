@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
-import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card'
+import { CometCard } from '@/components/ui/comet-card'
 import { HoverEffect } from '@/components/ui/card-hover-effect'
 import type { HoverItem } from '@/components/ui/card-hover-effect'
 import { Spotlight } from '@/components/ui/spotlight'
@@ -344,59 +344,52 @@ export default function HomePage() {
             sub="De la D3 au Magnus, jusqu'à la NHL — la communauté des gardiens français."
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-3xl mx-auto">
             {GALLERY.map(({ src, name, title, badge }, i) => (
               <motion.div
                 key={name}
-                initial={{ opacity: 0, scale: 0.96 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.15 }}
+                transition={{ duration: 0.6, delay: i * 0.12 }}
               >
-                <CardContainer containerClassName="w-full">
-                  <CardBody
-                    className="relative overflow-hidden rounded-2xl"
-                    style={{ height: 500, background: 'var(--navy-light)' }}>
+                <CometCard className="w-full">
+                  <div
+                    className="relative w-full overflow-hidden rounded-2xl"
+                    style={{ aspectRatio: '3 / 4', background: 'var(--navy-light)', border: '1px solid var(--border)' }}
+                  >
+                    <Image src={src} alt={name} fill className="object-cover" sizes="(max-width:768px) 45vw, 360px" />
 
-                    {/* Photo flottante */}
-                    <CardItem translateZ={0} className="absolute inset-0">
-                      <Image src={src} alt={name} fill className="object-cover" sizes="50vw" />
-                      <div className="absolute inset-0"
-                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
-                    </CardItem>
+                    {/* Voile bas pour lisibilité */}
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.25) 45%, transparent 72%)' }} />
 
-                    {/* Barre tricolore */}
-                    <CardItem translateZ={20} className="absolute top-0 left-0 right-0 h-[3px] flex">
+                    {/* Barre tricolore haut */}
+                    <div className="absolute top-0 left-0 right-0 h-[3px] flex">
                       <div className="flex-1" style={{ background: '#002395' }} />
                       <div className="flex-1" style={{ background: '#fff' }} />
                       <div className="flex-1" style={{ background: '#ED2939' }} />
-                    </CardItem>
-
-                    {/* Badge */}
-                    <CardItem translateZ={60} className="absolute top-4 left-4">
-                      <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
-                        style={{ background: 'rgba(0,35,149,0.9)', color: 'white', backdropFilter: 'blur(4px)' }}>
-                        {badge}
-                      </span>
-                    </CardItem>
-
-                    {/* Nom flottant */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <CardItem translateZ={80}>
-                        <p className="font-bold text-3xl md:text-4xl"
-                          style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.05em', lineHeight: 1 }}>
-                          {name}
-                        </p>
-                      </CardItem>
-                      <CardItem translateZ={40} className="mt-1">
-                        <p className="text-xs font-semibold uppercase tracking-wide"
-                          style={{ color: 'rgba(255,255,255,0.6)' }}>
-                          {title}
-                        </p>
-                      </CardItem>
                     </div>
-                  </CardBody>
-                </CardContainer>
+
+                    {/* Badge palmarès */}
+                    <span
+                      className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(0,35,149,0.85)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+                    >
+                      {badge}
+                    </span>
+
+                    {/* Infos : nom → diviseur tricolore → sous-titre */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <p style={{ fontFamily: 'var(--font-bebas)', color: '#fff', letterSpacing: '0.05em', lineHeight: 1, fontSize: 'clamp(1.6rem, 4.5vw, 2.4rem)' }}>
+                        {name}
+                      </p>
+                      <div className="tricolor-divider my-2" />
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                        {title}
+                      </p>
+                    </div>
+                  </div>
+                </CometCard>
               </motion.div>
             ))}
           </div>
