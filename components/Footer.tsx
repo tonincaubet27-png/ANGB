@@ -37,6 +37,7 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 { href: '/association', label: "L'association" },
+                { href: '/actualites', label: 'Actualités' },
                 { href: '/annuaire', label: 'Annuaire' },
                 { href: '/ressources', label: 'Ressources officielles' },
                 { href: '/forum', label: 'Forum' },
