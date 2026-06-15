@@ -6,6 +6,7 @@ import { getThreads } from '@/lib/data'
 import type { Thread } from '@/lib/types'
 import { Tabs } from '@/components/ui/tabs'
 import type { Tab } from '@/components/ui/tabs'
+import HeaderPhoto from '@/components/HeaderPhoto'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -171,13 +172,11 @@ export default function ForumPage() {
 
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div
-        className="py-16"
-        style={{
-          background: 'linear-gradient(180deg, rgba(74,127,255,0.08) 0%, transparent 100%)',
-          borderBottom: '1px solid var(--border)',
-        }}
+        className="relative overflow-hidden py-16"
+        style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <HeaderPhoto src="/images/eddy-ferhi.jpg" position="center 25%" />
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8">
           <span className="overline-fr mb-3 inline-block">Communauté</span>
           <h1
             className="text-5xl md:text-7xl"

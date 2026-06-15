@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
+import HeaderPhoto from '@/components/HeaderPhoto'
 import MissionSection from '@/components/about/MissionSection'
 import FormationSection from '@/components/about/FormationSection'
 import SanteSection from '@/components/about/SanteSection'
@@ -31,13 +32,11 @@ export default function AssociationPage() {
     <div>
       {/* Header */}
       <div
-        className="relative py-16"
-        style={{
-          background: 'linear-gradient(180deg, rgba(74,127,255,0.08) 0%, transparent 100%)',
-          borderBottom: '1px solid var(--border)',
-        }}
+        className="relative overflow-hidden py-16"
+        style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+        <HeaderPhoto src="/images/fabrice-lhenry.jpg" position="center 40%" />
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
           <div>
             <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
               L'association

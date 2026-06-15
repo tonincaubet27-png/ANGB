@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { getGoalieProfiles, updateGoalieProfile, uploadGoaliePhoto } from '@/lib/data'
 import PhotoUpload from '@/components/PhotoUpload'
+import HeaderPhoto from '@/components/HeaderPhoto'
 import type { GoalieProfile, MemberCategory, CareerEntry, TrainingEntry, EtudesEntry } from '@/lib/types'
 
 // Sections de l'annuaire par catégorie de membre — on accueille tout le monde
@@ -606,8 +607,9 @@ export default function AnnuairePage() {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="py-16" style={{ background: 'linear-gradient(180deg, rgba(74,127,255,0.08) 0%, transparent 100%)', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
+        <HeaderPhoto src="/images/florian-hardy.jpg" position="center 30%" />
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8">
           <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Annuaire</p>
           <h1 style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em', fontSize: 'clamp(3rem, 8vw, 5rem)' }}>
             Annuaire des membres
