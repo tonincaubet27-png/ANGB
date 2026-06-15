@@ -10,6 +10,7 @@ import type { HoverItem } from '@/components/ui/card-hover-effect'
 import { Spotlight } from '@/components/ui/spotlight'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
+import FranceClubsMap from '@/components/FranceClubsMap'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -313,6 +314,24 @@ export default function HomePage() {
               <StatCard key={label} value={value} label={label} sub={sub} delay={i * 0.1} color={color} />
             ))}
           </div>
+
+          {/* Carte interactive des clubs de hockey */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="mt-20"
+          >
+            <h3 className="text-center text-3xl md:text-4xl mb-2"
+              style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
+              Les clubs de hockey en France
+            </h3>
+            <p className="text-center text-sm mb-10" style={{ color: 'var(--gray)', maxWidth: 520, margin: '0 auto 40px' }}>
+              Survole la carte pour explorer les clubs, de la Ligue Magnus à la Division 3.
+            </p>
+            <FranceClubsMap />
+          </motion.div>
         </div>
       </section>
 
