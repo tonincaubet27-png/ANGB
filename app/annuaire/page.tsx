@@ -8,6 +8,7 @@ import { useAdhesion } from '@/contexts/AdhesionContext'
 import { getGoalieProfiles, updateGoalieProfile, uploadGoaliePhoto } from '@/lib/data'
 import PhotoUpload from '@/components/PhotoUpload'
 import HeaderPhoto from '@/components/HeaderPhoto'
+import { Button as StatefulButton } from '@/components/ui/stateful-button'
 import type { GoalieProfile, MemberCategory, CareerEntry, TrainingEntry, EtudesEntry } from '@/lib/types'
 
 // Sections de l'annuaire par catégorie de membre — on accueille tout le monde
@@ -93,6 +94,53 @@ function ProfileDrawer({
   )
 }
 
+// ── Formulaire de contact (bouton animé) ───────────────────────────────────────
+function ContactForm({ goalie }: { goalie: GoalieProfile }) {
+  const firstName = goalie.name.split(' ')[0]
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [msg, setMsg] = useState('')
+  const [sent, setSent] = useState(false)
+  const valid = Boolean(name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && msg.trim())
+
+  const send = async () => {
+    if (!valid) return
+    const res = await fetch('/api/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toName: goalie.name, toUserId: goalie.user_id, fromName: name, fromEmail: email, message: msg }),
+    })
+    if (res.ok) setSent(true)
+  }
+
+  return (
+    <section className="p-4 rounded-2xl" style={{ background: 'rgba(74,127,255,0.05)', border: '1px solid rgba(74,127,255,0.2)' }}>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-sm">✉️</span>
+        <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#4a7fff' }}>Contacter {firstName}</h3>
+      </div>
+      {sent ? (
+        <p className="text-sm" style={{ color: '#34d399' }}>✓ Message envoyé ! Tu recevras la réponse par email.</p>
+      ) : (
+        <div className="space-y-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="Ton nom"
+              className="px-3 py-2 rounded-lg text-sm outline-none" style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
+            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Ton email" type="email"
+              className="px-3 py-2 rounded-lg text-sm outline-none" style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
+          </div>
+          <textarea value={msg} onChange={e => setMsg(e.target.value)} rows={3} placeholder={`Ton message à ${firstName}…`}
+            className="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
+          <StatefulButton onClick={send} disabled={!valid}>Envoyer le message</StatefulButton>
+          <p className="text-[11px]" style={{ color: 'var(--gray)' }}>
+            Ton email sert uniquement à recevoir la réponse — l’adresse du membre reste privée.
+          </p>
+        </div>
+      )}
+    </section>
+  )
+}
+
 // ── ViewProfile ───────────────────────────────────────────────────────────────
 function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit }: {
   goalie: GoalieProfile; div: { bg: string; color: string }
@@ -139,6 +187,8 @@ function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit }: {
 
       <div className="px-6 pb-16 space-y-6">
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+
+        <ContactForm goalie={goalie} />
 
         {goalie.bio_note && (
           <section>

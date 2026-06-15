@@ -10,7 +10,7 @@ export function emailConfigured(): boolean {
 
 /** Envoi best-effort via Gmail SMTP. Ne lève jamais — retourne { ok, error } */
 export async function sendMail(
-  { to, subject, html }: { to: string; subject: string; html: string }
+  { to, subject, html, replyTo }: { to: string; subject: string; html: string; replyTo?: string }
 ): Promise<{ ok: boolean; error?: string }> {
   if (!emailConfigured()) return { ok: false, error: 'Email non configuré (GMAIL_APP_PASSWORD manquant)' }
   try {
@@ -18,7 +18,7 @@ export async function sendMail(
       service: 'gmail',
       auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
     })
-    await transporter.sendMail({ from: `ANGB <${GMAIL_USER}>`, to, subject, html })
+    await transporter.sendMail({ from: `ANGB <${GMAIL_USER}>`, to, subject, html, replyTo })
     return { ok: true }
   } catch (e) {
     return { ok: false, error: String(e) }
