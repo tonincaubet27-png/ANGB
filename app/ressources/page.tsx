@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import HeaderPhoto from '@/components/HeaderPhoto'
 
 export const metadata = {
   title: 'Ressources & documents officiels — ANGB',
@@ -257,10 +258,11 @@ function SectionHeader({
 export default function RessourcesPage() {
   return (
     <main style={{ background: 'var(--navy)', minHeight: '100vh' }}>
-      <div className="max-w-5xl mx-auto px-4 md:px-8 py-12 md:py-16">
 
-        {/* ── Page header ───────────────────────────────────────────────────── */}
-        <div className="mb-12">
+      {/* ── Page header (bande pleine largeur + photo en fondu) ───────────── */}
+      <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
+        <HeaderPhoto src="/images/caroline-baldin.jpg" position="center 30%" />
+        <div className="relative max-w-5xl mx-auto px-4 md:px-8">
           <span
             className="text-[10px] font-bold uppercase tracking-[0.18em] px-2.5 py-1 rounded"
             style={{ background: 'rgba(74,127,255,0.1)', color: '#7aa8ff', border: '1px solid rgba(74,127,255,0.2)' }}
@@ -278,6 +280,9 @@ export default function RessourcesPage() {
             de Hockey sur Glace — centralisés ici pour les gardiens.
           </p>
         </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 md:px-8 py-12 md:py-16">
 
         {/* ── Section 1 — Santé ─────────────────────────────────────────────── */}
         <SectionHeader

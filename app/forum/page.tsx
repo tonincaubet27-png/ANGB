@@ -175,7 +175,7 @@ export default function ForumPage() {
         className="relative overflow-hidden py-16"
         style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <HeaderPhoto src="/images/eddy-ferhi.jpg" position="center 25%" />
+        <HeaderPhoto src="/images/hardy.jpg" position="center 35%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8">
           <span className="overline-fr mb-3 inline-block">Communauté</span>
           <h1

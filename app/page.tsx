@@ -143,6 +143,15 @@ export default function HomePage() {
       {/* ── Hero ────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden min-h-[92vh] flex items-center">
 
+        {/* Photo Huet (Bercy) en fondu très discret, derrière les dégradés */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'url(/images/huet-bercy.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 20%',
+          opacity: 0.13,
+          filter: 'grayscale(55%)',
+        }} />
+
         {/* Gradient bleu France */}
         <motion.div
           className="absolute inset-0 pointer-events-none"

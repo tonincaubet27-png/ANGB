@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getListings, createListing, createContactRequest } from '@/lib/data'
 import type { Listing } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
+import HeaderPhoto from '@/components/HeaderPhoto'
 
 const CATEGORIES = ['Tout', 'jambières', 'plastron', 'masque', 'gants', 'crosse', 'complet', 'autre']
 const CONDITIONS = ['Tout', 'très bon état', 'bon état', 'usage']
@@ -154,8 +155,9 @@ export default function EquipementPage() {
   return (
     <div>
       {/* Header */}
-      <div className="py-16" style={{ background: 'linear-gradient(180deg, rgba(74,127,255,0.08) 0%, transparent 100%)', borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
+        <HeaderPhoto src="/images/huet-canadiens.jpg" position="center 30%" />
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Bourse d&apos;équipement</p>
             <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Équipement</h1>
