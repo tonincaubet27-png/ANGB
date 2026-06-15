@@ -5,8 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
 import { CometCard } from '@/components/ui/comet-card'
-import { HoverEffect } from '@/components/ui/card-hover-effect'
-import type { HoverItem } from '@/components/ui/card-hover-effect'
+import { HeroParallax, type ParallaxItem } from '@/components/ui/hero-parallax'
 import { Spotlight } from '@/components/ui/spotlight'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
@@ -100,13 +99,17 @@ const STATS = [
   { value: '2026',  label: 'Année de fondation',  sub: 'Association loi 1901',    color: 'red'   as const },
 ]
 
-const FEATURES: HoverItem[] = [
-  { link: '/association', icon: '🏒', title: "L'association",     description: "Mission, équipe, axes stratégiques et fonctionnement de l'ANGB.", accent: '#002395' },
-  { link: '/association', icon: '🎓', title: 'Formation',         description: "Diplôme d'État gardien, label Club Formateur, réseau d'entraîneurs.", accent: '#ED2939' },
-  { link: '/association', icon: '🩺', title: 'Santé',             description: '67% jouent blessés. Protocoles de prévention et suivi médical.', accent: '#002395' },
-  { link: '/equipement',  icon: '🛡️', title: 'Bourse équipement', description: 'Achat et vente de matériel entre membres de la communauté.', accent: '#ED2939' },
-  { link: '/forum',       icon: '💬', title: 'Forum',             description: 'Échanges entre gardiens, entraîneurs et structures de tous niveaux.', accent: '#002395' },
-  { link: '/annuaire',    icon: '📋', title: 'Annuaire',          description: 'Répertoire des gardiens actifs en France par division et région.', accent: '#ED2939' },
+const ANGB_ACTIONS: ParallaxItem[] = [
+  { title: "L'association",        link: '/association', thumbnail: '/images/huet-bercy.jpg' },
+  { title: 'Formation',            link: '/association', thumbnail: '/images/florian-hardy.jpg' },
+  { title: 'Santé du gardien',     link: '/association', thumbnail: '/images/hardy.jpg' },
+  { title: 'Vivier français',      link: '/association', thumbnail: '/images/fabrice-lhenry.jpg' },
+  { title: 'Statistiques',         link: '/association', thumbnail: '/images/eddy-ferhi.jpg' },
+  { title: 'Annuaire des membres', link: '/annuaire',    thumbnail: '/images/caroline-baldin.jpg' },
+  { title: 'Forum',                link: '/forum',       thumbnail: '/images/huet-canadiens.jpg' },
+  { title: "Bourse d'équipement",  link: '/equipement',  thumbnail: '/images/cristobal-huet-cup.jpg' },
+  { title: 'Ressources FFHG',      link: '/ressources',  thumbnail: '/images/antoine keller.jpg' },
+  { title: 'Actualités',           link: '/actualites',  thumbnail: '/images/tonin caubet.jpg' },
 ]
 
 const GALLERY = [
@@ -427,17 +430,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Features 3D ─────────────────────────────────────────────── */}
-      <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <SectionHead
-            overline="Nos piliers"
-            title="Ce que fait l'ANGB"
-            sub="Six axes pour structurer, protéger et développer la communauté des gardiens français."
-          />
-
-          <HoverEffect items={FEATURES} />
-        </div>
+      {/* ── Ce que fait l'ANGB — HeroParallax ───────────────────────── */}
+      <section style={{ borderTop: '1px solid var(--border)' }}>
+        <HeroParallax
+          title="Ce que fait l'ANGB"
+          description="Structurer, protéger et développer la pratique du poste de gardien en France — de la formation à la carrière. Clique une tuile pour explorer."
+          items={ANGB_ACTIONS}
+        />
       </section>
 
       {/* ── CTA Banner — masqué pour les membres déjà connectés ──────── */}
