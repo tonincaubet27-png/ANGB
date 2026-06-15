@@ -13,13 +13,13 @@ import ConseilSection from '@/components/about/ConseilSection'
 import EquipeSection from '@/components/about/EquipeSection'
 
 const TABS = [
-  { id: 'mission', label: 'Mission & axes', component: MissionSection },
-  { id: 'formation', label: 'Formation', component: FormationSection },
-  { id: 'sante', label: 'Santé', component: SanteSection },
-  { id: 'vivier', label: 'Vivier français', component: VivierSection },
-  { id: 'stats', label: 'Statistiques', component: StatsSection },
-  { id: 'conseil', label: 'Conseil carrière', component: ConseilSection },
-  { id: 'equipe', label: "L'équipe", component: EquipeSection },
+  { id: 'mission', label: 'Mission & axes', icon: '🎯', component: MissionSection },
+  { id: 'formation', label: 'Formation', icon: '🎓', component: FormationSection },
+  { id: 'sante', label: 'Santé', icon: '🩺', component: SanteSection },
+  { id: 'vivier', label: 'Vivier français', icon: '🌱', component: VivierSection },
+  { id: 'stats', label: 'Statistiques', icon: '📊', component: StatsSection },
+  { id: 'conseil', label: 'Conseil carrière', icon: '💼', component: ConseilSection },
+  { id: 'equipe', label: "L'équipe", icon: '👥', component: EquipeSection },
 ]
 
 export default function AssociationPage() {
@@ -74,7 +74,7 @@ export default function AssociationPage() {
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="flex gap-0 min-w-max">
-            {TABS.map(({ id, label }) => (
+            {TABS.map(({ id, label, icon }) => (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
@@ -84,7 +84,7 @@ export default function AssociationPage() {
                   color: activeTab === id ? 'var(--white)' : 'var(--gray)',
                 }}
               >
-                {label}
+                <span className="mr-1.5">{icon}</span>{label}
               </button>
             ))}
           </div>

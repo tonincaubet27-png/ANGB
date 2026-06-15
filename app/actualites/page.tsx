@@ -93,7 +93,7 @@ export default function ActualitesPage() {
             const active = filter === f.key
             return (
               <button key={f.key} onClick={() => setFilter(f.key)} className="flex flex-col items-center gap-1.5 flex-shrink-0">
-                <div className="rounded-full flex items-center justify-center text-2xl transition-all"
+                <div className="rounded-full flex items-center justify-center text-2xl transition-transform duration-200 hover:scale-110"
                   style={{
                     width: 64, height: 64,
                     background: active ? 'rgba(74,127,255,0.12)' : 'var(--navy-mid)',

@@ -48,7 +48,7 @@ export function Tabs({
             onClick={() => moveSelectedTabToTop(idx)}
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
-            className={`relative px-4 py-2 rounded-full whitespace-nowrap ${tabClassName ?? ''}`}
+            className={`relative px-4 py-2 rounded-full whitespace-nowrap transition-transform duration-200 hover:scale-110 ${tabClassName ?? ''}`}
             style={{ transformStyle: 'preserve-3d' }}
           >
             {/* Indicateur actif animé */}

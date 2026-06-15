@@ -11,16 +11,16 @@ import HeaderPhoto from '@/components/HeaderPhoto'
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { label: 'Tous',        filter: null                   },
-  { label: 'Général',     filter: 'Général'              },
-  { label: 'Stages',      filter: 'Stages & tournois'    },
-  { label: 'Équipement',  filter: 'Équipement'           },
-  { label: 'Technique',   filter: 'Technique & coaching' },
-  { label: 'Prépa',       filter: 'Prépa physique'       },
-  { label: 'Santé',       filter: 'Santé & blessures'    },
-  { label: 'Clubs',       filter: 'Vie des clubs'        },
-  { label: 'Féminin',     filter: 'Hockey féminin'       },
-  { label: 'ANGB',        filter: 'ANGB & institutionnel'},
+  { label: 'Tous',        filter: null,                   icon: '📋' },
+  { label: 'Général',     filter: 'Général',              icon: '💬' },
+  { label: 'Stages',      filter: 'Stages & tournois',    icon: '🏟️' },
+  { label: 'Équipement',  filter: 'Équipement',           icon: '🛡️' },
+  { label: 'Technique',   filter: 'Technique & coaching', icon: '🎯' },
+  { label: 'Prépa',       filter: 'Prépa physique',       icon: '💪' },
+  { label: 'Santé',       filter: 'Santé & blessures',    icon: '🩺' },
+  { label: 'Clubs',       filter: 'Vie des clubs',        icon: '🏒' },
+  { label: 'Féminin',     filter: 'Hockey féminin',       icon: '♀️' },
+  { label: 'ANGB',        filter: 'ANGB & institutionnel',icon: '🇫🇷' },
 ]
 
 const TAG_STYLE: Record<string, { bg: string; color: string }> = {
@@ -141,7 +141,7 @@ export default function ForumPage() {
   }, [])
 
   // Construit les onglets à partir des catégories et des threads chargés
-  const tabs: Tab[] = CATEGORIES.map(({ label, filter }) => {
+  const tabs: Tab[] = CATEGORIES.map(({ label, filter, icon }) => {
     const catThreads = filter === null
       ? threads
       : threads.filter(t => t.category === filter)
@@ -154,7 +154,7 @@ export default function ForumPage() {
       .replace(/[^a-z0-9]+/g, '-')
 
     return {
-      title: label,
+      title: `${icon} ${label}`,
       value,
       content: (
         <div
