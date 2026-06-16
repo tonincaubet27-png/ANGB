@@ -39,9 +39,9 @@ export default function Footer() {
                 { href: '/association', label: "L'association" },
                 { href: '/actualites', label: 'Actualités' },
                 { href: '/annuaire', label: 'Annuaire' },
-                { href: '/ressources', label: 'Ressources officielles' },
                 { href: '/forum', label: 'Forum' },
                 { href: '/equipement', label: 'Équipement' },
+                { href: '/ressources', label: 'Ressources officielles' },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link

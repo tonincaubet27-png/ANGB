@@ -21,14 +21,11 @@ export const LayoutGrid = ({ cards }: { cards: LayoutCard[] }) => {
   const handleOutside = () => { setLast(selected); setSelected(null) }
 
   return (
-    <div
-      className="w-full grid grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto gap-4 relative"
-      style={{ gridAutoRows: '17rem' }}
-    >
+    <div className="w-full grid grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto gap-3 relative">
       {cards.map(card => {
         const isSelected = selected?.id === card.id
         return (
-          <div key={card.id} className={card.className}>
+          <div key={card.id} className={cn('aspect-square', card.className)}>
             <motion.div
               onClick={() => handleClick(card)}
               layoutId={`card-${card.id}`}

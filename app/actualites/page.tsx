@@ -53,12 +53,12 @@ export default function ActualitesPage() {
 
   const posts = filter === 'all' ? POSTS : POSTS.filter(p => p.type === filter)
 
-  const cards: LayoutCard[] = posts.map((post, i) => {
+  const cards: LayoutCard[] = posts.map((post) => {
     const tm = TYPE_META[post.type]
     return {
       id: Number(post.id),
       thumbnail: post.thumbnail,
-      className: i % 5 === 0 || i % 5 === 3 ? 'md:col-span-2' : 'col-span-1',
+      className: undefined,
       badge: (
         <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
           style={{ background: 'rgba(0,0,0,0.5)', color: tm.color }}>{tm.emoji} {tm.label}</span>

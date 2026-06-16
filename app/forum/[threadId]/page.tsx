@@ -51,11 +51,8 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
     }
   }
 
-  const fmt = (iso: string) =>
-    new Date(iso).toLocaleDateString('fr-FR', {
-      day: 'numeric', month: 'long', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    })
+  const fmtTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
   if (loading) {
     return (
@@ -90,59 +87,62 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
         {thread.title}
       </h1>
 
-      {/* Posts */}
-      <div className="space-y-4">
-        {posts.map((post, i) => (
-          <div key={post.id} className="p-5 rounded-2xl border"
-            style={{ background: 'var(--navy-mid)', borderColor: i === 0 ? 'rgba(74,127,255,0.3)' : 'var(--border)' }}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                style={{
-                  background: i === 0 ? 'rgba(74,127,255,0.2)' : 'var(--navy-light)',
-                  color: i === 0 ? 'var(--accent)' : 'var(--gray)',
-                }}>
-                {post.author_initials}
-              </div>
-              <div>
-                <p className="text-sm font-semibold" style={{ color: 'var(--white)' }}>{post.author_name}</p>
-                <p className="text-xs" style={{ color: 'var(--gray)' }}>{fmt(post.created_at)}</p>
-              </div>
-              {i === 0 && (
-                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(74,127,255,0.15)', color: 'var(--accent)' }}>OP</span>
+      {/* ── Fil de discussion (style messagerie) ────────────────────────── */}
+      <div className="rounded-2xl p-4 md:p-5 space-y-2.5" style={{ background: 'var(--navy)', border: '1px solid var(--border)' }}>
+        {posts.length === 0 ? (
+          <p className="text-sm text-center py-10" style={{ color: 'var(--gray)' }}>Aucun message — lance la discussion !</p>
+        ) : posts.map(post => {
+          const mine = isMember && post.author_name === profile?.display_name
+          return (
+            <div key={post.id} className={`flex gap-2 ${mine ? 'justify-end' : 'justify-start'}`}>
+              {!mine && (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 self-end"
+                  style={{ background: 'var(--navy-light)', color: 'var(--gray)' }}>
+                  {post.author_initials}
+                </div>
               )}
+              <div className="max-w-[80%] px-3.5 py-2"
+                style={{
+                  background: mine ? 'rgba(16,108,80,0.42)' : 'var(--navy-mid)',
+                  border: `1px solid ${mine ? 'rgba(37,211,102,0.3)' : 'var(--border)'}`,
+                  borderRadius: 14,
+                  borderTopLeftRadius: mine ? 14 : 4,
+                  borderTopRightRadius: mine ? 4 : 14,
+                }}>
+                {!mine && <p className="text-[11px] font-bold mb-0.5" style={{ color: 'var(--accent)' }}>{post.author_name}</p>}
+                <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--white)' }}>{post.content}</p>
+                <p className="text-[10px] mt-1 text-right" style={{ color: 'rgba(255,255,255,0.4)' }}>{fmtTime(post.created_at)}</p>
+              </div>
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>{post.content}</p>
-          </div>
-        ))}
-
-        {posts.length === 0 && (
-          <p className="text-sm text-center py-8" style={{ color: 'var(--gray)' }}>
-            Soyez le premier à répondre.
-          </p>
-        )}
+          )
+        })}
       </div>
 
-      {/* Reply form — réservé aux membres validés */}
+      {/* ── Zone de saisie (style WhatsApp) ─────────────────────────────── */}
       {isMember ? (
-        <div className="mt-6 p-5 rounded-2xl border" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
-          <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--white)' }}>
-            Répondre <span className="font-normal" style={{ color: 'var(--gray)' }}>en tant que {profile?.display_name}</span>
-          </h3>
-          <textarea rows={3} value={reply} onChange={e => setReply(e.target.value)}
-            placeholder="Votre réponse…"
-            className="w-full px-3 py-2.5 rounded-lg text-sm resize-none outline-none mb-3"
-            style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
-          <div className="flex justify-end">
-            <button onClick={handleReply} disabled={!reply.trim() || sending}
-              className="px-5 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-              style={{ background: 'var(--accent)' }}>
-              {sending ? '…' : 'Envoyer'}
-            </button>
+        <div className="mt-3 flex items-end gap-2">
+          <div className="flex-1 flex items-center rounded-3xl px-4 py-2.5" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
+            <textarea
+              rows={1}
+              value={reply}
+              onChange={e => setReply(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply() } }}
+              placeholder={`Message en tant que ${profile?.display_name}…`}
+              className="flex-1 bg-transparent text-sm outline-none resize-none max-h-32"
+              style={{ color: 'var(--white)' }}
+            />
           </div>
+          <button onClick={handleReply} disabled={!reply.trim() || sending}
+            aria-label="Envoyer"
+            className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-transform active:scale-90"
+            style={{ background: '#25D366' }}>
+            {sending
+              ? <span className="text-white text-sm">…</span>
+              : <svg width="20" height="20" viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" fill="#fff" /></svg>}
+          </button>
         </div>
       ) : (
-        <div className="mt-6 p-6 rounded-2xl border text-center" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
+        <div className="mt-4 p-6 rounded-2xl border text-center" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
           {!user ? (
             <>
               <p className="text-sm mb-1" style={{ color: 'var(--white)' }}>Réservé aux adhérents</p>
@@ -159,7 +159,7 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
             <>
               <p className="text-sm mb-1" style={{ color: '#fbbf24' }}>⏳ Adhésion en attente de validation</p>
               <p className="text-xs" style={{ color: 'var(--gray)' }}>
-                Vous pourrez répondre dès que le bureau aura validé votre adhésion.
+                Vous pourrez écrire dès que le bureau aura validé votre adhésion.
               </p>
             </>
           )}
