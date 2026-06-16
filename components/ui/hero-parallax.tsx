@@ -26,26 +26,29 @@ export function HeroParallax({
   title: string
   description?: string
 }) {
-  const third = Math.ceil(items.length / 3)
-  const row1 = items.slice(0, third)
-  const row2 = items.slice(third, third * 2)
-  const row3 = items.slice(third * 2)
+  const q = Math.ceil(items.length / 4)
+  const row1 = items.slice(0, q)
+  const row2 = items.slice(q, q * 2)
+  const row3 = items.slice(q * 2, q * 3)
+  const row4 = items.slice(q * 3)
 
   const ref = React.useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const springConfig = { stiffness: 300, damping: 30, bounce: 100 }
+  const springConfig = { stiffness: 200, damping: 30, bounce: 100 }
 
-  const translateX = useSpring(useTransform(scrollYProgress, [0, 1], [0, 900]), springConfig)
-  const translateXReverse = useSpring(useTransform(scrollYProgress, [0, 1], [0, -900]), springConfig)
-  const rotateX = useSpring(useTransform(scrollYProgress, [0, 0.2], [14, 0]), springConfig)
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.2], [0.3, 1]), springConfig)
-  const rotateZ = useSpring(useTransform(scrollYProgress, [0, 0.2], [18, 0]), springConfig)
-  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.2], [-600, 250]), springConfig)
+  // Entrée plus lente (sur 35% du scroll) + amplitude réduite → la 1re rangée
+  // se découvre progressivement au lieu d'arriver d'un coup.
+  const translateX = useSpring(useTransform(scrollYProgress, [0, 1], [0, 800]), springConfig)
+  const translateXReverse = useSpring(useTransform(scrollYProgress, [0, 1], [0, -800]), springConfig)
+  const rotateX = useSpring(useTransform(scrollYProgress, [0, 0.35], [10, 0]), springConfig)
+  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.35], [0.4, 1]), springConfig)
+  const rotateZ = useSpring(useTransform(scrollYProgress, [0, 0.35], [8, 0]), springConfig)
+  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.35], [-150, 200]), springConfig)
 
   return (
     <div
       ref={ref}
-      className="h-[290vh] py-28 overflow-hidden antialiased relative flex flex-col self-auto"
+      className="h-[360vh] py-28 overflow-hidden antialiased relative flex flex-col self-auto"
       style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
     >
       <div className="max-w-7xl relative mx-auto px-4 md:px-8 w-full">
@@ -67,8 +70,11 @@ export function HeroParallax({
         <motion.div className="flex flex-row space-x-6 md:space-x-12 mb-6 md:mb-12 px-4">
           {row2.map(item => <Tile key={item.title} item={item} translate={translateXReverse} />)}
         </motion.div>
-        <motion.div className="flex flex-row-reverse space-x-reverse space-x-6 md:space-x-12 px-4">
+        <motion.div className="flex flex-row-reverse space-x-reverse space-x-6 md:space-x-12 mb-6 md:mb-12 px-4">
           {row3.map(item => <Tile key={item.title} item={item} translate={translateX} />)}
+        </motion.div>
+        <motion.div className="flex flex-row space-x-6 md:space-x-12 px-4">
+          {row4.map(item => <Tile key={item.title} item={item} translate={translateXReverse} />)}
         </motion.div>
       </motion.div>
     </div>

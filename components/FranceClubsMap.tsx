@@ -82,9 +82,9 @@ export default function FranceClubsMap() {
   const path = geoPath(projection as any)
 
   return (
-    <div className="grid md:grid-cols-[1fr_auto] gap-6 items-center">
+    <div className="flex flex-col md:flex-row items-center justify-center gap-8">
       {/* Carte */}
-      <div className="relative">
+      <div className="relative w-full max-w-[380px]">
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label="Carte des clubs de hockey en France">
           {/* Régions */}
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
