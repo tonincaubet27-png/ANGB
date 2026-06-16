@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { LayoutGrid, type LayoutCard } from '@/components/ui/layout-grid'
 
 // ── Types & données (exemples — à remplacer par du vrai contenu) ────────────────
 type PostType = 'interview' | 'video' | 'podcast' | 'reportage'
@@ -13,6 +14,7 @@ interface NewsPost {
   date: string
   meta?: string
   url?: string
+  thumbnail: string
 }
 
 const TYPE_META: Record<PostType, { label: string; emoji: string; cta: string; from: string; to: string; color: string }> = {
@@ -23,15 +25,15 @@ const TYPE_META: Record<PostType, { label: string; emoji: string; cta: string; f
 }
 
 const POSTS: NewsPost[] = [
-  { id: '1', type: 'interview', title: 'Cristobal Huet — la Coupe Stanley vue des Alpes', caption: 'Le seul gardien français champion NHL revient sur son parcours, son rôle de modèle et l’avenir du poste en France.', date: '2026-06-10', meta: 'Lecture 8 min', url: '#' },
-  { id: '2', type: 'video',     title: 'Le papillon décortiqué', caption: 'Déplacements, couverture d’angle et récupération au sol — la technique du papillon expliquée image par image.', date: '2026-06-08', meta: '6 min', url: '#' },
-  { id: '3', type: 'podcast',   title: 'Épisode 1 — Être gardien en D2', caption: 'Quotidien, double projet études/sport et passion : trois gardiens de D2 témoignent.', date: '2026-06-05', meta: '42 min', url: '#' },
-  { id: '4', type: 'interview', title: 'Antoine Keller, pionnier du hockey français', caption: 'Retour sur le parcours d’un gardien qui a ouvert la voie vers l’Amérique du Nord.', date: '2026-06-03', meta: 'Lecture 6 min', url: '#' },
-  { id: '5', type: 'video',     title: 'Prépa physique spécifique gardien', caption: 'Mobilité des hanches, gainage anti-rotation et explosivité latérale : la séance type ANGB.', date: '2026-05-30', meta: '11 min', url: '#' },
-  { id: '6', type: 'reportage', title: 'Stage gardiens Grenoble — juillet 2026', caption: 'Immersion dans le premier stage estival de l’ANGB : trois jours sur et hors de la glace.', date: '2026-05-27', meta: '14 photos', url: '#' },
-  { id: '7', type: 'podcast',   title: 'Épisode 2 — La santé du gardien', caption: 'Commotions, hanches, santé mentale : on parle prévention avec un préparateur physique.', date: '2026-05-22', meta: '38 min', url: '#' },
-  { id: '8', type: 'video',     title: 'Le jeu au pied moderne', caption: 'Relances, soutien au défenseur, lecture du jeu : le gardien comme premier relanceur.', date: '2026-05-18', meta: '7 min', url: '#' },
-  { id: '9', type: 'interview', title: 'Gardienne en équipe de France féminine', caption: 'Le parcours, les défis et les ambitions d’une internationale tricolore.', date: '2026-05-14', meta: 'Lecture 7 min', url: '#' },
+  { id: '1', type: 'interview', title: 'Cristobal Huet — la Coupe Stanley vue des Alpes', caption: 'Le seul gardien français champion NHL revient sur son parcours, son rôle de modèle et l’avenir du poste en France.', date: '2026-06-10', meta: 'Lecture 8 min', url: '#', thumbnail: '/images/huet-canadiens.jpg' },
+  { id: '2', type: 'video',     title: 'Le papillon décortiqué', caption: 'Déplacements, couverture d’angle et récupération au sol — la technique du papillon expliquée image par image.', date: '2026-06-08', meta: '6 min', url: '#', thumbnail: '/images/hardy.jpg' },
+  { id: '3', type: 'podcast',   title: 'Épisode 1 — Être gardien en D2', caption: 'Quotidien, double projet études/sport et passion : trois gardiens de D2 témoignent.', date: '2026-06-05', meta: '42 min', url: '#', thumbnail: '/images/eddy-ferhi.jpg' },
+  { id: '4', type: 'interview', title: 'Antoine Keller, pionnier du hockey français', caption: 'Retour sur le parcours d’un gardien qui a ouvert la voie vers l’Amérique du Nord.', date: '2026-06-03', meta: 'Lecture 6 min', url: '#', thumbnail: '/images/antoine keller.jpg' },
+  { id: '5', type: 'video',     title: 'Prépa physique spécifique gardien', caption: 'Mobilité des hanches, gainage anti-rotation et explosivité latérale : la séance type ANGB.', date: '2026-05-30', meta: '11 min', url: '#', thumbnail: '/images/florian-hardy.jpg' },
+  { id: '6', type: 'reportage', title: 'Stage gardiens Grenoble — juillet 2026', caption: 'Immersion dans le premier stage estival de l’ANGB : trois jours sur et hors de la glace.', date: '2026-05-27', meta: '14 photos', url: '#', thumbnail: '/images/fabrice-lhenry.jpg' },
+  { id: '7', type: 'podcast',   title: 'Épisode 2 — La santé du gardien', caption: 'Commotions, hanches, santé mentale : on parle prévention avec un préparateur physique.', date: '2026-05-22', meta: '38 min', url: '#', thumbnail: '/images/huet-bercy.jpg' },
+  { id: '8', type: 'video',     title: 'Le jeu au pied moderne', caption: 'Relances, soutien au défenseur, lecture du jeu : le gardien comme premier relanceur.', date: '2026-05-18', meta: '7 min', url: '#', thumbnail: '/images/cristobal-huet-cup.jpg' },
+  { id: '9', type: 'interview', title: 'Gardienne en équipe de France féminine', caption: 'Le parcours, les défis et les ambitions d’une internationale tricolore.', date: '2026-05-14', meta: 'Lecture 7 min', url: '#', thumbnail: '/images/caroline-baldin.jpg' },
 ]
 
 const FILTERS: { key: PostType | 'all'; label: string; emoji: string }[] = [
@@ -48,9 +50,37 @@ const fmtDate = (iso: string) =>
 // ── Page ────────────────────────────────────────────────────────────────────────
 export default function ActualitesPage() {
   const [filter, setFilter] = useState<PostType | 'all'>('all')
-  const [open, setOpen] = useState<NewsPost | null>(null)
 
   const posts = filter === 'all' ? POSTS : POSTS.filter(p => p.type === filter)
+
+  const cards: LayoutCard[] = posts.map((post, i) => {
+    const tm = TYPE_META[post.type]
+    return {
+      id: Number(post.id),
+      thumbnail: post.thumbnail,
+      className: i % 5 === 0 || i % 5 === 3 ? 'md:col-span-2' : 'col-span-1',
+      badge: (
+        <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+          style={{ background: 'rgba(0,0,0,0.5)', color: tm.color }}>{tm.emoji} {tm.label}</span>
+      ),
+      title: (
+        <p className="text-sm font-semibold leading-snug" style={{ color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.title}</p>
+      ),
+      content: (
+        <>
+          <span className="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full mb-3"
+            style={{ background: `${tm.color}30`, color: tm.color }}>{tm.emoji} {tm.label}</span>
+          <h2 className="text-2xl md:text-3xl mb-2" style={{ fontFamily: 'var(--font-bebas)', color: '#fff', letterSpacing: '0.03em' }}>{post.title}</h2>
+          <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.6)' }}>{fmtDate(post.date)}{post.meta ? ` · ${post.meta}` : ''}</p>
+          <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(255,255,255,0.88)' }}>{post.caption}</p>
+          <a href={post.url || '#'} target="_blank" rel="noopener noreferrer"
+            onClick={e => { if (!post.url || post.url === '#') e.preventDefault() }}
+            className="inline-block py-2.5 px-5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            style={{ background: tm.color }}>{tm.cta}</a>
+        </>
+      ),
+    }
+  })
 
   return (
     <div>
@@ -108,71 +138,10 @@ export default function ActualitesPage() {
         </div>
       </div>
 
-      {/* ── Grille de posts ─────────────────────────────────────────────── */}
-      <div className="max-w-3xl mx-auto px-1 md:px-8 pb-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
-          {posts.map(post => {
-            const tm = TYPE_META[post.type]
-            return (
-              <button key={post.id} onClick={() => setOpen(post)}
-                className="relative aspect-square overflow-hidden group"
-                style={{ background: `linear-gradient(150deg, ${tm.from}, ${tm.to})` }}>
-                <span className="absolute inset-0 flex items-center justify-center text-6xl opacity-20 transition-opacity group-hover:opacity-30">{tm.emoji}</span>
-                <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(0,0,0,0.45)', color: tm.color }}>{tm.label}</span>
-                <div className="absolute bottom-0 left-0 right-0 p-2.5 text-left"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)' }}>
-                  <p className="text-xs font-semibold leading-snug" style={{ color: '#fff', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {post.title}
-                  </p>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
-                  style={{ background: 'rgba(0,0,0,0.5)' }}>
-                  <span className="text-sm font-semibold text-white">
-                    {post.type === 'video' ? '▶ Regarder' : post.type === 'podcast' ? '🎧 Écouter' : '→ Voir'}
-                  </span>
-                </div>
-              </button>
-            )
-          })}
-        </div>
+      {/* ── Grille interactive (LayoutGrid) ─────────────────────────────── */}
+      <div className="px-3 md:px-8 pb-24">
+        <LayoutGrid key={filter} cards={cards} />
       </div>
-
-      {/* ── Modal post ──────────────────────────────────────────────────── */}
-      {open && (() => {
-        const tm = TYPE_META[open.type]
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
-            onClick={e => { if (e.target === e.currentTarget) setOpen(null) }}>
-            <div className="w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
-              style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
-              <div className="relative aspect-square flex items-center justify-center"
-                style={{ background: `linear-gradient(150deg, ${tm.from}, ${tm.to})` }}>
-                <span className="text-7xl opacity-30">{tm.emoji}</span>
-                <span className="absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(0,0,0,0.45)', color: tm.color }}>{tm.emoji} {tm.label}</span>
-                <button onClick={() => setOpen(null)}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-white"
-                  style={{ background: 'rgba(0,0,0,0.45)' }}>✕</button>
-              </div>
-              <div className="p-5">
-                <p className="text-xs mb-1" style={{ color: 'var(--gray)' }}>
-                  {fmtDate(open.date)}{open.meta ? ` · ${open.meta}` : ''}
-                </p>
-                <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--white)' }}>{open.title}</h2>
-                <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--gray)' }}>{open.caption}</p>
-                <a href={open.url || '#'} target="_blank" rel="noopener noreferrer"
-                  onClick={e => { if (!open.url || open.url === '#') e.preventDefault() }}
-                  className="block text-center py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                  style={{ background: tm.color }}>
-                  {tm.cta}
-                </a>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
     </div>
   )
 }
