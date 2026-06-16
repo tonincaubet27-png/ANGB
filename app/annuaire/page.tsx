@@ -9,7 +9,7 @@ import { getGoalieProfiles, updateGoalieProfile, uploadGoaliePhoto } from '@/lib
 import PhotoUpload from '@/components/PhotoUpload'
 import HeaderPhoto from '@/components/HeaderPhoto'
 import { Button as StatefulButton } from '@/components/ui/stateful-button'
-import type { GoalieProfile, MemberCategory, CareerEntry, TrainingEntry, EtudesEntry } from '@/lib/types'
+import type { GoalieProfile, MemberCategory, CareerEntry, TrainingEntry, EtudesEntry, ExperienceEntry } from '@/lib/types'
 
 // Sections de l'annuaire par catégorie de membre — on accueille tout le monde
 const CATEGORY_SECTIONS: { key: MemberCategory; label: string; singular: string; icon: string }[] = [
@@ -257,6 +257,23 @@ function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit }: {
           </section>
         )}
 
+        {goalie.experiences && goalie.experiences.length > 0 && (
+          <section>
+            <STitle icon="💼" label="Expérience professionnelle" />
+            <div className="space-y-2">
+              {goalie.experiences.map((e, i) => (
+                <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span className="text-base flex-shrink-0">💼</span>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: 'var(--white)' }}>{e.poste}{e.entreprise ? ` · ${e.entreprise}` : ''}</p>
+                    {(e.periode || e.detail) && <p className="text-xs mt-0.5" style={{ color: 'var(--gray)' }}>{[e.periode, e.detail].filter(Boolean).join(' · ')}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {goalie.palmares && goalie.palmares.length > 0 && (
           <section>
             <STitle icon="🏆" label="Palmarès" />
@@ -296,6 +313,7 @@ function EditForm({ goalie, onCancel, onSaved }: {
   const [parcours,  setParcours]= useState<CareerEntry[]>(goalie.parcours ?? [])
   const [formation, setFormation]= useState<TrainingEntry[]>(goalie.formation ?? [])
   const [etudes,    setEtudes]  = useState<EtudesEntry[]>(goalie.etudes ?? [])
+  const [experiences, setExperiences] = useState<ExperienceEntry[]>(goalie.experiences ?? [])
   const [palmares,  setPalmares]= useState<string[]>(goalie.palmares ?? [])
   const [saving,    setSaving]  = useState(false)
   const [err,       setErr]     = useState('')
@@ -314,7 +332,7 @@ function EditForm({ goalie, onCancel, onSaved }: {
       else if (upErr) { setErr('Erreur upload photo : ' + upErr); setSaving(false); return }
     }
 
-    const patch = { name, club, division, region, bio_note: bio, parcours, formation, etudes, palmares, photo_url: finalPhotoUrl }
+    const patch = { name, club, division, region, bio_note: bio, parcours, formation, etudes, experiences, palmares, photo_url: finalPhotoUrl }
     const { ok, error } = await updateGoalieProfile(goalie.id, patch)
     setSaving(false)
     if (!ok) { setErr(error ?? 'Erreur lors de la sauvegarde.'); return }
@@ -384,6 +402,15 @@ function EditForm({ goalie, onCancel, onSaved }: {
           renderItem={e => `${e.diplome}${e.ecole ? ' · ' + e.ecole : ''}${e.annee ? ' · ' + e.annee : ''}`}
           onRemove={i => setEtudes(e => e.filter((_, j) => j !== i))}
           addForm={<EtudesForm onAdd={e => setEtudes(e2 => [...e2, e])} />}
+        />
+
+        {/* Expérience professionnelle */}
+        <ArraySection
+          title="💼 Expérience professionnelle"
+          items={experiences}
+          renderItem={e => `${e.poste}${e.entreprise ? ' · ' + e.entreprise : ''}${e.periode ? ' · ' + e.periode : ''}`}
+          onRemove={i => setExperiences(x => x.filter((_, j) => j !== i))}
+          addForm={<ExperienceForm onAdd={e => setExperiences(x => [...x, e])} />}
         />
 
         {/* Palmarès */}
@@ -501,6 +528,22 @@ function EtudesForm({ onAdd, onAdded }: { onAdd: (e: EtudesEntry) => void; onAdd
         <MiniRow label="École" value={ec} onChange={setEc} />
         <MiniRow label="Année" value={a} onChange={setA} placeholder="En cours" />
       </div>
+      <AddBtn onClick={submit} />
+    </div>
+  )
+}
+
+function ExperienceForm({ onAdd, onAdded }: { onAdd: (e: ExperienceEntry) => void; onAdded?: () => void }) {
+  const [p, setP] = useState(''); const [en, setEn] = useState(''); const [pe, setPe] = useState(''); const [de, setDe] = useState('')
+  const submit = () => { if (!p) return; onAdd({ poste: p, entreprise: en || undefined, periode: pe || undefined, detail: de || undefined }); onAdded?.() }
+  return (
+    <div className="space-y-2">
+      <MiniRow label="Poste *" value={p} onChange={setP} placeholder="Préparateur physique" />
+      <div className="grid grid-cols-2 gap-2">
+        <MiniRow label="Entreprise" value={en} onChange={setEn} placeholder="Club / société" />
+        <MiniRow label="Période" value={pe} onChange={setPe} placeholder="2022 - présent" />
+      </div>
+      <MiniRow label="Détail" value={de} onChange={setDe} placeholder="Missions, rôle…" />
       <AddBtn onClick={submit} />
     </div>
   )

@@ -63,6 +63,14 @@ export interface EtudesEntry {
   annee?:   string
 }
 
+/** Expérience professionnelle (style LinkedIn) */
+export interface ExperienceEntry {
+  poste:      string
+  entreprise?: string
+  periode?:   string
+  detail?:    string
+}
+
 /**
  * Profil complet d'un gardien (remplace l'ancien Goalie + EXTENDED).
  * user_id est renseigné quand le gardien a créé un compte.
@@ -82,10 +90,11 @@ export interface GoalieProfile {
   photo_url?:  string
   bio_note?:   string
   role_angb?:  string
-  parcours?:   CareerEntry[]
-  formation?:  TrainingEntry[]
-  etudes?:     EtudesEntry[]
-  palmares?:   string[]
+  parcours?:    CareerEntry[]
+  formation?:   TrainingEntry[]
+  etudes?:      EtudesEntry[]
+  experiences?: ExperienceEntry[]
+  palmares?:    string[]
   is_active:   boolean
   is_founder?: boolean
   created_at:  string
