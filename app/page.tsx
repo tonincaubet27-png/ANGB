@@ -100,16 +100,21 @@ const STATS = [
 ]
 
 const ANGB_ACTIONS: ParallaxItem[] = [
-  { title: "L'association",        link: '/association', thumbnail: '/images/huet-bercy.jpg' },
-  { title: 'Formation',            link: '/association', thumbnail: '/images/florian-hardy.jpg' },
-  { title: 'Santé du gardien',     link: '/association', thumbnail: '/images/hardy.jpg' },
-  { title: 'Vivier français',      link: '/association', thumbnail: '/images/fabrice-lhenry.jpg' },
-  { title: 'Statistiques',         link: '/association', thumbnail: '/images/eddy-ferhi.jpg' },
-  { title: 'Annuaire des membres', link: '/annuaire',    thumbnail: '/images/caroline-baldin.jpg' },
-  { title: 'Forum',                link: '/forum',       thumbnail: '/images/huet-canadiens.jpg' },
-  { title: "Bourse d'équipement",  link: '/equipement',  thumbnail: '/images/cristobal-huet-cup.jpg' },
-  { title: 'Ressources FFHG',      link: '/ressources',  thumbnail: '/images/antoine keller.jpg' },
-  { title: 'Actualités',           link: '/actualites',  thumbnail: '/images/tonin caubet.jpg' },
+  { title: "L'association",         link: '/association', thumbnail: '/images/huet-bercy.jpg' },
+  { title: 'Formation',             link: '/association', thumbnail: '/images/florian-hardy.jpg' },
+  { title: 'Santé du gardien',      link: '/association', thumbnail: '/images/hardy.jpg' },
+  { title: 'Vivier français',       link: '/association', thumbnail: '/images/fabrice-lhenry.jpg' },
+  { title: 'Statistiques',          link: '/association', thumbnail: '/images/eddy-ferhi.jpg' },
+  { title: 'Conseil carrière',      link: '/association', thumbnail: '/images/huet-canadiens.jpg' },
+  { title: 'Annuaire des membres',  link: '/annuaire',    thumbnail: '/images/caroline-baldin.jpg' },
+  { title: 'Forum',                 link: '/forum',       thumbnail: '/images/cristobal-huet-cup.jpg' },
+  { title: "Bourse d'équipement",   link: '/equipement',  thumbnail: '/images/antoine keller.jpg' },
+  { title: 'Ressources FFHG',       link: '/ressources',  thumbnail: '/images/tonin caubet.jpg' },
+  { title: 'Actualités',            link: '/actualites',  thumbnail: '/images/pacôme courtoison.jpeg' },
+  { title: 'Hockey féminin',        link: '/annuaire',    thumbnail: '/images/caroline-baldin.jpg' },
+  { title: "Réseau d'entraîneurs",  link: '/association', thumbnail: '/images/flo gourdin.jpg' },
+  { title: 'Le bureau & l’équipe',  link: '/association', thumbnail: '/images/jean jp fontaine.jpg' },
+  { title: 'Adhésion gratuite',     link: '/association', thumbnail: '/images/adrien vazzaz.jpg' },
 ]
 
 const GALLERY = [
