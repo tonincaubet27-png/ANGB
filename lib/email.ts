@@ -2,6 +2,8 @@ import nodemailer from 'nodemailer'
 
 const GMAIL_USER = process.env.GMAIL_USER          // angbcontact@gmail.com
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
+// URL publique du site (pour les liens dans les emails). À régler sur Vercel.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://angb.fr').replace(/\/$/, '')
 
 /** Vrai si l'envoi d'email est configuré (Gmail + mot de passe d'application) */
 export function emailConfigured(): boolean {
@@ -82,6 +84,12 @@ export function buildMemberCardEmail(p: {
       <p style="margin:0 0 12px;">Bonjour ${p.prenom},</p>
       <p style="margin:0 0 12px;">Ton adhésion à l'Association Nationale des Gardiens de But est <strong style="color:#ffffff;">validée</strong> ! Voici ta carte de membre pour la saison ${year}.</p>
       <p style="margin:0 0 12px;">Tu peux désormais participer au forum, déposer des annonces d'équipement et apparaître dans l'annuaire des membres.</p>
+      <p style="margin:0 0 14px;">L'ANGB, c'est de l'entraide entre gardiens dans le <strong style="color:#ffffff;">respect et la bienveillance</strong>. En participant, tu acceptes nos statuts et notre règlement intérieur.</p>
+      <div style="margin:0 0 16px;padding:12px 14px;background:#0a0f1e;border:1px solid #1e2a40;border-radius:8px;">
+        <a href="${SITE_URL}/reglement" style="color:#4a7fff;text-decoration:none;font-weight:bold;">📜 Statuts & règlement intérieur</a>
+        <span style="color:#3a4658;"> · </span>
+        <a href="${SITE_URL}/politique-confidentialite" style="color:#4a7fff;text-decoration:none;">Confidentialité (RGPD)</a>
+      </div>
       <p style="margin:0;color:#7a8fa8;">Sportivement,<br>Le bureau de l'ANGB</p>
     </td></tr></table>
 

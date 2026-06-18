@@ -64,6 +64,15 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
+                  href="/reglement"
+                  className="text-sm transition-colors hover:text-white"
+                  style={{ color: 'var(--gray)' }}
+                >
+                  Statuts & règlement intérieur
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/mentions-legales"
                   className="text-sm transition-colors hover:text-white"
                   style={{ color: 'var(--gray)' }}

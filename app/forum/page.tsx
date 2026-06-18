@@ -190,6 +190,20 @@ export default function ForumPage() {
         </div>
       </div>
 
+      {/* ── Charte de bonne conduite ─────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
+        <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.25)' }}>
+          <span className="text-lg flex-shrink-0">🤝</span>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+            <strong style={{ color: 'var(--white)' }}>Ici, c&apos;est l&apos;entraide entre gardiens — dans le respect.</strong>{' '}
+            Insultes, agressivité, harcèlement ou dénigrement sont interdits. Tout abus peut entraîner la suppression
+            du message, une suspension, voire la <strong style={{ color: '#fbbf24' }}>radiation et la suppression de l&apos;adhésion</strong>.
+            {' '}
+            <Link href="/reglement" className="font-semibold" style={{ color: 'var(--accent)' }}>Voir le règlement →</Link>
+          </p>
+        </div>
+      </div>
+
       {/* ── Contenu ───────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         {loading ? (
