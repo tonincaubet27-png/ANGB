@@ -182,7 +182,7 @@ export async function createGoalieProfile(payload: {
 /** Mettre à jour un profil gardien */
 export async function updateGoalieProfile(
   id: string,
-  patch: Partial<Pick<GoalieProfile, 'name' | 'club' | 'division' | 'region' | 'bio_note' | 'role_angb' | 'parcours' | 'formation' | 'etudes' | 'experiences' | 'palmares'>>
+  patch: Partial<Pick<GoalieProfile, 'name' | 'club' | 'division' | 'region' | 'bio_note' | 'role_angb' | 'parcours' | 'formation' | 'etudes' | 'experiences' | 'palmares' | 'gallery' | 'photo_url'>>
 ): Promise<{ ok: boolean; error?: string }> {
   const client = getClient()
   if (!client) return { ok: true } // mode démo

@@ -134,6 +134,12 @@ export default function Navbar() {
                       </p>
                     </div>
 
+                    <Link href="/profil" onClick={() => setUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide hover:bg-white/5 transition-colors"
+                      style={{ color: 'var(--white)' }}>
+                      👤 Mon profil
+                    </Link>
+
                     {profile?.role === 'gardien' && goalieProfile && (
                       <Link href="/annuaire" onClick={() => setUserMenu(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide hover:bg-white/5 transition-colors"
@@ -221,6 +227,11 @@ export default function Navbar() {
                   <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--white)' }}>
                     👋 {profile?.display_name ?? 'Mon compte'}
                   </p>
+                  <Link href="/profil" onClick={() => setMenuOpen(false)}
+                    className="text-xs font-bold uppercase tracking-wide py-2 rounded-lg"
+                    style={{ color: 'var(--accent)' }}>
+                    👤 Mon profil
+                  </Link>
                   {needsSetup && (
                     <button onClick={() => { setMenuOpen(false); openAuth() }}
                       className="text-xs font-bold uppercase tracking-wide py-2.5 rounded-lg text-center"

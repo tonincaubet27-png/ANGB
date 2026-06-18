@@ -95,6 +95,7 @@ export interface GoalieProfile {
   etudes?:      EtudesEntry[]
   experiences?: ExperienceEntry[]
   palmares?:    string[]
+  gallery?:     string[]
   is_active:   boolean
   is_founder?: boolean
   created_at:  string
