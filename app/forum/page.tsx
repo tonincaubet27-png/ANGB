@@ -195,7 +195,7 @@ export default function ForumPage() {
         <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.25)' }}>
           <span className="text-lg flex-shrink-0">🤝</span>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-            <strong style={{ color: 'var(--white)' }}>Ici, c&apos;est l&apos;entraide entre gardiens — dans le respect.</strong>{' '}
+            <strong style={{ color: 'var(--white)' }}>Ici, c&apos;est l&apos;entraide entre gardiens · dans le respect.</strong>{' '}
             Insultes, agressivité, harcèlement ou dénigrement sont interdits. Tout abus peut entraîner la suppression
             du message, une suspension, voire la <strong style={{ color: '#fbbf24' }}>radiation et la suppression de l&apos;adhésion</strong>.
             {' '}

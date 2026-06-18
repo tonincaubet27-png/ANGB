@@ -182,7 +182,7 @@ export default function AuthModal() {
     let displayName = name
 
     if (user) {
-      // Déjà connecté (Google OAuth) — pas besoin de signUp
+      // Déjà connecté (Google OAuth) · pas besoin de signUp
       userId = user.id
       if (!displayName) displayName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
       // Met à jour le profil créé par le trigger (rôle + nom)
@@ -231,7 +231,7 @@ export default function AuthModal() {
     registeringRef.current = false   // libéré APRÈS le success pour éviter tout reset
   }
 
-  // ── Étape 3b : parent — recherche enfant ──────────────────────────────────
+  // ── Étape 3b : parent · recherche enfant ──────────────────────────────────
   const handleSearch = async () => {
     if (!query.trim()) return
     setSearching(true)

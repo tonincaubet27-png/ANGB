@@ -93,10 +93,10 @@ function StatCard({ value, label, sub, delay = 0, color = 'blue' }: {
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const STATS = [
-  { value: '5',     label: 'Divisions couvertes', sub: 'Magnus → Féminine Élite', color: 'blue'  as const },
-  { value: '1200+', label: 'Gardiens en France',  sub: 'Tous niveaux confondus',  color: 'white' as const },
-  { value: '3',     label: 'Workstreams FFHG',    sub: 'Commissions actives',     color: 'blue'  as const },
-  { value: '2026',  label: 'Année de fondation',  sub: 'Association loi 1901',    color: 'red'   as const },
+  { value: '5',     label: 'Divisions couvertes', sub: 'Magnus → Féminine Élite',  color: 'blue'  as const },
+  { value: '1200+', label: 'Gardiens en France',  sub: 'Estimation, tous niveaux', color: 'white' as const },
+  { value: '25 000+', label: 'Licenciés FFHG',    sub: 'Le vivier (saison 2023/24)', color: 'blue' as const },
+  { value: '2026',  label: 'Année de fondation',  sub: 'Association loi 1901',     color: 'red'   as const },
 ]
 
 const ANGB_ACTIONS: ParallaxItem[] = [
@@ -158,8 +158,8 @@ export default function HomePage() {
           backgroundImage: 'url(/images/huet-bercy.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
-          opacity: 0.13,
-          filter: 'grayscale(55%)',
+          opacity: 0.22,
+          filter: 'grayscale(28%)',
         }} />
 
         {/* Gradient bleu France */}
@@ -225,7 +225,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 80, rotateX: -30 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{ duration: 0.7, delay: 0.15 + i * 0.12, ease: [0.21, 0.47, 0.32, 0.98] }}
-                style={{ color: 'var(--white)', display: 'inline-block', marginRight: '0.25em' }}
+                style={{ color: '#4a7fff', display: 'inline-block', marginRight: '0.25em' }}
               >
                 {word}
               </motion.span>
@@ -235,7 +235,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 80, rotateX: -30 }}
               animate={{ opacity: 1, y: 0, rotateX: 0 }}
               transition={{ duration: 0.7, delay: 0.51, ease: [0.21, 0.47, 0.32, 0.98] }}
-              style={{ color: '#4a7fff', display: 'inline-block', marginRight: '0.25em' }}
+              style={{ color: '#ED2939', display: 'inline-block', marginRight: '0.25em' }}
             >
               gardiens
             </motion.span>
@@ -244,7 +244,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 80, rotateX: -30 }}
               animate={{ opacity: 1, y: 0, rotateX: 0 }}
               transition={{ duration: 0.7, delay: 0.63, ease: [0.21, 0.47, 0.32, 0.98] }}
-              style={{ color: 'var(--white)', display: 'inline-block' }}
+              style={{ color: '#ED2939', display: 'inline-block' }}
             >
               français
             </motion.span>
@@ -268,7 +268,7 @@ export default function HomePage() {
             style={{ color: 'var(--gray)' }}
           >
             L&apos;ANGB structure, développe et protège la pratique du poste de gardien de but
-            en France — de la formation à la carrière professionnelle.
+            en France · de la formation à la carrière professionnelle.
           </motion.p>
 
           {/* CTAs */}
@@ -316,7 +316,7 @@ export default function HomePage() {
           <SectionHead
             overline="L'ANGB en chiffres"
             title="Un mouvement national"
-            sub="Fédérer et représenter l'ensemble des gardiens de but du hockey français."
+            sub="Fédérer et représenter les gardiens de but du hockey français, dans toutes les catégories, du professionnel à l'amateur."
           />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATS.map(({ value, label, sub, color }, i) => (
@@ -350,7 +350,7 @@ export default function HomePage() {
           <SectionHead
             overline="Légendes françaises"
             title="Les gardiens en action"
-            sub="De la D3 au Magnus, jusqu'à la NHL — la communauté des gardiens français."
+            sub="De la D3 au Magnus, jusqu'à la NHL · la communauté des gardiens français."
           />
 
           <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-3xl mx-auto">
@@ -436,16 +436,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Ce que fait l'ANGB — HeroParallax ───────────────────────── */}
+      {/* ── Ce que fait l'ANGB · HeroParallax ───────────────────────── */}
       <section style={{ borderTop: '1px solid var(--border)' }}>
         <HeroParallax
           title="Ce que fait l'ANGB"
-          description="Structurer, protéger et développer la pratique du poste de gardien en France — de la formation à la carrière. Clique une tuile pour explorer."
+          description="Structurer, protéger et développer la pratique du poste de gardien en France · de la formation à la carrière. Clique une tuile pour explorer."
           items={ANGB_ACTIONS}
         />
       </section>
 
-      {/* ── CTA Banner — masqué pour les membres déjà connectés ──────── */}
+      {/* ── CTA Banner · masqué pour les membres déjà connectés ──────── */}
       {!user && (
       <section className="py-24" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -518,7 +518,7 @@ export default function HomePage() {
               className="max-w-lg mx-auto text-sm leading-relaxed mb-10"
               style={{ color: 'var(--gray)' }}
             >
-              Gardien actif, ancien gardien, entraîneur ou structure — l&apos;ANGB est ton association.
+              Gardien actif, ancien gardien, entraîneur ou structure · l&apos;ANGB est ton association.
               Cotisation à partir de 0€ pour les mineurs, étudiants et membres du bureau.
             </motion.p>
 

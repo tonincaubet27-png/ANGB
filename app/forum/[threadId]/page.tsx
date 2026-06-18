@@ -90,7 +90,7 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
       {/* ── Fil de discussion (style messagerie) ────────────────────────── */}
       <div className="rounded-2xl p-4 md:p-5 space-y-2.5" style={{ background: 'var(--navy)', border: '1px solid var(--border)' }}>
         {posts.length === 0 ? (
-          <p className="text-sm text-center py-10" style={{ color: 'var(--gray)' }}>Aucun message — lance la discussion !</p>
+          <p className="text-sm text-center py-10" style={{ color: 'var(--gray)' }}>Aucun message · lance la discussion !</p>
         ) : posts.map(post => {
           const mine = isMember && post.author_name === profile?.display_name
           return (

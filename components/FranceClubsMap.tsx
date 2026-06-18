@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
 
-// ── Clubs (liste indicative — divisions ~saison 2024/25, à compléter/corriger) ──
+// ── Clubs (liste indicative · divisions ~saison 2024/25, à compléter/corriger) ──
 type Division = 'Magnus' | 'D1' | 'D2' | 'D3'
 interface Club { name: string; city: string; division: Division; coords: [number, number] } // [lng, lat]
 

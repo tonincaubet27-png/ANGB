@@ -118,7 +118,7 @@ export default function EquipeSection() {
             style={{ borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs" style={{ color: 'var(--gray)' }}>
-              Postes ouverts dans toutes les régions — <a href="mailto:angbcontact@gmail.com" style={{ color: 'var(--accent)' }}>angbcontact@gmail.com</a>
+              Postes ouverts dans toutes les régions · <a href="mailto:angbcontact@gmail.com" style={{ color: 'var(--accent)' }}>angbcontact@gmail.com</a>
             </p>
           </div>
         </div>

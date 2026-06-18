@@ -3,7 +3,7 @@ export default function ConseilSection() {
     {
       icon: '🤝',
       title: 'Mise en relation',
-      desc: "L'ANGB facilite les contacts entre gardiens et clubs. Pas d'intermédiation financière — uniquement du réseau.",
+      desc: "L'ANGB facilite les contacts entre gardiens et clubs. Pas d'intermédiation financière · uniquement du réseau.",
     },
     {
       icon: '📋',
@@ -28,7 +28,7 @@ export default function ConseilSection() {
         </h2>
         <p className="text-sm leading-relaxed max-w-2xl" style={{ color: 'var(--gray)' }}>
           L'ANGB accompagne les gardiens dans leur carrière. Notre rôle est celui d'une
-          association — conseil, orientation, mise en réseau — dans le respect strict du
+          association · conseil, orientation, mise en réseau · dans le respect strict du
           cadre légal.
         </p>
       </div>
@@ -73,7 +73,7 @@ export default function ConseilSection() {
           <a href="mailto:angbcontact@gmail.com" className="underline" style={{ color: 'var(--accent)' }}>
             angbcontact@gmail.com
           </a>
-          {' '}— le bureau répondra dans les 48h ouvrées.
+          {' '}· le bureau répondra dans les 48h ouvrées.
         </p>
       </div>
     </div>

@@ -156,7 +156,7 @@ export default function ProfilPage() {
                 {club && <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.8)' }}>{club}</span>}
                 {division && <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,127,255,0.15)', color: '#4a7fff' }}>{division}</span>}
                 {region && <span className="text-xs" style={{ color: 'var(--gray)' }}>📍 {region}</span>}
-                {!club && !division && !region && <span className="text-xs italic" style={{ color: 'var(--gray)' }}>Aucune info club — clique « Modifier »</span>}
+                {!club && !division && !region && <span className="text-xs italic" style={{ color: 'var(--gray)' }}>Aucune info club · clique « Modifier »</span>}
               </div>
             )}
           </div>
@@ -164,7 +164,7 @@ export default function ProfilPage() {
           {/* Bio */}
           <div className="mt-4">
             {editing ? (
-              <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="Ta bio — quelques mots sur toi, ton poste, ton style…"
+              <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="Ta bio · quelques mots sur toi, ton poste, ton style…"
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none" style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
             ) : (
               bio

@@ -350,7 +350,7 @@ export default function EquipementPage() {
                     <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                       style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
                       value={depotForm.title} onChange={e => setDepotForm(f => ({ ...f, title: e.target.value }))}
-                      placeholder="Warrior Ritual G7 — Jambières" />
+                      placeholder="Warrior Ritual G7 · Jambières" />
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     {(['category', 'condition'] as const).map(field => (

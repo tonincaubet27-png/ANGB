@@ -73,7 +73,7 @@ export default function PhotoUpload({ currentUrl, name, onFileSelect, size = 96 
       </p>
 
       {errSize && (
-        <p className="text-xs" style={{ color: '#f87171' }}>Photo trop grande — max 5 Mo</p>
+        <p className="text-xs" style={{ color: '#f87171' }}>Photo trop grande · max 5 Mo</p>
       )}
 
       <input

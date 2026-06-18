@@ -11,7 +11,7 @@ import HeaderPhoto from '@/components/HeaderPhoto'
 import { Button as StatefulButton } from '@/components/ui/stateful-button'
 import type { GoalieProfile, MemberCategory, CareerEntry, TrainingEntry, EtudesEntry, ExperienceEntry } from '@/lib/types'
 
-// Sections de l'annuaire par catégorie de membre — on accueille tout le monde
+// Sections de l'annuaire par catégorie de membre · on accueille tout le monde
 const CATEGORY_SECTIONS: { key: MemberCategory; label: string; singular: string; icon: string }[] = [
   { key: 'gardien',            label: 'Gardiens',             singular: 'gardien',            icon: '🥅' },
   { key: 'entraineur_gardien', label: 'Entraîneurs gardiens', singular: 'entraîneur gardien', icon: '🧤' },
@@ -133,7 +133,7 @@ function ContactForm({ goalie }: { goalie: GoalieProfile }) {
             className="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style={{ background: 'var(--navy-light)', color: 'var(--white)' }} />
           <StatefulButton onClick={send} disabled={!valid}>Envoyer le message</StatefulButton>
           <p className="text-[11px]" style={{ color: 'var(--gray)' }}>
-            Ton email sert uniquement à recevoir la réponse — l’adresse du membre reste privée.
+            Ton email sert uniquement à recevoir la réponse · l’adresse du membre reste privée.
           </p>
         </div>
       )}
@@ -368,7 +368,7 @@ function EditForm({ goalie, onCancel, onSaved }: {
           <select value={division} onChange={e => setDiv(e.target.value)}
             className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--white)' }}>
-            <option value="">— Sélectionner —</option>
+            <option value="">· Sélectionner ·</option>
             {DIV_DIVISIONS.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
         </div>
@@ -614,7 +614,7 @@ function MemberCard({ g, index, owner, onSelect }: {
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm" style={{ color: 'var(--white)' }}>{g.name}</h3>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--gray)' }}>{g.club ?? '—'}</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--gray)' }}>{g.club ?? '·'}</p>
           {g.role_angb && <p className="text-[11px] font-medium mt-0.5" style={{ color: '#4a7fff' }}>{g.role_angb}</p>}
         </div>
       </div>
@@ -641,7 +641,7 @@ function InviteCard({ singular, onJoin }: { singular: string; onJoin: () => void
       className="w-full p-6 rounded-2xl border border-dashed text-center transition-colors hover:bg-white/5"
       style={{ borderColor: 'rgba(255,255,255,0.12)' }}>
       <p className="text-sm mb-1" style={{ color: 'var(--white)' }}>Aucun {singular} pour l&apos;instant</p>
-      <p className="text-xs mb-3" style={{ color: 'var(--gray)' }}>On accueille tout le monde avec plaisir — soyez le premier !</p>
+      <p className="text-xs mb-3" style={{ color: 'var(--gray)' }}>On accueille tout le monde avec plaisir · soyez le premier !</p>
       <span className="text-sm font-semibold" style={{ color: '#4a7fff' }}>Rejoindre l&apos;ANGB →</span>
     </button>
   )

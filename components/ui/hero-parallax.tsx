@@ -48,7 +48,7 @@ export function HeroParallax({
   return (
     <div
       ref={ref}
-      className="h-[300vh] py-20 overflow-hidden antialiased relative flex flex-col self-auto"
+      className="h-[1600px] md:h-[2050px] py-20 overflow-hidden antialiased relative flex flex-col self-auto"
       style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
     >
       <div className="max-w-7xl relative mx-auto px-4 md:px-8 w-full">

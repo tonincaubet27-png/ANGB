@@ -17,7 +17,7 @@ export default function StatsSection() {
     {
       icon: '📈',
       title: 'Outil de suivi progression',
-      desc: "Tableau de bord individuel pour les gardiens — suivre son évolution saison après saison sur des critères qualitatifs et quantitatifs.",
+      desc: "Tableau de bord individuel pour les gardiens · suivre son évolution saison après saison sur des critères qualitatifs et quantitatifs.",
       status: 'Roadmap 2027',
       color: '#fb923c',
     },
@@ -34,7 +34,7 @@ export default function StatsSection() {
         </h2>
         <p className="text-sm leading-relaxed max-w-2xl" style={{ color: 'var(--gray)' }}>
           Le hockey français manque de données sur les gardiens. L'ANGB construit les outils
-          pour changer ça — avec une approche rigoureuse et des métriques adaptées au contexte
+          pour changer ça · avec une approche rigoureuse et des métriques adaptées au contexte
           hexagonal.
         </p>
       </div>

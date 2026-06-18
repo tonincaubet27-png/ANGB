@@ -2,7 +2,7 @@ export default function SanteSection() {
   const stats = [
     { value: '67%', label: 'jouent blessés', sub: 'douleur chronique ou aiguë non diagnostiquée' },
     { value: '3×', label: 'plus de risque commotion', sub: 'vs joueurs de champ, à surface de jeu égale' },
-    { value: '1 200+', label: 'contacts sol/saison', sub: 'genoux, hanches, épaules — chutes répertoriées' },
+    { value: '1 200+', label: 'contacts sol/saison', sub: 'genoux, hanches, épaules · chutes répertoriées' },
   ]
 
   const risks = [
@@ -94,7 +94,7 @@ export default function SanteSection() {
           La réalité du poste
         </h2>
         <p className="text-sm mb-8" style={{ color: 'var(--gray)' }}>
-          Des chiffres qui parlent — et qui justifient une approche santé dédiée.
+          Des chiffres qui parlent · et qui justifient une approche santé dédiée.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {stats.map(({ value, label, sub }) => (

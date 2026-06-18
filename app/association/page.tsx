@@ -11,19 +11,21 @@ import VivierSection from '@/components/about/VivierSection'
 import StatsSection from '@/components/about/StatsSection'
 import ConseilSection from '@/components/about/ConseilSection'
 import EquipeSection from '@/components/about/EquipeSection'
+import RessourcesSection from '@/components/about/RessourcesSection'
 
 const MODULES = [
-  { id: 'mission',   label: 'Mission & axes',   icon: '🎯', tag: 'Vision',         component: MissionSection },
-  { id: 'formation', label: 'Formation',        icon: '🎓', tag: 'DE gardien',      component: FormationSection },
-  { id: 'sante',     label: 'Santé',            icon: '🩺', tag: 'Prévention',      component: SanteSection },
-  { id: 'vivier',    label: 'Vivier français',  icon: '🌱', tag: 'Détection',       component: VivierSection },
-  { id: 'stats',     label: 'Statistiques',     icon: '📊', tag: 'Données',         component: StatsSection },
-  { id: 'conseil',   label: 'Conseil carrière', icon: '💼', tag: 'Accompagnement',  component: ConseilSection },
-  { id: 'equipe',    label: "L'équipe",         icon: '👥', tag: 'Bureau',          component: EquipeSection },
+  { id: 'mission',    label: 'Mission & axes',   icon: '🎯', tag: 'Vision',         component: MissionSection },
+  { id: 'formation',  label: 'Formation',        icon: '🎓', tag: 'DE gardien',      component: FormationSection },
+  { id: 'sante',      label: 'Santé',            icon: '🩺', tag: 'Prévention',      component: SanteSection },
+  { id: 'vivier',     label: 'Vivier français',  icon: '🌱', tag: 'Détection',       component: VivierSection },
+  { id: 'stats',      label: 'Statistiques',     icon: '📊', tag: 'Données',         component: StatsSection },
+  { id: 'conseil',    label: 'Conseil carrière', icon: '💼', tag: 'Accompagnement',  component: ConseilSection },
+  { id: 'ressources', label: 'Ressources',       icon: '📚', tag: 'FFHG',            component: RessourcesSection },
+  { id: 'equipe',     label: "L'équipe",         icon: '👥', tag: 'Bureau',          component: EquipeSection },
 ]
 
 const KPIS = [
-  { value: 1200, suffix: '+', label: 'Gardiens en France', sub: 'tous niveaux' },
+  { value: 1200, suffix: '+', label: 'Gardiens en France', sub: 'estimation' },
   { value: 5,    suffix: '',  label: 'Divisions couvertes', sub: 'Magnus → Féminine' },
   { value: 67,   suffix: '%', label: 'Jouent blessés',      sub: 'priorité santé' },
   { value: 7,    suffix: '',  label: 'Axes pilotés',        sub: 'commissions ANGB' },
@@ -69,6 +71,16 @@ export default function AssociationPage() {
     <div>
       {/* ── Header tech ───────────────────────────────────────────────── */}
       <div className="relative overflow-hidden" style={{ borderBottom: '1px solid var(--border)' }}>
+        {/* Photo Fabrice Lhenry en fondu */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'url(/images/fabrice-lhenry.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 22%',
+          opacity: 0.2,
+          filter: 'grayscale(28%)',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)',
+        }} />
         <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{
           backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)',
           backgroundSize: '48px 48px',
@@ -81,7 +93,7 @@ export default function AssociationPage() {
             <span className="overline-fr mb-3 inline-block">L&apos;association · tableau de bord</span>
             <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>ANGB</h1>
             <p className="mt-2 max-w-xl text-sm" style={{ color: 'var(--gray)' }}>
-              Association Nationale des Gardiens de But — loi 1901 · fondée en 2026
+              Association Nationale des Gardiens de But · loi 1901 · fondée en 2026
             </p>
           </div>
           {!user && (
@@ -145,7 +157,7 @@ export default function AssociationPage() {
               Prêt à rejoindre l&apos;ANGB ?
             </h3>
             <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--gray)' }}>
-              Adhésion gratuite la première année — gardiens, anciens gardiens, entraîneurs, parents et structures.
+              Adhésion gratuite la première année · gardiens, anciens gardiens, entraîneurs, parents et structures.
             </p>
             <button onClick={openAdhesion}
               className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"

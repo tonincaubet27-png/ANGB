@@ -16,13 +16,13 @@ const STATUT_LABELS: Record<string, string> = {
 }
 
 const COTISATION_LABELS: Record<string, string> = {
-  actif_20:   'Membre actif — 20€/an',
-  soutien_10: 'Membre soutien — 10€/an',
-  gratuit_0:  'Gratuité 1re année — 0€',
+  actif_20:   'Membre actif · 20€/an',
+  soutien_10: 'Membre soutien · 10€/an',
+  gratuit_0:  'Gratuité 1re année · 0€',
 }
 
 function formatStatut(raw: unknown): string {
-  if (!raw) return '—'
+  if (!raw) return '·'
   return String(raw)
     .split(',')
     .map(s => STATUT_LABELS[s.trim()] ?? s.trim())
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     const displayName = `${payload.prenom ?? ''} ${payload.nom ?? ''}`.trim()
     const role = deriveRole(payload.statut)
 
-    // 1 — Création du compte (confirmé d'office → connexion immédiate possible)
+    // 1 · Création du compte (confirmé d'office → connexion immédiate possible)
     const { data: created, error: authErr } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     const userId = created.user.id
 
-    // 2 — Profil (en attente de validation)
+    // 2 · Profil (en attente de validation)
     const { error: profErr } = await supabase.from('profiles').upsert(
       { id: userId, role, display_name: displayName, membership_status: 'pending' },
       { onConflict: 'id' },
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: `Profil : ${profErr.message}` }, { status: 500 })
     }
 
-    // 3 — Demande d'adhésion liée au compte
+    // 3 · Demande d'adhésion liée au compte
     const { error: adhErr } = await supabase.from('adhesion_requests').insert({
       ...adhesionFields,
       email,
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: `Adhésion : ${adhErr.message}` }, { status: 500 })
     }
 
-    // 4 — Fiche annuaire (catégorie selon le statut) — cachée jusqu'à validation
+    // 4 · Fiche annuaire (catégorie selon le statut) · cachée jusqu'à validation
     //     du bureau (is_active = false). « parent seul » → pas de fiche.
     const category = deriveCategory(payload.statut)
     if (category) {
@@ -137,10 +137,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 5 — Email de notification au bureau (best-effort, via Gmail)
+  // 5 · Email de notification au bureau (best-effort, via Gmail)
   const notif = await sendMail({
     to:      ADMIN_EMAIL,
-    subject: `🏒 Nouvelle adhésion — ${payload.prenom} ${payload.nom}`,
+    subject: `🏒 Nouvelle adhésion · ${payload.prenom} ${payload.nom}`,
     html:    buildEmailHtml(payload),
   })
   if (!notif.ok && notif.error) warnings.push(`Email : ${notif.error}`)
@@ -159,23 +159,23 @@ function buildEmailHtml(p: Record<string, unknown>): string {
     ['Prénom',               p.prenom],
     ['Nom',                  p.nom],
     ['Email',                p.email],
-    ['Téléphone',            p.telephone || '—'],
-    ['Date de naissance',    p.date_naissance || '—'],
-    ['Adresse',              p.adresse || '—'],
-    ['Club',                 p.club || '—'],
+    ['Téléphone',            p.telephone || '·'],
+    ['Date de naissance',    p.date_naissance || '·'],
+    ['Adresse',              p.adresse || '·'],
+    ['Club',                 p.club || '·'],
     ['Statut(s)',            formatStatut(p.statut)],
-    ['Division / niveau',    p.division || '—'],
-    ['Catégorie enfant',     p.categorie_enfant || '—'],
-    ['Cotisation',           COTISATION_LABELS[String(p.cotisation ?? '')] || p.cotisation || '—'],
+    ['Division / niveau',    p.division || '·'],
+    ['Catégorie enfant',     p.categorie_enfant || '·'],
+    ['Cotisation',           COTISATION_LABELS[String(p.cotisation ?? '')] || p.cotisation || '·'],
     ['Accepte les statuts',  p.accept_statuts ? '✅ Oui' : '❌ Non'],
     ['Accepte le RGPD',      p.accept_rgpd    ? '✅ Oui' : '❌ Non'],
-    ['Autorisation image',   p.autorisation_image ? '✅ Oui' : '—'],
+    ['Autorisation image',   p.autorisation_image ? '✅ Oui' : '·'],
   ] satisfies [string, unknown][]
 
   const tableRows = rows.map(([label, value]) => `
     <tr>
       <td style="padding:10px 12px;border-bottom:1px solid #1e293b;color:#94a3b8;font-size:13px;width:42%;vertical-align:top">${label}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #1e293b;color:#f1f5f9;font-size:13px;font-weight:500">${String(value ?? '—')}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #1e293b;color:#f1f5f9;font-size:13px;font-weight:500">${String(value ?? '·')}</td>
     </tr>`).join('')
 
   return `<!DOCTYPE html>
@@ -193,7 +193,7 @@ function buildEmailHtml(p: Record<string, unknown>): string {
 
       <!-- Encart action -->
       <div style="margin:0 0 20px;padding:12px 16px;background:rgba(251,191,36,0.1);border-radius:8px;border:1px solid rgba(251,191,36,0.3)">
-        <p style="margin:0;font-size:13px;color:#fbbf24">⏳ Compte créé en attente — à valider dans l'espace admin pour activer l'accès.</p>
+        <p style="margin:0;font-size:13px;color:#fbbf24">⏳ Compte créé en attente · à valider dans l'espace admin pour activer l'accès.</p>
       </div>
 
       <!-- Tableau des infos -->

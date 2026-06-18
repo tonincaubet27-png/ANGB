@@ -22,9 +22,9 @@ export default function PolitiqueConfidentialitePage() {
           <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--white)' }}>Utilisation</h2>
           <p>
             Les données collectées sont utilisées exclusivement pour :<br />
-            — La gestion des adhésions et communications associatives<br />
-            — La mise en relation dans le cadre des services de l'ANGB<br />
-            — L'annuaire (avec consentement explicite)
+            · La gestion des adhésions et communications associatives<br />
+            · La mise en relation dans le cadre des services de l'ANGB<br />
+            · L'annuaire (avec consentement explicite)
           </p>
         </section>
 

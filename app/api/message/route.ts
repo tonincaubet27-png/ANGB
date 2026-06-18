@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendMail } from '@/lib/email'
 
-const ADMIN_EMAIL = 'angbcontact@gmail.com' // bureau — reçoit le message si le membre n'a pas de compte
+const ADMIN_EMAIL = 'angbcontact@gmail.com' // bureau · reçoit le message si le membre n'a pas de compte
 
-// POST /api/message — un visiteur envoie un message à un membre via sa fiche annuaire
+// POST /api/message · un visiteur envoie un message à un membre via sa fiche annuaire
 export async function POST(req: NextRequest) {
   const { toName, toUserId, fromName, fromEmail, message } =
     (await req.json()) as { toName?: string; toUserId?: string; fromName?: string; fromEmail?: string; message?: string }
@@ -25,13 +25,13 @@ export async function POST(req: NextRequest) {
       const supabase = createClient(url, key)
       const { data } = await supabase.auth.admin.getUserById(toUserId)
       memberEmail = data?.user?.email ?? null
-    } catch { /* ignore — repli sur le bureau */ }
+    } catch { /* ignore · repli sur le bureau */ }
   }
 
   const direct = Boolean(memberEmail)
   const to = memberEmail ?? ADMIN_EMAIL
   const subject = direct
-    ? `📩 Message via l'annuaire ANGB — de ${fromName}`
+    ? `📩 Message via l'annuaire ANGB · de ${fromName}`
     : `📩 Message à transmettre à ${toName ?? 'un membre'} (annuaire ANGB)`
 
   const result = await sendMail({ to, subject, replyTo: fromEmail, html: buildMessageHtml({ toName, fromName, fromEmail, message, direct }) })

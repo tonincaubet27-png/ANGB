@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { StatutsContent, ReglementContent } from '@/components/legal/reglement'
 
 export const metadata = {
-  title: 'Statuts & règlement intérieur — ANGB',
+  title: 'Statuts & règlement intérieur · ANGB',
   description: "Statuts et règlement intérieur de l'Association Nationale des Gardiens de But : bienveillance, conduite en ligne, RGPD, sanctions.",
 }
 

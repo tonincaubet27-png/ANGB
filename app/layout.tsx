@@ -18,12 +18,12 @@ const dm = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'ANGB — Association Nationale des Gardiens de But',
+  title: 'ANGB · Association Nationale des Gardiens de But',
   description:
     "L'association qui structure, développe et protège la pratique du poste de gardien de but en France. Formation, santé, vivier, bourse d'équipement.",
   keywords: ['gardien de but', 'hockey sur glace', 'ANGB', 'association', 'France'],
   openGraph: {
-    title: 'ANGB — Association Nationale des Gardiens de But',
+    title: 'ANGB · Association Nationale des Gardiens de But',
     description: 'La voix des gardiens français.',
     type: 'website',
     locale: 'fr_FR',

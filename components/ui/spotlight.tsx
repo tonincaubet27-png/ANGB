@@ -9,7 +9,7 @@ type SpotlightProps = {
 }
 
 export function Spotlight({ className, fill = 'white' }: SpotlightProps) {
-  // useId génère un ID unique par instance — évite les doublons dans le DOM
+  // useId génère un ID unique par instance · évite les doublons dans le DOM
   const uid = useId().replace(/:/g, '')
   const filterId = `spotlight-filter-${uid}`
 

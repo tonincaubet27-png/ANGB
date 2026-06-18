@@ -17,7 +17,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed max-w-sm" style={{ color: 'var(--gray)' }}>
-              Association Nationale des Gardiens de But — Loi 1901 fondée en 2026.
+              Association Nationale des Gardiens de But · Loi 1901 fondée en 2026.
               Structurer, développer et protéger la pratique du poste de gardien de but en France.
             </p>
             <a
@@ -98,7 +98,7 @@ export default function Footer() {
           style={{ borderTop: '1px solid var(--border)' }}
         >
           <p className="text-xs" style={{ color: 'var(--gray)' }}>
-            © 2026 ANGB — Association Nationale des Gardiens de But. Tous droits réservés.
+            © 2026 ANGB · Association Nationale des Gardiens de But. Tous droits réservés.
           </p>
           <p className="text-xs" style={{ color: 'var(--gray)' }}>
             Association loi 1901

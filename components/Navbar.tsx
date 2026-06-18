@@ -37,7 +37,6 @@ export default function Navbar() {
     { href: '/annuaire',    label: 'Annuaire' },
     { href: '/forum',       label: 'Forum' },
     { href: '/equipement',  label: 'Équipement' },
-    { href: '/ressources',  label: 'Ressources' },
   ]
 
   return (
@@ -48,7 +47,7 @@ export default function Navbar() {
       <nav
         className="px-4 md:px-8 py-0"
         style={{
-          background: scrolled ? 'rgba(7,11,21,0.98)' : 'rgba(7,11,21,0.92)',
+          background: scrolled ? 'rgba(11,19,34,0.98)' : 'rgba(11,19,34,0.92)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.07)'}`,
@@ -158,7 +157,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Statut de membre — l'adhésion fait office d'inscription */}
+              {/* Statut de membre · l'adhésion fait office d'inscription */}
               {profile?.membership_status === 'active' ? (
                 <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em]"
                   style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)' }}>

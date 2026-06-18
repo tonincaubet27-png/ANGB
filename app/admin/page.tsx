@@ -1,4 +1,4 @@
-// Page admin — accès réservé au bureau.
+// Page admin · accès réservé au bureau.
 // Authentification : connexion email + mot de passe d'un compte ANGB réel, vérifiée
 // côté serveur, dont l'email figure dans l'allowlist ADMIN_EMAILS → cookie httpOnly
 // signé (cf. lib/admin-auth). Aucun secret dans l'URL. Les server actions revérifient.
@@ -10,7 +10,7 @@ import { redirect } from 'next/navigation'
 import { sendMail, buildMemberCardEmail } from '@/lib/email'
 import { getAdminEmail, isAdminEmail, makeToken, ADMIN_COOKIE, ADMIN_MAX_AGE } from '@/lib/admin-auth'
 
-export const dynamic = 'force-dynamic' // pas de cache — données en temps réel
+export const dynamic = 'force-dynamic' // pas de cache · données en temps réel
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface AdhesionRequest {
@@ -51,7 +51,7 @@ const COTISATION_LABELS: Record<string, string> = {
 }
 
 function formatStatut(raw: string | null): string {
-  if (!raw) return '—'
+  if (!raw) return '·'
   return raw.split(',').map(s => STATUT_LABELS[s.trim()] ?? s.trim()).join(', ')
 }
 
@@ -66,7 +66,7 @@ function deriveCategory(statut?: string | null): string | null {
   return null
 }
 
-// ── Server action — changer le statut ─────────────────────────────────────────
+// ── Server action · changer le statut ─────────────────────────────────────────
 // Valider/refuser une adhésion met aussi à jour le statut de membre du compte lié
 // (membership_status), ce qui débloque ou bloque l'accès au forum / dépôt d'annonce.
 async function changeStatus(formData: FormData) {
@@ -80,7 +80,7 @@ async function changeStatus(formData: FormData) {
   if (!url || !key) return
   const supabase = createClient(url, key)
 
-  // 1 — statut de la demande
+  // 1 · statut de la demande
   const { data: updated } = await supabase
     .from('adhesion_requests')
     .update({ status })
@@ -93,7 +93,7 @@ async function changeStatus(formData: FormData) {
     statut?: string; member_no?: number | null; club?: string | null; division?: string | null
   } | null
 
-  // 2 — statut de membre sur le compte lié + visibilité de la fiche annuaire
+  // 2 · statut de membre sur le compte lié + visibilité de la fiche annuaire
   const userId = row?.user_id
   if (userId) {
     const membership =
@@ -110,7 +110,7 @@ async function changeStatus(formData: FormData) {
     }
   }
 
-  // 3 — À la validation : numéro d'adhérent séquentiel (1, 2, 3…) + email carte
+  // 3 · À la validation : numéro d'adhérent séquentiel (1, 2, 3…) + email carte
   if (status === 'validated' && row?.email) {
     // Attribue le n° une seule fois : le 1er validé = 1, puis max + 1
     let memberNo = row.member_no ?? null
@@ -127,7 +127,7 @@ async function changeStatus(formData: FormData) {
     }
     await sendMail({
       to:      row.email,
-      subject: '🎉 Bienvenue à l’ANGB — votre carte de membre',
+      subject: '🎉 Bienvenue à l’ANGB · votre carte de membre',
       html:    buildMemberCardEmail({
         prenom: row.prenom ?? '',
         nom: row.nom ?? '',
@@ -181,7 +181,7 @@ async function ensureGoalieProfile(
   })
 }
 
-// ── Server actions — connexion / déconnexion admin ──────────────────────────────
+// ── Server actions · connexion / déconnexion admin ──────────────────────────────
 async function adminLogin(formData: FormData) {
   'use server'
   const email    = String(formData.get('email') ?? '').trim().toLowerCase()
@@ -256,7 +256,7 @@ export default async function AdminPage({
 
   if (url && serviceKey && url.startsWith('http')) {
     try {
-      // cache: 'no-store' obligatoire — Next.js 14 met en cache les fetch des Server Components
+      // cache: 'no-store' obligatoire · Next.js 14 met en cache les fetch des Server Components
     const supabase = createClient(url, serviceKey, {
       global: { fetch: (input, init = {}) => fetch(input, { ...init, cache: 'no-store' }) },
     })
@@ -296,7 +296,7 @@ export default async function AdminPage({
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div>
               <h1 style={{ fontFamily: 'var(--font-bebas, sans-serif)', fontSize: 28, letterSpacing: '0.08em', color: '#fff', margin: '0 0 4px' }}>
-                Administration — Demandes d'adhésion
+                Administration · Demandes d'adhésion
               </h1>
               <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Association Nationale des Gardiens de But</p>
             </div>
@@ -408,10 +408,10 @@ function RequestCard({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px 16px', marginBottom: 16 }}>
         {[
           ['Statut(s)',    formatStatut(r.statut)],
-          ['Division',     r.division || '—'],
-          ['Club',         r.club || '—'],
-          ['Cotisation',   COTISATION_LABELS[r.cotisation ?? ''] ?? r.cotisation ?? '—'],
-          ['Téléphone',    r.telephone || '—'],
+          ['Division',     r.division || '·'],
+          ['Club',         r.club || '·'],
+          ['Cotisation',   COTISATION_LABELS[r.cotisation ?? ''] ?? r.cotisation ?? '·'],
+          ['Téléphone',    r.telephone || '·'],
           ...(r.member_no ? [['N° membre', `#${r.member_no}`] as [string, string]] : []),
           ...(r.categorie_enfant ? [['Cat. enfant', r.categorie_enfant] as [string, string]] : []),
         ].map(([label, value]) => (

@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 import AuthModal from '@/components/AuthModal'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
-/** Contenu intérieur — a accès aux contextes Auth + Adhésion */
+/** Contenu intérieur · a accès aux contextes Auth + Adhésion */
 function Inner({ children }: { children: React.ReactNode }) {
   useScrollReveal()
 

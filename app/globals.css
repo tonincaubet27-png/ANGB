@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --navy:        #070b15;
-  --navy-mid:    #0d1525;
-  --navy-light:  #162032;
-  --navy-card:   #111a2e;
+  --navy:        #0b1322;
+  --navy-mid:    #121d33;
+  --navy-light:  #1d2944;
+  --navy-card:   #17233c;
   --accent:      #4a7fff;
   --red-fr:      #ED2939;
   --white:       #f0f2f5;

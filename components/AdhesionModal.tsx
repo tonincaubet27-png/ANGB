@@ -28,7 +28,7 @@ interface FormData {
   club: string
   statut: string[]   // multi-sélection
   division: string
-  categorie_enfant: string   // optionnel — visible si statut === 'parent'
+  categorie_enfant: string   // optionnel · visible si statut === 'parent'
   cotisation: string
   accept_statuts: boolean
   accept_rgpd: boolean
@@ -284,7 +284,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
             </div>
           ) : (
             <>
-              {/* STEP 1 — Identité */}
+              {/* STEP 1 · Identité */}
               {step === 1 && (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--white)' }}>
@@ -340,7 +340,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                       autoComplete="new-password"
                     />
                     <p className="text-[11px] mt-1" style={{ color: 'var(--gray)' }}>
-                      Votre adhésion crée votre compte ANGB — ce mot de passe servira à vous connecter.
+                      Votre adhésion crée votre compte ANGB · ce mot de passe servira à vous connecter.
                     </p>
                   </Field>
                   <Field label="Téléphone" error={errors.telephone}>
@@ -365,7 +365,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                 </div>
               )}
 
-              {/* STEP 2 — Profil hockey */}
+              {/* STEP 2 · Profil hockey */}
               {step === 2 && (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--white)' }}>
@@ -461,7 +461,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                 </div>
               )}
 
-              {/* STEP 3 — Cotisation */}
+              {/* STEP 3 · Cotisation */}
               {step === 3 && (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--white)' }}>
@@ -479,7 +479,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                     <p className="text-4xl mt-2 mb-1" style={{ fontFamily: 'var(--font-bebas)', color: '#34d399', letterSpacing: '0.04em' }}>
                       1ʳᵉ année gratuite
                     </p>
-                    <p className="text-sm" style={{ color: 'var(--white)' }}>0 € — pour tous les nouveaux adhérents</p>
+                    <p className="text-sm" style={{ color: 'var(--white)' }}>0 € · pour tous les nouveaux adhérents</p>
                     <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--gray)' }}>
                       Aucun paiement maintenant. La cotisation des années suivantes sera votée
                       en Assemblée Générale et communiquée aux membres.
@@ -496,7 +496,7 @@ export default function AdhesionModal({ isOpen, onClose }: Props) {
                 </div>
               )}
 
-              {/* STEP 4 — Engagements */}
+              {/* STEP 4 · Engagements */}
               {step === 4 && (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--white)' }}>

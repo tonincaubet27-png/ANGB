@@ -54,7 +54,7 @@ export default function MissionSection() {
         <p className="text-base leading-relaxed max-w-3xl" style={{ color: 'var(--gray)' }}>
           L'ANGB naît d'un constat simple : le gardien de but est le poste le plus spécialisé
           du hockey sur glace, et pourtant le moins structuré institutionnellement en France.
-          Notre ambition est de changer cela — en créant une structure dédiée qui parle d'une
+          Notre ambition est de changer cela · en créant une structure dédiée qui parle d'une
           seule voix pour plus de 1 200 gardiens.
         </p>
       </div>

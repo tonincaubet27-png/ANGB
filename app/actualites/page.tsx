@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { LayoutGrid, type LayoutCard } from '@/components/ui/layout-grid'
 
-// ── Types & données (exemples — à remplacer par du vrai contenu) ────────────────
+// ── Types & données (exemples · à remplacer par du vrai contenu) ────────────────
 type PostType = 'interview' | 'video' | 'podcast' | 'reportage'
 
 interface NewsPost {
@@ -25,13 +25,13 @@ const TYPE_META: Record<PostType, { label: string; emoji: string; cta: string; f
 }
 
 const POSTS: NewsPost[] = [
-  { id: '1', type: 'interview', title: 'Cristobal Huet — la Coupe Stanley vue des Alpes', caption: 'Le seul gardien français champion NHL revient sur son parcours, son rôle de modèle et l’avenir du poste en France.', date: '2026-06-10', meta: 'Lecture 8 min', url: '#', thumbnail: '/images/huet-canadiens.jpg' },
-  { id: '2', type: 'video',     title: 'Le papillon décortiqué', caption: 'Déplacements, couverture d’angle et récupération au sol — la technique du papillon expliquée image par image.', date: '2026-06-08', meta: '6 min', url: '#', thumbnail: '/images/hardy.jpg' },
-  { id: '3', type: 'podcast',   title: 'Épisode 1 — Être gardien en D2', caption: 'Quotidien, double projet études/sport et passion : trois gardiens de D2 témoignent.', date: '2026-06-05', meta: '42 min', url: '#', thumbnail: '/images/eddy-ferhi.jpg' },
+  { id: '1', type: 'interview', title: 'Cristobal Huet · la Coupe Stanley vue des Alpes', caption: 'Le seul gardien français champion NHL revient sur son parcours, son rôle de modèle et l’avenir du poste en France.', date: '2026-06-10', meta: 'Lecture 8 min', url: '#', thumbnail: '/images/huet-canadiens.jpg' },
+  { id: '2', type: 'video',     title: 'Le papillon décortiqué', caption: 'Déplacements, couverture d’angle et récupération au sol · la technique du papillon expliquée image par image.', date: '2026-06-08', meta: '6 min', url: '#', thumbnail: '/images/hardy.jpg' },
+  { id: '3', type: 'podcast',   title: 'Épisode 1 · Être gardien en D2', caption: 'Quotidien, double projet études/sport et passion : trois gardiens de D2 témoignent.', date: '2026-06-05', meta: '42 min', url: '#', thumbnail: '/images/eddy-ferhi.jpg' },
   { id: '4', type: 'interview', title: 'Antoine Keller, pionnier du hockey français', caption: 'Retour sur le parcours d’un gardien qui a ouvert la voie vers l’Amérique du Nord.', date: '2026-06-03', meta: 'Lecture 6 min', url: '#', thumbnail: '/images/antoine keller.jpg' },
   { id: '5', type: 'video',     title: 'Prépa physique spécifique gardien', caption: 'Mobilité des hanches, gainage anti-rotation et explosivité latérale : la séance type ANGB.', date: '2026-05-30', meta: '11 min', url: '#', thumbnail: '/images/florian-hardy.jpg' },
-  { id: '6', type: 'reportage', title: 'Stage gardiens Grenoble — juillet 2026', caption: 'Immersion dans le premier stage estival de l’ANGB : trois jours sur et hors de la glace.', date: '2026-05-27', meta: '14 photos', url: '#', thumbnail: '/images/fabrice-lhenry.jpg' },
-  { id: '7', type: 'podcast',   title: 'Épisode 2 — La santé du gardien', caption: 'Commotions, hanches, santé mentale : on parle prévention avec un préparateur physique.', date: '2026-05-22', meta: '38 min', url: '#', thumbnail: '/images/huet-bercy.jpg' },
+  { id: '6', type: 'reportage', title: 'Stage gardiens Grenoble · juillet 2026', caption: 'Immersion dans le premier stage estival de l’ANGB : trois jours sur et hors de la glace.', date: '2026-05-27', meta: '14 photos', url: '#', thumbnail: '/images/fabrice-lhenry.jpg' },
+  { id: '7', type: 'podcast',   title: 'Épisode 2 · La santé du gardien', caption: 'Commotions, hanches, santé mentale : on parle prévention avec un préparateur physique.', date: '2026-05-22', meta: '38 min', url: '#', thumbnail: '/images/huet-bercy.jpg' },
   { id: '8', type: 'video',     title: 'Le jeu au pied moderne', caption: 'Relances, soutien au défenseur, lecture du jeu : le gardien comme premier relanceur.', date: '2026-05-18', meta: '7 min', url: '#', thumbnail: '/images/cristobal-huet-cup.jpg' },
   { id: '9', type: 'interview', title: 'Gardienne en équipe de France féminine', caption: 'Le parcours, les défis et les ambitions d’une internationale tricolore.', date: '2026-05-14', meta: 'Lecture 7 min', url: '#', thumbnail: '/images/caroline-baldin.jpg' },
 ]

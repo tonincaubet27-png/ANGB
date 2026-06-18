@@ -2,7 +2,7 @@ import Link from 'next/link'
 import HeaderPhoto from '@/components/HeaderPhoto'
 
 export const metadata = {
-  title: 'Ressources & documents officiels — ANGB',
+  title: 'Ressources & documents officiels · ANGB',
   description:
     'Textes réglementaires, protocoles médicaux et guides officiels de la FFHG centralisés pour les gardiens de but.',
 }
@@ -31,7 +31,7 @@ const SANTE: Doc[] = [
   {
     title: 'SCAT 6',
     description:
-      "Test standardisé de commotion — à utiliser après l'incident pour évaluer l'état du joueur.",
+      "Test standardisé de commotion · à utiliser après l'incident pour évaluer l'état du joueur.",
     tag: 'Commotion',
     tagColor: 'red',
     url: 'https://www.hockeyfrance.com/wp-content/uploads/2024/07/SCAT6-français-.pdf',
@@ -39,13 +39,13 @@ const SANTE: Doc[] = [
   {
     title: 'Lignes directrices SCAT 6',
     description:
-      "Guide complet d'utilisation du SCAT 6 — protocole étape par étape pour le staff médical.",
+      "Guide complet d'utilisation du SCAT 6 · protocole étape par étape pour le staff médical.",
     tag: 'Commotion',
     tagColor: 'red',
     url: 'https://www.hockeyfrance.com/wp-content/uploads/2024/07/Lignes-directrices-SCAT6-.pdf',
   },
   {
-    title: 'SCAT 6 — Version enfant',
+    title: 'SCAT 6 · Version enfant',
     description:
       "Adapté aux jeunes gardiens. À utiliser pour toute commotion suspectée chez un joueur mineur.",
     tag: 'Commotion · Jeunes',
@@ -103,7 +103,7 @@ const REGLEMENTS: Doc[] = [
     url: 'https://www.hockeyfrance.com/wp-content/uploads/2025/09/12-Reglements-generaux-SLM-2025.26-VF.pdf',
   },
   {
-    title: 'Directives clubs — Équipement 2023',
+    title: 'Directives clubs · Équipement 2023',
     description:
       "Obligations d'équipement par catégorie d'âge, règles spécifiques aux gardiens (protège-dents, certifications).",
     tag: 'Équipement',
@@ -123,7 +123,7 @@ const ETHIQUE: Doc[] = [
   {
     title: 'Charte éthique et de déontologie FFHG 2025/2026',
     description:
-      "Valeurs et engagements éthiques de la fédération — référence pour tous les acteurs du hockey français.",
+      "Valeurs et engagements éthiques de la fédération · référence pour tous les acteurs du hockey français.",
     tag: 'Éthique',
     tagColor: 'gray',
     url: 'https://www.hockeyfrance.com/wp-content/uploads/2025/05/13-Charte-ethique-et-de-deontologie-2025.26_VF.pdf',
@@ -277,14 +277,14 @@ export default function RessourcesPage() {
           </h1>
           <p className="text-sm md:text-base leading-relaxed max-w-2xl" style={{ color: 'var(--gray)' }}>
             Textes réglementaires, protocoles médicaux et guides officiels de la Fédération Française
-            de Hockey sur Glace — centralisés ici pour les gardiens.
+            de Hockey sur Glace · centralisés ici pour les gardiens.
           </p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-12 md:py-16">
 
-        {/* ── Section 1 — Santé ─────────────────────────────────────────────── */}
+        {/* ── Section 1 · Santé ─────────────────────────────────────────────── */}
         <SectionHeader
           label="Priorité ANGB"
           labelColor="red"
@@ -297,7 +297,7 @@ export default function RessourcesPage() {
 
         <SectionDivider />
 
-        {/* ── Section 2 — Règlements ────────────────────────────────────────── */}
+        {/* ── Section 2 · Règlements ────────────────────────────────────────── */}
         <div data-reveal>
           <SectionHeader
             label="Réglementation sportive"
@@ -312,7 +312,7 @@ export default function RessourcesPage() {
 
         <SectionDivider />
 
-        {/* ── Section 3 — Éthique ───────────────────────────────────────────── */}
+        {/* ── Section 3 · Éthique ───────────────────────────────────────────── */}
         <div data-reveal>
           <SectionHeader
             label="Cadre institutionnel"
@@ -343,7 +343,7 @@ export default function RessourcesPage() {
               <p className="text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>
                 Ces documents sont hébergés et mis à jour par la Fédération Française de Hockey sur Glace.
                 L'ANGB les référence ici pour en faciliter l'accès aux gardiens. Les Statuts et Règlement
-                intérieur FFHG 2026/2027 sont en cours de publication sur hockeyfrance.com — les versions
+                intérieur FFHG 2026/2027 sont en cours de publication sur hockeyfrance.com · les versions
                 2025/2026 font foi en attendant.
               </p>
             </div>

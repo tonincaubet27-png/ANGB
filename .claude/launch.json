@@ -4,7 +4,7 @@
     {
       "name": "angb-site",
       "runtimeExecutable": "/bin/bash",
-      "runtimeArgs": ["-c", "cd /Users/tonincaubet/Documents/ADH/angb-site && PATH=/Users/tonincaubet/.local/opt/node/bin:$PATH npm run dev"],
+      "runtimeArgs": ["-c", "cd /Users/tonincaubet/Documents/ANGB/angb-site && PATH=/Users/tonincaubet/.local/opt/node/bin:$PATH npm run dev"],
       "port": 3002,
       "autoPort": true
     }
