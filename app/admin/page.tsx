@@ -1,9 +1,14 @@
-// Page admin — accessible via /admin?key=ADMIN_SECRET
-// Protection : compare la query ?key= à la variable d'env ADMIN_SECRET (server-side, jamais exposée)
+// Page admin — accès réservé au bureau.
+// Authentification : connexion email + mot de passe d'un compte ANGB réel, vérifiée
+// côté serveur, dont l'email figure dans l'allowlist ADMIN_EMAILS → cookie httpOnly
+// signé (cf. lib/admin-auth). Aucun secret dans l'URL. Les server actions revérifient.
 
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { sendMail, buildMemberCardEmail } from '@/lib/email'
+import { getAdminEmail, isAdminEmail, makeToken, ADMIN_COOKIE, ADMIN_MAX_AGE } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic' // pas de cache — données en temps réel
 
@@ -66,6 +71,8 @@ function deriveCategory(statut?: string | null): string | null {
 // (membership_status), ce qui débloque ou bloque l'accès au forum / dépôt d'annonce.
 async function changeStatus(formData: FormData) {
   'use server'
+  // Server action protégée : appelable uniquement par un admin authentifié (cookie signé).
+  if (!getAdminEmail()) return
   const id     = formData.get('id') as string
   const status = formData.get('status') as string
   const url    = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -78,10 +85,13 @@ async function changeStatus(formData: FormData) {
     .from('adhesion_requests')
     .update({ status })
     .eq('id', id)
-    .select('user_id, prenom, nom, email, statut, member_no')
+    .select('user_id, prenom, nom, email, statut, member_no, club, division')
     .single()
 
-  const row = updated as { user_id?: string; prenom?: string; nom?: string; email?: string; statut?: string; member_no?: number | null } | null
+  const row = updated as {
+    user_id?: string; prenom?: string; nom?: string; email?: string
+    statut?: string; member_no?: number | null; club?: string | null; division?: string | null
+  } | null
 
   // 2 — statut de membre sur le compte lié + visibilité de la fiche annuaire
   const userId = row?.user_id
@@ -91,8 +101,13 @@ async function changeStatus(formData: FormData) {
       : status === 'rejected' ? 'rejected'
       : 'pending'
     await supabase.from('profiles').update({ membership_status: membership }).eq('id', userId)
-    // La fiche annuaire n'est visible qu'une fois la demande validée
-    await supabase.from('goalie_profiles').update({ is_active: status === 'validated' }).eq('user_id', userId)
+    if (status === 'validated') {
+      // Garantit que le membre validé a bien une fiche annuaire liée à son compte
+      await ensureGoalieProfile(userId, row!)
+    } else {
+      // Masque la fiche tant que la demande n'est pas validée
+      await supabase.from('goalie_profiles').update({ is_active: false }).eq('user_id', userId)
+    }
   }
 
   // 3 — À la validation : numéro d'adhérent séquentiel (1, 2, 3…) + email carte
@@ -125,23 +140,112 @@ async function changeStatus(formData: FormData) {
   revalidatePath('/admin')
 }
 
+// ── Fiche annuaire : création/liaison garantie à la validation ──────────────────
+// Évite le bug « profil en préparation » pour un membre validé qui n'aurait pas de
+// fiche liée (compte créé via OAuth, import/seed, ou insertion échouée à l'adhésion).
+async function ensureGoalieProfile(
+  userId: string,
+  row: { prenom?: string; nom?: string; statut?: string; club?: string | null; division?: string | null },
+) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return
+  const supabase = createClient(url, key)
+
+  const category = deriveCategory(row.statut)
+  if (!category) return // ex. parent seul → pas de fiche annuaire
+
+  // Déjà une fiche liée ? → on la rend simplement visible
+  const { data: existing } = await supabase
+    .from('goalie_profiles').select('id').eq('user_id', userId).maybeSingle()
+  if (existing) {
+    await supabase.from('goalie_profiles').update({ is_active: true }).eq('user_id', userId)
+    return
+  }
+
+  const name = `${row.prenom ?? ''} ${row.nom ?? ''}`.trim()
+
+  // Une fiche orpheline (import/seed) au même nom ? → on la lie au compte
+  const { data: orphan } = await supabase
+    .from('goalie_profiles').select('id').is('user_id', null).ilike('name', name).maybeSingle()
+  if (orphan) {
+    await supabase.from('goalie_profiles')
+      .update({ user_id: userId, is_active: true }).eq('id', (orphan as { id: string }).id)
+    return
+  }
+
+  // Sinon, création
+  await supabase.from('goalie_profiles').insert({
+    user_id: userId, name, category,
+    club: row.club || null, division: row.division || null, is_active: true,
+  })
+}
+
+// ── Server actions — connexion / déconnexion admin ──────────────────────────────
+async function adminLogin(formData: FormData) {
+  'use server'
+  const email    = String(formData.get('email') ?? '').trim().toLowerCase()
+  const password = String(formData.get('password') ?? '')
+  const url  = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // L'email doit être dans l'allowlist ET le mot de passe valide (vérifié par Supabase)
+  if (!isAdminEmail(email) || !url || !anon) redirect('/admin?err=1')
+  const sb = createClient(url, anon)
+  const { data, error } = await sb.auth.signInWithPassword({ email, password })
+  if (error || !data?.user) redirect('/admin?err=1')
+  cookies().set(ADMIN_COOKIE, makeToken(email), {
+    httpOnly: true,
+    secure:   process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path:     '/',
+    maxAge:   ADMIN_MAX_AGE,
+  })
+  redirect('/admin')
+}
+
+async function adminLogout() {
+  'use server'
+  cookies().delete(ADMIN_COOKIE)
+  redirect('/admin')
+}
+
+// ── Écran de connexion ──────────────────────────────────────────────────────────
+function AdminLogin({ error }: { error?: boolean }) {
+  const inputStyle = {
+    width: '100%', boxSizing: 'border-box' as const, padding: '10px 12px', marginBottom: 10,
+    borderRadius: 8, background: '#070b15', border: '1px solid #1e293b', color: '#fff', fontSize: 14,
+  }
+  return (
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#070b15', padding: 16 }}>
+      <form action={adminLogin} style={{ width: '100%', maxWidth: 340, background: '#0d1525', border: '1px solid #1e293b', borderRadius: 16, padding: 28 }}>
+        <div style={{ height: 4, background: 'linear-gradient(to right,#002395 0%,#002395 33%,#fff 33%,#fff 66%,#ED2939 66%,#ED2939 100%)', borderRadius: 4, marginBottom: 20 }} />
+        <h1 style={{ fontSize: 20, color: '#fff', margin: '0 0 4px', fontWeight: 700 }}>Administration ANGB</h1>
+        <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 20px' }}>Réservé au bureau. Connecte-toi avec ton compte ANGB.</p>
+        {error && (
+          <p style={{ fontSize: 12, color: '#fca5a5', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '8px 12px', margin: '0 0 14px' }}>
+            Identifiants invalides ou accès non autorisé.
+          </p>
+        )}
+        <input name="email"    type="email"    required placeholder="Email"         autoComplete="username"        style={inputStyle} />
+        <input name="password" type="password" required placeholder="Mot de passe"  autoComplete="current-password" style={{ ...inputStyle, marginBottom: 16 }} />
+        <button type="submit" style={{ width: '100%', padding: 10, borderRadius: 8, background: '#4a7fff', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer' }}>
+          Se connecter
+        </button>
+      </form>
+    </main>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: { key?: string; filter?: string }
+  searchParams: { filter?: string; err?: string }
 }) {
   // ── Auth ────────────────────────────────────────────────────────────────────
-  const secret = process.env.ADMIN_SECRET
-  if (!secret || searchParams.key !== secret) {
-    return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#070b15' }}>
-        <div style={{ textAlign: 'center', color: '#94a3b8' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🔒</div>
-          <p style={{ fontSize: 14 }}>Accès refusé — clé invalide ou manquante</p>
-        </div>
-      </main>
-    )
+  const adminEmail = getAdminEmail()
+  if (!adminEmail) {
+    return <AdminLogin error={searchParams.err === '1'} />
   }
 
   // ── Données Supabase ─────────────────────────────────────────────────────────
@@ -173,7 +277,6 @@ export default async function AdminPage({
   }
 
   // ── Compteurs ────────────────────────────────────────────────────────────────
-  const adminKey  = searchParams.key
   const filter    = searchParams.filter ?? 'all'
   const counts = {
     all:       requests.length,
@@ -190,10 +293,20 @@ export default async function AdminPage({
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ height: 4, background: 'linear-gradient(to right,#002395 0%,#002395 33%,#fff 33%,#fff 66%,#ED2939 66%,#ED2939 100%)', borderRadius: 4, marginBottom: 20 }} />
-          <h1 style={{ fontFamily: 'var(--font-bebas, sans-serif)', fontSize: 28, letterSpacing: '0.08em', color: '#fff', margin: '0 0 4px' }}>
-            Administration — Demandes d'adhésion
-          </h1>
-          <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Association Nationale des Gardiens de But</p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div>
+              <h1 style={{ fontFamily: 'var(--font-bebas, sans-serif)', fontSize: 28, letterSpacing: '0.08em', color: '#fff', margin: '0 0 4px' }}>
+                Administration — Demandes d'adhésion
+              </h1>
+              <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Association Nationale des Gardiens de But</p>
+            </div>
+            <form action={adminLogout} style={{ flexShrink: 0 }}>
+              <span style={{ fontSize: 11, color: '#475569', marginRight: 10 }}>🔓 {adminEmail}</span>
+              <button type="submit" style={{ padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#0d1525', border: '1px solid #1e293b', color: '#94a3b8' }}>
+                Déconnexion
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Erreur DB */}
@@ -213,7 +326,7 @@ export default async function AdminPage({
           ] as const).map(f => (
             <a
               key={f.key}
-              href={`/admin?key=${adminKey}&filter=${f.key}`}
+              href={`/admin?filter=${f.key}`}
               style={{
                 padding: '6px 14px',
                 borderRadius: 8,
@@ -241,7 +354,7 @@ export default async function AdminPage({
         {/* Cartes */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {requests.map(r => (
-            <RequestCard key={r.id} r={r} adminKey={adminKey!} changeStatus={changeStatus} />
+            <RequestCard key={r.id} r={r} changeStatus={changeStatus} />
           ))}
         </div>
 
@@ -253,11 +366,9 @@ export default async function AdminPage({
 // ── Carte d'une demande ───────────────────────────────────────────────────────
 function RequestCard({
   r,
-  adminKey,
   changeStatus,
 }: {
   r: AdhesionRequest
-  adminKey: string
   changeStatus: (fd: FormData) => Promise<void>
 }) {
   const statusConfig = {
