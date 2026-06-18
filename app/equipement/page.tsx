@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { getListings, createListing, createContactRequest } from '@/lib/data'
+import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
+import { getListings, createListing, createContactRequest, uploadGoaliePhoto } from '@/lib/data'
 import type { Listing } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
 import HeaderPhoto from '@/components/HeaderPhoto'
@@ -25,11 +26,12 @@ interface DepotForm {
   title: string; category: string; condition: string
   price: string; description: string; city: string
   seller_name: string; seller_division: string
+  photos: string[]
 }
 
 const EMPTY_DEPOT: DepotForm = {
   title: '', category: 'jambières', condition: 'très bon état',
-  price: '', description: '', city: '', seller_name: '', seller_division: '',
+  price: '', description: '', city: '', seller_name: '', seller_division: '', photos: [],
 }
 
 interface ContactForm {
@@ -52,6 +54,21 @@ export default function EquipementPage() {
   const [depotForm, setDepotForm]       = useState<DepotForm>(EMPTY_DEPOT)
   const [depotSubmitting, setDepotSub]  = useState(false)
   const [depotDone, setDepotDone]       = useState(false)
+  const [photoUploading, setPhotoUp]    = useState(false)
+  const photoRef                        = useRef<HTMLInputElement>(null)
+
+  const handlePhotosAdd = async (files: FileList | null) => {
+    if (!files || !user) return
+    setPhotoUp(true)
+    const urls: string[] = []
+    for (const f of Array.from(files)) {
+      const { url } = await uploadGoaliePhoto(user.id, f)
+      if (url) urls.push(url)
+    }
+    setDepotForm(f => ({ ...f, photos: [...f.photos, ...urls] }))
+    setPhotoUp(false)
+    if (photoRef.current) photoRef.current.value = ''
+  }
 
   // Modal contact vendeur
   const [contactListing, setContactListing] = useState<Listing | null>(null)
@@ -114,6 +131,7 @@ export default function EquipementPage() {
       city: depotForm.city,
       seller_name: depotForm.seller_name,
       seller_division: depotForm.seller_division,
+      photos: depotForm.photos,
     }, user?.id)
     setDepotSub(false)
     if (res.ok) {
@@ -219,10 +237,19 @@ export default function EquipementPage() {
                       return (
                         <div key={l.id} className="p-5 rounded-2xl border flex flex-col gap-3 hover:border-accent/30 transition-colors card-lift"
                           style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
-                          {/* Image emoji */}
-                          <div className="w-full h-24 rounded-xl flex items-center justify-center text-5xl"
+                          {/* Photo de couverture, sinon emoji */}
+                          <div className="relative w-full h-40 rounded-xl overflow-hidden flex items-center justify-center text-5xl"
                             style={{ background: 'var(--navy-light)' }}>
-                            {CATEGORY_EMOJI[l.category] ?? '🔧'}
+                            {l.photos && l.photos.length > 0 ? (
+                              <>
+                                <Image src={l.photos[0]} alt={l.title} fill className="object-cover" sizes="(max-width:768px) 100vw, 360px" />
+                                {l.photos.length > 1 && (
+                                  <span className="absolute bottom-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.6)', color: '#fff' }}>
+                                    📷 {l.photos.length}
+                                  </span>
+                                )}
+                              </>
+                            ) : (CATEGORY_EMOJI[l.category] ?? '🔧')}
                           </div>
                           {/* Titre + prix */}
                           <div className="flex items-start justify-between gap-2">
@@ -286,6 +313,27 @@ export default function EquipementPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Photos (style Vinted) */}
+                  <div>
+                    <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Photos de l&apos;équipement</span>
+                    <div className="flex gap-2 flex-wrap">
+                      {depotForm.photos.map((url, i) => (
+                        <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden" style={{ background: 'var(--navy-light)' }}>
+                          <Image src={url} alt="" fill className="object-cover" sizes="80px" />
+                          {i === 0 && <span className="absolute bottom-0 left-0 right-0 text-[8px] font-bold text-center text-white" style={{ background: 'rgba(74,127,255,0.85)' }}>COUVERTURE</span>}
+                          <button type="button" onClick={() => setDepotForm(f => ({ ...f, photos: f.photos.filter((_, j) => j !== i) }))}
+                            className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px]" style={{ background: 'rgba(0,0,0,0.6)', color: '#fff' }}>✕</button>
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => photoRef.current?.click()} disabled={photoUploading}
+                        className="w-20 h-20 rounded-lg flex flex-col items-center justify-center disabled:opacity-60"
+                        style={{ background: 'var(--navy-light)', border: '1px dashed rgba(255,255,255,0.2)', color: 'var(--gray)' }}>
+                        {photoUploading ? '…' : <><span className="text-lg">📷</span><span className="text-[9px] mt-0.5">Ajouter</span></>}
+                      </button>
+                    </div>
+                    <input ref={photoRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handlePhotosAdd(e.target.files)} />
+                  </div>
+
                   <label className="block">
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Titre *</span>
                     <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"

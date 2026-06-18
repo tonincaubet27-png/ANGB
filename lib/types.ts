@@ -9,6 +9,7 @@ export interface Listing {
   city?: string
   seller_name?: string
   seller_division?: string
+  photos?: string[]
   user_id?: string
   created_at: string
   is_active: boolean
