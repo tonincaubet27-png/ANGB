@@ -139,6 +139,14 @@ export default function Navbar() {
                       👤 Mon profil
                     </Link>
 
+                    {profile?.membership_status === 'active' && (
+                      <Link href="/messages" onClick={() => setUserMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide hover:bg-white/5 transition-colors"
+                        style={{ color: 'var(--gray)' }}>
+                        💬 Messagerie
+                      </Link>
+                    )}
+
                     {profile?.role === 'gardien' && goalieProfile && (
                       <Link href="/annuaire" onClick={() => setUserMenu(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide hover:bg-white/5 transition-colors"
@@ -231,6 +239,13 @@ export default function Navbar() {
                     style={{ color: 'var(--accent)' }}>
                     👤 Mon profil
                   </Link>
+                  {profile?.membership_status === 'active' && (
+                    <Link href="/messages" onClick={() => setMenuOpen(false)}
+                      className="text-xs font-bold uppercase tracking-wide py-2 rounded-lg"
+                      style={{ color: 'var(--accent)' }}>
+                      💬 Messagerie
+                    </Link>
+                  )}
                   {needsSetup && (
                     <button onClick={() => { setMenuOpen(false); openAuth() }}
                       className="text-xs font-bold uppercase tracking-wide py-2.5 rounded-lg text-center"

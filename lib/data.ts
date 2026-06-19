@@ -5,6 +5,7 @@
 import type {
   Listing, Thread, Post, GoalieProfile,
   ContactRequest, CareerEntry, TrainingEntry, EtudesEntry,
+  Message, MessageMember,
 } from './types'
 import { getClient } from './supabase-client'
 
@@ -288,6 +289,58 @@ export async function createContactRequest(
   const { error } = await client.from('contact_requests').insert(payload)
   if (error) return { ok: false, error: error.message }
   return { ok: true }
+}
+
+// ── Messagerie interne ──────────────────────────────────────────────────────
+
+/** Membres joignables (comptes actifs présents dans l'annuaire). */
+export async function getMessageableMembers(): Promise<MessageMember[]> {
+  const client = getClient()
+  if (!client) return []
+  const { data } = await client
+    .from('goalie_profiles')
+    .select('user_id, name, photo_url')
+    .not('user_id', 'is', null)
+    .eq('is_active', true)
+    .order('name')
+  return (data ?? []) as MessageMember[]
+}
+
+/** Tous les messages impliquant l'utilisateur (boîte de réception, ordre chronologique). */
+export async function getInboxMessages(userId: string): Promise<Message[]> {
+  const client = getClient()
+  if (!client) return []
+  const { data } = await client
+    .from('messages')
+    .select('*')
+    .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+    .order('created_at', { ascending: true })
+  return (data ?? []) as Message[]
+}
+
+/** Envoie un message (RLS : expéditeur = soi, les deux doivent être membres actifs). */
+export async function sendMessage(
+  senderId: string, recipientId: string, content: string
+): Promise<{ ok: boolean; error?: string }> {
+  const client = getClient()
+  if (!client) return { ok: true }
+  const { error } = await client
+    .from('messages')
+    .insert({ sender_id: senderId, recipient_id: recipientId, content: content.trim() })
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
+/** Marque comme lus les messages reçus d'un interlocuteur donné. */
+export async function markConversationRead(userId: string, otherUserId: string): Promise<void> {
+  const client = getClient()
+  if (!client) return
+  await client
+    .from('messages')
+    .update({ read_at: new Date().toISOString() })
+    .eq('recipient_id', userId)
+    .eq('sender_id', otherUserId)
+    .is('read_at', null)
 }
 
 // ── Storage — upload photo ──────────────────────────────────────────────────

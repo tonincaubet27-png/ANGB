@@ -40,6 +40,31 @@ export interface Post {
   created_at: string
 }
 
+// ── Messagerie interne ──────────────────────────────────────────────────────
+export interface Message {
+  id: string
+  sender_id: string
+  recipient_id: string
+  content: string
+  created_at: string
+  read_at: string | null
+}
+
+/** Membre joignable (pour démarrer/afficher une conversation) */
+export interface MessageMember {
+  user_id: string
+  name: string
+  photo_url?: string
+}
+
+/** Conversation agrégée (dérivée des messages côté client) */
+export interface Conversation {
+  other: MessageMember
+  lastMessage: string
+  lastAt: string
+  unread: number
+}
+
 // ── Annuaire ────────────────────────────────────────────────────────────────
 
 /** Entrée de carrière dans le parcours hockey */
