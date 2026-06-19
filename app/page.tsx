@@ -219,7 +219,8 @@ export default function HomePage() {
           {/* Titre */}
           <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] leading-none mb-6"
             style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}>
-            {['La', 'voix', 'des'].map((word, i) => (
+            {/* Ligne 1 — « La voix » en bleu */}
+            {['La', 'voix'].map((word, i) => (
               <motion.span
                 key={word}
                 initial={{ opacity: 0, y: 80, rotateX: -30 }}
@@ -231,23 +232,28 @@ export default function HomePage() {
               </motion.span>
             ))}
             <br />
+            {/* Ligne 2 — « des » en blanc, seul et centré */}
             <motion.span
               initial={{ opacity: 0, y: 80, rotateX: -30 }}
               animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.7, delay: 0.51, ease: [0.21, 0.47, 0.32, 0.98] }}
-              style={{ color: '#ED2939', display: 'inline-block', marginRight: '0.25em' }}
+              transition={{ duration: 0.7, delay: 0.39, ease: [0.21, 0.47, 0.32, 0.98] }}
+              style={{ color: 'var(--white)', display: 'inline-block' }}
             >
-              gardiens
+              des
             </motion.span>
-            {' '}
-            <motion.span
-              initial={{ opacity: 0, y: 80, rotateX: -30 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.7, delay: 0.63, ease: [0.21, 0.47, 0.32, 0.98] }}
-              style={{ color: '#ED2939', display: 'inline-block' }}
-            >
-              français
-            </motion.span>
+            <br />
+            {/* Ligne 3 — « gardiens français » en rouge */}
+            {['gardiens', 'français'].map((word, i) => (
+              <motion.span
+                key={word}
+                initial={{ opacity: 0, y: 80, rotateX: -30 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ duration: 0.7, delay: 0.51 + i * 0.12, ease: [0.21, 0.47, 0.32, 0.98] }}
+                style={{ color: '#ED2939', display: 'inline-block', marginRight: '0.25em' }}
+              >
+                {word}
+              </motion.span>
+            ))}
           </h1>
 
           {/* Ligne tricolore pleine largeur sous le titre */}

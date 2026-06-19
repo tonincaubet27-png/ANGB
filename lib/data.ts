@@ -245,6 +245,21 @@ export async function createPost(payload: {
   return { ok: true }
 }
 
+/** Crée un nouveau sujet de forum (réservé aux membres actifs via RLS). */
+export async function createThread(payload: {
+  title: string; category: string; tag?: string; author_name?: string; author_initials?: string
+}): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const client = getClient()
+  if (!client) return { ok: true }
+  const { data, error } = await client
+    .from('threads')
+    .insert({ ...payload, is_pinned: false, reply_count: 0, last_activity: new Date().toISOString() })
+    .select('id')
+    .single()
+  if (error) return { ok: false, error: error.message }
+  return { ok: true, id: (data as { id: string } | null)?.id }
+}
+
 export async function submitAdhesion(
   payload: Record<string, unknown>
 ): Promise<{ ok: boolean; error?: string; code?: string }> {

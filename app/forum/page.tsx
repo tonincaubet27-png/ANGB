@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getThreads } from '@/lib/data'
+import { getThreads, createThread } from '@/lib/data'
 import type { Thread } from '@/lib/types'
 import { Tabs } from '@/components/ui/tabs'
 import type { Tab } from '@/components/ui/tabs'
 import HeaderPhoto from '@/components/HeaderPhoto'
+import { useAuth } from '@/contexts/AuthContext'
+import { useAdhesion } from '@/contexts/AdhesionContext'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -135,10 +137,35 @@ function ThreadPanel({ threads }: { threads: Thread[] }) {
 export default function ForumPage() {
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
+  const { user, profile } = useAuth()
+  const { openAdhesion } = useAdhesion()
+  const isMember = profile?.membership_status === 'active'
 
-  useEffect(() => {
-    getThreads().then(data => { setThreads(data); setLoading(false) })
-  }, [])
+  // Modale « Nouveau sujet »
+  const [showNew, setShowNew]   = useState(false)
+  const [ntTitle, setNtTitle]   = useState('')
+  const [ntCat, setNtCat]       = useState(CATEGORIES[1].filter as string)
+  const [ntError, setNtError]   = useState('')
+  const [ntBusy, setNtBusy]     = useState(false)
+
+  const reload = () => getThreads().then(data => { setThreads(data); setLoading(false) })
+  useEffect(() => { reload() }, [])
+
+  const initials = (name: string) => name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
+
+  const submitThread = async () => {
+    const title = ntTitle.trim()
+    if (title.length < 6) { setNtError('Le titre doit faire au moins 6 caractères.'); return }
+    setNtBusy(true); setNtError('')
+    const name = profile?.display_name || 'Membre ANGB'
+    const { ok, error } = await createThread({
+      title, category: ntCat, author_name: name, author_initials: initials(name),
+    })
+    setNtBusy(false)
+    if (!ok) { setNtError(error || 'Erreur lors de la création.'); return }
+    setNtTitle(''); setShowNew(false)
+    await reload()
+  }
 
   // Construit les onglets à partir des catégories et des threads chargés
   const tabs: Tab[] = CATEGORIES.map(({ label, filter, icon }) => {
@@ -190,8 +217,32 @@ export default function ForumPage() {
         </div>
       </div>
 
+      {/* ── Barre d'action : nouveau sujet ───────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6 flex items-center justify-between gap-4">
+        <p className="text-xs" style={{ color: 'var(--gray)' }}>
+          {isMember
+            ? 'Tu es membre — lance un sujet quand tu veux.'
+            : user
+              ? 'Réservé aux membres : ton adhésion doit être validée pour publier.'
+              : 'Connecte-toi et adhère pour participer.'}
+        </p>
+        {isMember ? (
+          <button onClick={() => { setShowNew(true); setNtError('') }}
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
+            + Nouveau sujet
+          </button>
+        ) : (
+          <button onClick={openAdhesion}
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.1em] transition-colors"
+            style={{ border: '1px solid rgba(255,255,255,0.15)', color: 'var(--gray)' }}>
+            Adhérer pour publier
+          </button>
+        )}
+      </div>
+
       {/* ── Charte de bonne conduite ─────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-4">
         <div className="flex items-start gap-3 p-4 rounded-xl" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.25)' }}>
           <span className="text-lg flex-shrink-0">🤝</span>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
@@ -227,6 +278,48 @@ export default function ForumPage() {
           </div>
         )}
       </div>
+
+      {/* ── Modale : nouveau sujet ────────────────────────────────────── */}
+      {showNew && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowNew(false)}>
+          <div className="w-full max-w-md rounded-2xl p-6" onClick={e => e.stopPropagation()}
+            style={{ background: 'var(--navy-mid)', border: '1px solid var(--border-mid)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Nouveau sujet</h3>
+              <button onClick={() => setShowNew(false)} className="text-lg" style={{ color: 'var(--gray)' }}>✕</button>
+            </div>
+
+            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--gray)' }}>Titre</label>
+            <input value={ntTitle} onChange={e => setNtTitle(e.target.value)} maxLength={120}
+              placeholder="Ex : Quel matériel pour débuter en senior ?"
+              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none mb-4"
+              style={{ background: 'var(--navy-light)', color: 'var(--white)', border: '1px solid var(--border)' }} />
+
+            <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--gray)' }}>Catégorie</label>
+            <select value={ntCat} onChange={e => setNtCat(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none mb-4"
+              style={{ background: 'var(--navy-light)', color: 'var(--white)', border: '1px solid var(--border)' }}>
+              {CATEGORIES.filter(c => c.filter).map(c => (
+                <option key={c.filter as string} value={c.filter as string}>{c.icon} {c.filter}</option>
+              ))}
+            </select>
+
+            {ntError && <p className="text-xs mb-3" style={{ color: '#f87171' }}>{ntError}</p>}
+
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowNew(false)} className="px-4 py-2 rounded-lg text-sm font-medium"
+                style={{ color: 'var(--gray)', border: '1px solid var(--border)' }}>Annuler</button>
+              <button onClick={submitThread} disabled={ntBusy}
+                className="px-5 py-2 rounded-lg text-sm font-bold text-white disabled:opacity-60"
+                style={{ background: 'var(--accent)' }}>
+                {ntBusy ? 'Publication…' : 'Publier'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
