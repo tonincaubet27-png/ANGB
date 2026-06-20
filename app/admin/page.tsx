@@ -188,11 +188,14 @@ async function adminLogin(formData: FormData) {
   const password = String(formData.get('password') ?? '')
   const url  = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  // L'email doit être dans l'allowlist ET le mot de passe valide (vérifié par Supabase)
-  if (!isAdminEmail(email) || !url || !anon) redirect('/admin?err=1')
+  // Diagnostic explicite (sinon échec silencieux = "rien ne se passe")
+  if (!url || !anon || !process.env.ADMIN_SECRET || !(process.env.ADMIN_EMAILS || '').trim()) {
+    redirect('/admin?err=config')          // variables d'environnement manquantes
+  }
+  if (!isAdminEmail(email)) redirect('/admin?err=auth')   // email pas dans l'allowlist
   const sb = createClient(url, anon)
   const { data, error } = await sb.auth.signInWithPassword({ email, password })
-  if (error || !data?.user) redirect('/admin?err=1')
+  if (error || !data?.user) redirect('/admin?err=creds')  // mot de passe invalide
   cookies().set(ADMIN_COOKIE, makeToken(email), {
     httpOnly: true,
     secure:   process.env.NODE_ENV === 'production',
@@ -200,7 +203,7 @@ async function adminLogin(formData: FormData) {
     path:     '/',
     maxAge:   ADMIN_MAX_AGE,
   })
-  redirect('/admin')
+  redirect('/admin?ok=1')
 }
 
 async function adminLogout() {
@@ -210,20 +213,34 @@ async function adminLogout() {
 }
 
 // ── Écran de connexion ──────────────────────────────────────────────────────────
-function AdminLogin({ error }: { error?: boolean }) {
+function AdminLogin({ error, configured, cookieRejected }: { error?: string; configured: boolean; cookieRejected?: boolean }) {
   const inputStyle = {
     width: '100%', boxSizing: 'border-box' as const, padding: '10px 12px', marginBottom: 10,
     borderRadius: 8, background: '#070b15', border: '1px solid #1e293b', color: '#fff', fontSize: 14,
   }
+  // Message selon le diagnostic
+  const msg =
+    cookieRejected   ? 'Connexion acceptée mais session non validée → la variable ADMIN_SECRET est manquante ou différente sur Vercel. Ajoute-la (Settings → Environment Variables) puis Redeploy.'
+    : error === 'config' ? 'Configuration serveur incomplète : ADMIN_SECRET et/ou ADMIN_EMAILS ne sont pas définies sur Vercel. Ajoute-les puis Redeploy.'
+    : error === 'auth' ? 'Cet email n’est pas autorisé (il doit figurer dans ADMIN_EMAILS).'
+    : error === 'creds' ? 'Mot de passe incorrect pour ce compte.'
+    : error ? 'Identifiants invalides ou accès non autorisé.'
+    : ''
+  const warn = msg && (cookieRejected || error === 'config')
   return (
     <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#070b15', padding: 16 }}>
-      <form action={adminLogin} style={{ width: '100%', maxWidth: 340, background: '#0d1525', border: '1px solid #1e293b', borderRadius: 16, padding: 28 }}>
+      <form action={adminLogin} style={{ width: '100%', maxWidth: 360, background: '#0d1525', border: '1px solid #1e293b', borderRadius: 16, padding: 28 }}>
         <div style={{ height: 4, background: 'linear-gradient(to right,#002395 0%,#002395 33%,#fff 33%,#fff 66%,#ED2939 66%,#ED2939 100%)', borderRadius: 4, marginBottom: 20 }} />
         <h1 style={{ fontSize: 20, color: '#fff', margin: '0 0 4px', fontWeight: 700 }}>Administration ANGB</h1>
         <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 20px' }}>Réservé au bureau. Connecte-toi avec ton compte ANGB.</p>
-        {error && (
-          <p style={{ fontSize: 12, color: '#fca5a5', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '8px 12px', margin: '0 0 14px' }}>
-            Identifiants invalides ou accès non autorisé.
+        {!configured && !msg && (
+          <p style={{ fontSize: 12, color: '#fbbf24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 8, padding: '8px 12px', margin: '0 0 14px' }}>
+            ⚠️ Variables ADMIN_SECRET / ADMIN_EMAILS absentes : la connexion ne pourra pas aboutir tant qu’elles ne sont pas réglées sur Vercel (puis Redeploy).
+          </p>
+        )}
+        {msg && (
+          <p style={{ fontSize: 12, color: warn ? '#fbbf24' : '#fca5a5', background: warn ? 'rgba(251,191,36,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${warn ? 'rgba(251,191,36,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: 8, padding: '8px 12px', margin: '0 0 14px', lineHeight: 1.5 }}>
+            {msg}
           </p>
         )}
         <input name="email"    type="email"    required placeholder="Email"         autoComplete="username"        style={inputStyle} />
@@ -240,12 +257,14 @@ function AdminLogin({ error }: { error?: boolean }) {
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: { filter?: string; err?: string }
+  searchParams: { filter?: string; err?: string; ok?: string }
 }) {
   // ── Auth ────────────────────────────────────────────────────────────────────
+  const adminConfigured = Boolean(process.env.ADMIN_SECRET) && (process.env.ADMIN_EMAILS || '').trim().length > 0
   const adminEmail = getAdminEmail()
   if (!adminEmail) {
-    return <AdminLogin error={searchParams.err === '1'} />
+    // ?ok=1 mais toujours pas connecté = cookie posé puis rejeté → souci ADMIN_SECRET
+    return <AdminLogin error={searchParams.err} configured={adminConfigured} cookieRejected={searchParams.ok === '1'} />
   }
 
   // ── Données Supabase ─────────────────────────────────────────────────────────
