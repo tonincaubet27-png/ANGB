@@ -114,6 +114,7 @@ export interface GoalieProfile {
   division?:   string
   region?:     string
   photo_url?:  string
+  cover_url?:  string
   bio_note?:   string
   role_angb?:  string
   parcours?:    CareerEntry[]

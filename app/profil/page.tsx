@@ -20,10 +20,13 @@ export default function ProfilPage() {
   const [bio, setBio]           = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [coverUrl, setCoverUrl]   = useState('')
+  const [coverUploading, setCoverUploading] = useState(false)
   const [gallery, setGallery]   = useState<string[]>([])
   const [saving, setSaving]     = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const fileRef  = useRef<HTMLInputElement>(null)
+  const coverRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!goalieProfile) return
@@ -33,6 +36,7 @@ export default function ProfilPage() {
     setRegion(goalieProfile.region ?? '')
     setBio(goalieProfile.bio_note ?? '')
     setPhotoUrl(goalieProfile.photo_url ?? '')
+    setCoverUrl(goalieProfile.cover_url ?? '')
     setGallery(goalieProfile.gallery ?? [])
   }, [goalieProfile])
 
@@ -72,6 +76,15 @@ export default function ProfilPage() {
     if (fileRef.current) fileRef.current.value = ''
   }
 
+  const handleCoverAdd = async (file: File | null) => {
+    if (!file || !user) return
+    setCoverUploading(true)
+    const { url } = await uploadGoaliePhoto(user.id, file)
+    if (url) setCoverUrl(url)
+    setCoverUploading(false)
+    if (coverRef.current) coverRef.current.value = ''
+  }
+
   const handleSave = async () => {
     setSaving(true)
     let finalPhoto = photoUrl
@@ -79,7 +92,7 @@ export default function ProfilPage() {
       const { url } = await uploadGoaliePhoto(user.id, photoFile)
       if (url) finalPhoto = url
     }
-    await updateGoalieProfile(g.id, { name, club, division, region, bio_note: bio, photo_url: finalPhoto, gallery })
+    await updateGoalieProfile(g.id, { name, club, division, region, bio_note: bio, photo_url: finalPhoto, cover_url: coverUrl, gallery })
     await refreshProfile()
     setPhotoUrl(finalPhoto)
     setPhotoFile(null)
@@ -90,27 +103,45 @@ export default function ProfilPage() {
   const handleCancel = () => {
     setName(g.name ?? ''); setClub(g.club ?? ''); setDivision(g.division ?? '')
     setRegion(g.region ?? ''); setBio(g.bio_note ?? ''); setPhotoUrl(g.photo_url ?? '')
-    setGallery(g.gallery ?? []); setPhotoFile(null); setEditing(false)
+    setCoverUrl(g.cover_url ?? ''); setGallery(g.gallery ?? []); setPhotoFile(null); setEditing(false)
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-8 py-8 md:py-12">
       <div className="rounded-3xl overflow-hidden" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
 
-        {/* ── Bannière ─────────────────────────────────────────────────── */}
-        <div className="relative h-36" style={{ background: 'linear-gradient(120deg, #0a1628 0%, #112240 45%, rgba(74,127,255,0.35) 100%)' }}>
-          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)', backgroundSize: '28px 28px' }} />
+        {/* ── Bannière / photo de couverture ───────────────────────────── */}
+        <div className="relative h-40" style={{ background: coverUrl ? '#0a1628' : 'linear-gradient(120deg, #0a1628 0%, #112240 45%, rgba(74,127,255,0.35) 100%)' }}>
+          {coverUrl && <Image src={coverUrl} alt="Couverture" fill className="object-cover" sizes="800px" />}
+          {!coverUrl && <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)', backgroundSize: '28px 28px' }} />}
           <div className="absolute top-0 left-0 right-0 h-[3px] flex">
             <div className="flex-1" style={{ background: '#002395' }} />
             <div className="flex-1" style={{ background: '#fff' }} />
             <div className="flex-1" style={{ background: '#ED2939' }} />
           </div>
-          {!editing && (
+          {!editing ? (
             <button onClick={() => setEditing(true)}
               className="absolute top-3 right-3 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-              style={{ background: 'rgba(0,0,0,0.4)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)' }}>
+              style={{ background: 'rgba(0,0,0,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)' }}>
               ✏️ Modifier
             </button>
+          ) : (
+            <>
+              <button onClick={() => coverRef.current?.click()} disabled={coverUploading}
+                className="absolute bottom-3 right-3 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
+                style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
+                {coverUploading ? 'Envoi…' : coverUrl ? '🖼️ Changer la couverture' : '🖼️ Ajouter une couverture'}
+              </button>
+              {coverUrl && (
+                <button onClick={() => setCoverUrl('')}
+                  className="absolute bottom-3 left-3 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ background: 'rgba(0,0,0,0.55)', color: '#f87171', border: '1px solid rgba(248,113,113,0.4)' }}>
+                  Retirer
+                </button>
+              )}
+              <input ref={coverRef} type="file" accept="image/*" className="hidden"
+                onChange={e => handleCoverAdd(e.target.files?.[0] ?? null)} />
+            </>
           )}
         </div>
 
@@ -223,7 +254,7 @@ export default function ProfilPage() {
         </div>
       </div>
 
-      {/* ── Parcours détaillé (édité dans l'annuaire) ───────────────────── */}
+      {/* ── Parcours détaillé (éditeur complet) ─────────────────────────── */}
       <div className="mt-4 p-5 rounded-2xl flex items-center justify-between gap-4" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
         <div>
           <p className="text-sm font-semibold" style={{ color: 'var(--white)' }}>Parcours, formation & expériences</p>
@@ -232,7 +263,10 @@ export default function ProfilPage() {
               .filter(Boolean).join(' · ') || 'À compléter'}
           </p>
         </div>
-        <Link href="/annuaire" className="text-sm font-semibold flex-shrink-0" style={{ color: '#4a7fff' }}>Détailler →</Link>
+        <Link href="/annuaire?edit=1" className="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold text-white"
+          style={{ background: 'var(--accent)' }}>
+          ✏️ Compléter
+        </Link>
       </div>
 
       <p className="text-center mt-6">

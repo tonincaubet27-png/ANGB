@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdhesion } from '@/contexts/AdhesionContext'
@@ -50,14 +51,16 @@ const ini = (n: string)  => n.split(' ').map(p => p[0]).join('').toUpperCase().s
 
 // ── ProfileDrawer ─────────────────────────────────────────────────────────────
 function ProfileDrawer({
-  goalie, onClose, canEdit, onSaved,
+  goalie, onClose, canEdit, onSaved, initialEditing = false, messageHref = null,
 }: {
   goalie: GoalieProfile
   onClose: () => void
   canEdit: boolean
   onSaved: (updated: GoalieProfile) => void
+  initialEditing?: boolean
+  messageHref?: string | null
 }) {
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(initialEditing && canEdit)
   const div = dc(goalie.division)
   const isFounder = FOUNDER_NAMES.has(goalie.name)
 
@@ -87,7 +90,7 @@ function ProfileDrawer({
           <EditForm goalie={goalie} onCancel={() => setEditing(false)} onSaved={updated => { setEditing(false); onSaved(updated) }} />
         ) : (
           <ViewProfile goalie={goalie} div={div} isFounder={isFounder} canEdit={canEdit}
-            onClose={onClose} onEdit={() => setEditing(true)} />
+            onClose={onClose} onEdit={() => setEditing(true)} messageHref={messageHref} />
         )}
       </motion.aside>
     </>
@@ -142,16 +145,19 @@ function ContactForm({ goalie }: { goalie: GoalieProfile }) {
 }
 
 // ── ViewProfile ───────────────────────────────────────────────────────────────
-function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit }: {
+function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit, messageHref }: {
   goalie: GoalieProfile; div: { bg: string; color: string }
   isFounder: boolean; canEdit: boolean; onClose: () => void; onEdit: () => void
+  messageHref?: string | null
 }) {
   return (
     <>
       <div className="relative h-44 flex-shrink-0" style={{
-        background: 'linear-gradient(135deg, #0a1628 0%, #112240 50%, rgba(74,127,255,0.2) 100%)',
+        background: goalie.cover_url ? '#0a1628' : 'linear-gradient(135deg, #0a1628 0%, #112240 50%, rgba(74,127,255,0.2) 100%)',
       }}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(74,127,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(74,127,255,0.3) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        {goalie.cover_url
+          ? <Image src={goalie.cover_url} alt="" fill className="object-cover" sizes="640px" />
+          : <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(74,127,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(74,127,255,0.3) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />}
         <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}>✕</button>
         {isFounder && (
           <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider" style={{ background: 'rgba(74,127,255,0.2)', color: '#4a7fff', border: '1px solid rgba(74,127,255,0.4)' }}>
@@ -188,7 +194,15 @@ function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit }: {
       <div className="px-6 pb-16 space-y-6">
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
-        <ContactForm goalie={goalie} />
+        {messageHref ? (
+          <Link href={messageHref}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
+            💬 Envoyer un message
+          </Link>
+        ) : (
+          <ContactForm goalie={goalie} />
+        )}
 
         {goalie.bio_note && (
           <section>
@@ -657,12 +671,29 @@ export default function AnnuairePage() {
   const [divFilter, setDiv]      = useState('Toutes')
   const [regFilter, setReg]      = useState('Toutes')
   const [selected,  setSelected] = useState<GoalieProfile | null>(null)
+  const [editIntent, setEditIntent] = useState(false)
+  const isMember = profile?.membership_status === 'active'
 
   useEffect(() => {
     getGoalieProfiles().then(d => { setGoalies(d); setLoading(false) })
   }, [])
 
-  const closeDrawer = useCallback(() => setSelected(null), [])
+  // Lien profond depuis /profil ("Compléter →") : ouvre SA fiche en mode édition
+  useEffect(() => {
+    if (loading || !goalieProfile || goalies.length === 0) return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('edit') === '1') {
+      const mine = goalies.find(x => x.id === goalieProfile.id)
+      if (mine) { setSelected(mine); setEditIntent(true) }
+      window.history.replaceState({}, '', '/annuaire')
+    }
+  }, [loading, goalieProfile, goalies])
+
+  const closeDrawer = useCallback(() => { setSelected(null); setEditIntent(false) }, [])
+
+  // Lien messagerie interne (membre → membre disposant d'un compte)
+  const messageHrefFor = (g: GoalieProfile) =>
+    isMember && g.user_id && g.user_id !== user?.id ? `/messages?to=${g.user_id}` : null
 
   // Détermine si l'utilisateur peut éditer un profil
   const canEdit = (g: GoalieProfile) => {
@@ -688,9 +719,12 @@ export default function AnnuairePage() {
       <AnimatePresence>
         {selected && (
           <ProfileDrawer
+            key={selected.id}
             goalie={selected}
             onClose={closeDrawer}
             canEdit={canEdit(selected)}
+            initialEditing={editIntent}
+            messageHref={messageHrefFor(selected)}
             onSaved={updated => {
               setGoalies(gs => gs.map(g => g.id === updated.id ? updated : g))
               setSelected(updated)
@@ -772,7 +806,7 @@ export default function AnnuairePage() {
                   {members.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {members.map((g, i) => (
-                        <MemberCard key={g.id} g={g} index={i} owner={canEdit(g)} onSelect={() => setSelected(g)} />
+                        <MemberCard key={g.id} g={g} index={i} owner={canEdit(g)} onSelect={() => { setEditIntent(false); setSelected(g) }} />
                       ))}
                     </div>
                   ) : (

@@ -60,6 +60,12 @@ export default function MessagesPage() {
     return () => { client.removeChannel(channel) }
   }, [user, isMember, reloadInbox])
 
+  // Pré-sélection d'une conversation via ?to=<userId> (depuis l'annuaire)
+  useEffect(() => {
+    const to = new URLSearchParams(window.location.search).get('to')
+    if (to) setActiveId(to)
+  }, [])
+
   // Conversations agrégées (groupées par interlocuteur)
   const conversations: Conversation[] = useMemo(() => {
     if (!user) return []

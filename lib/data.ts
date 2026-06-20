@@ -137,12 +137,29 @@ export async function getGoalieProfiles(): Promise<GoalieProfile[]> {
       .order('is_founder', { ascending: false })
       .order('name', { ascending: true })
     if (error || !data) return MOCK_GOALIE_PROFILES
-    // Les fondateurs (contenu curaté avec photos) sont toujours affichés ;
-    // on ajoute ensuite les membres réels de la base (hors doublons de nom).
+    // On PRIVILÉGIE les vraies fiches de la base (elles contiennent les infos
+    // saisies par les membres). Un fondateur curaté (mock) n'est affiché que s'il
+    // n'a pas encore de compte réel. Si un fondateur a une vraie fiche, on garde
+    // la fiche réelle en récupérant juste sa photo curatée à défaut.
+    // Le rapprochement se fait sur les tokens « significatifs » (≥5 lettres, ex.
+    // le nom de famille) pour tolérer les variantes d'écriture du prénom/ordre.
+    const sig = (s: string): string[] =>
+      s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .split(/[\s-]+/).filter(t => t.length >= 5)
+    // Vrai si TOUS les tokens significatifs du fondateur figurent dans le nom DB
+    // (évite qu'un parent du même nom de famille soit pris pour le fondateur).
+    const founderMatches = (founderName: string, dbName: string) => {
+      const F = sig(founderName), D = sig(dbName)
+      return F.length > 0 && F.every(t => D.includes(t))
+    }
+    const dbProfiles = data as GoalieProfile[]
     const founders = MOCK_GOALIE_PROFILES.filter(g => g.is_founder)
-    const founderNames = new Set(founders.map(f => f.name))
-    const dbMembers = (data as GoalieProfile[]).filter(d => !founderNames.has(d.name))
-    return [...founders, ...dbMembers]
+    const merged = dbProfiles.map(d => {
+      const f = founders.find(ff => founderMatches(ff.name, d.name))
+      return f ? { ...d, photo_url: d.photo_url || f.photo_url, is_founder: true } : d
+    })
+    const mockOnly = founders.filter(f => !dbProfiles.some(d => founderMatches(f.name, d.name)))
+    return [...mockOnly, ...merged]
   } catch { return MOCK_GOALIE_PROFILES }
 }
 
@@ -183,7 +200,7 @@ export async function createGoalieProfile(payload: {
 /** Mettre à jour un profil gardien */
 export async function updateGoalieProfile(
   id: string,
-  patch: Partial<Pick<GoalieProfile, 'name' | 'club' | 'division' | 'region' | 'bio_note' | 'role_angb' | 'parcours' | 'formation' | 'etudes' | 'experiences' | 'palmares' | 'gallery' | 'photo_url'>>
+  patch: Partial<Pick<GoalieProfile, 'name' | 'club' | 'division' | 'region' | 'bio_note' | 'role_angb' | 'parcours' | 'formation' | 'etudes' | 'experiences' | 'palmares' | 'gallery' | 'photo_url' | 'cover_url'>>
 ): Promise<{ ok: boolean; error?: string }> {
   const client = getClient()
   if (!client) return { ok: true } // mode démo
