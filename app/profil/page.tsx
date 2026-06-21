@@ -121,27 +121,27 @@ export default function ProfilPage() {
           </div>
           {!editing ? (
             <button onClick={() => setEditing(true)}
-              className="absolute top-3 right-3 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+              className="absolute top-3 right-3 z-20 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors"
               style={{ background: 'rgba(0,0,0,0.45)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)' }}>
               ✏️ Modifier
             </button>
           ) : (
-            <>
-              <button onClick={() => coverRef.current?.click()} disabled={coverUploading}
-                className="absolute bottom-3 right-3 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
-                style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
-                {coverUploading ? 'Envoi…' : coverUrl ? '🖼️ Changer la couverture' : '🖼️ Ajouter une couverture'}
-              </button>
+            <div className="absolute top-3 right-3 z-20 flex gap-2">
               {coverUrl && (
                 <button onClick={() => setCoverUrl('')}
-                  className="absolute bottom-3 left-3 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                  style={{ background: 'rgba(0,0,0,0.55)', color: '#f87171', border: '1px solid rgba(248,113,113,0.4)' }}>
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ background: 'rgba(0,0,0,0.6)', color: '#f87171', border: '1px solid rgba(248,113,113,0.4)' }}>
                   Retirer
                 </button>
               )}
+              <button onClick={() => coverRef.current?.click()} disabled={coverUploading}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60"
+                style={{ background: 'rgba(0,0,0,0.6)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}>
+                {coverUploading ? 'Envoi…' : coverUrl ? '🖼️ Changer la couverture' : '🖼️ Ajouter une couverture'}
+              </button>
               <input ref={coverRef} type="file" accept="image/*" className="hidden"
                 onChange={e => handleCoverAdd(e.target.files?.[0] ?? null)} />
-            </>
+            </div>
           )}
         </div>
 
