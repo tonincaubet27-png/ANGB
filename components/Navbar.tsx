@@ -34,6 +34,7 @@ export default function Navbar() {
   const navLinks = [
     { href: '/association', label: "L'association" },
     { href: '/actualites',  label: 'Actualités' },
+    { href: '/stages',      label: 'Stages' },
     { href: '/annuaire',    label: 'Annuaire' },
     { href: '/forum',       label: 'Forum' },
     { href: '/equipement',  label: 'Équipement' },
