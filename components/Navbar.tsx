@@ -10,7 +10,7 @@ export default function Navbar() {
   const [userMenu, setUserMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const userMenuRef             = useRef<HTMLDivElement>(null)
-  const { user, profile, goalieProfile, needsSetup, openAuth, signOut } = useAuth()
+  const { user, profile, needsSetup, openAuth, signOut } = useAuth()
   const { openAdhesion } = useAdhesion()
 
   useEffect(() => {
@@ -34,14 +34,13 @@ export default function Navbar() {
   const TRICOLOR = 'linear-gradient(to right, #002395 0%, #002395 33%, #fff 33%, #fff 66%, #ED2939 66%, #ED2939 100%)'
   const NAV: { href: string; label: string; children?: { href: string; label: string }[] }[] = [
     { href: '/association', label: "L'association", children: [
-      { href: '/association', label: 'Présentation' },
-      { href: '/annuaire',    label: 'Annuaire des membres' },
-      { href: '/ressources',  label: 'Ressources officielles' },
+      { href: '/association',  label: 'Présentation' },
+      { href: '/annuaire',     label: 'Annuaire des membres' },
+      { href: '/entraineurs',  label: 'Entraîneurs gardiens' },
+      { href: '/ressources',   label: 'Ressources officielles' },
     ] },
-    { href: '/actualites', label: 'Actualités', children: [
-      { href: '/actualites', label: 'Actualités & médias' },
-      { href: '/stages',     label: 'Stages' },
-    ] },
+    { href: '/actualites', label: 'Actualités' },
+    { href: '/stages', label: 'Stages' },
     { href: '/forum', label: 'Forum' },
     { href: '/equipement', label: 'Équipement', children: [
       { href: '/equipement',          label: 'Acheter du matériel' },
@@ -180,11 +179,11 @@ export default function Navbar() {
                       </Link>
                     )}
 
-                    {profile?.role === 'gardien' && goalieProfile && (
+                    {profile && (
                       <Link href="/annuaire" onClick={() => setUserMenu(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide hover:bg-white/5 transition-colors"
                         style={{ color: 'var(--gray)' }}>
-                        🏒 Ma fiche annuaire
+                        🏒 Annuaire
                       </Link>
                     )}
 
