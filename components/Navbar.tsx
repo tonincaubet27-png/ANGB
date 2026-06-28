@@ -31,13 +31,22 @@ export default function Navbar() {
   const initials = (name: string) =>
     name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
 
-  const navLinks = [
-    { href: '/association', label: "L'association" },
-    { href: '/actualites',  label: 'Actualités' },
-    { href: '/stages',      label: 'Stages' },
-    { href: '/annuaire',    label: 'Annuaire' },
-    { href: '/forum',       label: 'Forum' },
-    { href: '/equipement',  label: 'Équipement' },
+  const TRICOLOR = 'linear-gradient(to right, #002395 0%, #002395 33%, #fff 33%, #fff 66%, #ED2939 66%, #ED2939 100%)'
+  const NAV: { href: string; label: string; children?: { href: string; label: string }[] }[] = [
+    { href: '/association', label: "L'association", children: [
+      { href: '/association', label: 'Présentation' },
+      { href: '/annuaire',    label: 'Annuaire des membres' },
+      { href: '/ressources',  label: 'Ressources officielles' },
+    ] },
+    { href: '/actualites', label: 'Actualités', children: [
+      { href: '/actualites', label: 'Actualités & médias' },
+      { href: '/stages',     label: 'Stages' },
+    ] },
+    { href: '/forum', label: 'Forum' },
+    { href: '/equipement', label: 'Équipement', children: [
+      { href: '/equipement',          label: 'Acheter du matériel' },
+      { href: '/equipement?vendre=1', label: 'Vendre mon matériel' },
+    ] },
   ]
 
   return (
@@ -82,14 +91,37 @@ export default function Navbar() {
 
           {/* ── Desktop nav ─────────────────────────────────────────── */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ href, label }) => (
-              <Link key={href} href={href}
+            {NAV.map(item => item.children ? (
+              /* ── Élément avec sous-menu (survol) ── */
+              <div key={item.label} className="relative group">
+                <Link href={item.href}
+                  className="relative flex items-center gap-1 px-3 py-5 text-[11px] font-bold uppercase tracking-[0.15em] transition-colors group-hover:text-white"
+                  style={{ color: 'var(--gray)' }}>
+                  {item.label}
+                  <span className="text-[8px] transition-transform group-hover:rotate-180" style={{ color: 'var(--gray)' }}>▾</span>
+                  <span className="absolute bottom-0 left-3 right-3 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" style={{ background: TRICOLOR }} />
+                </Link>
+                {/* pt-2 = pont invisible pour ne pas fermer en déplaçant la souris */}
+                <div className="absolute left-0 top-full pt-2 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-150 z-50">
+                  <div className="min-w-[230px] rounded-xl overflow-hidden py-1"
+                    style={{ background: '#0d1525', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                    {item.children.map(c => (
+                      <Link key={c.href} href={c.href}
+                        className="block px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/5 hover:text-white"
+                        style={{ color: 'var(--gray)' }}>
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* ── Lien simple ── */
+              <Link key={item.href} href={item.href}
                 className="relative px-3 py-5 text-[11px] font-bold uppercase tracking-[0.15em] transition-colors hover:text-white group"
                 style={{ color: 'var(--gray)' }}>
-                {label}
-                {/* underline tricolore au hover */}
-                <span className="absolute bottom-0 left-3 right-3 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
-                  style={{ background: 'linear-gradient(to right, #002395 0%, #002395 33%, #fff 33%, #fff 66%, #ED2939 66%, #ED2939 100%)' }} />
+                {item.label}
+                <span className="absolute bottom-0 left-3 right-3 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" style={{ background: TRICOLOR }} />
               </Link>
             ))}
 
@@ -220,13 +252,27 @@ export default function Navbar() {
           <div className="md:hidden pb-5 flex flex-col"
             style={{ borderTop: '1px solid var(--border)' }}>
 
-            {navLinks.map(({ href, label }) => (
-              <Link key={href} href={href}
-                className="px-0 py-3 text-xs font-bold uppercase tracking-[0.15em] border-b"
-                style={{ color: 'var(--gray)', borderColor: 'var(--border)' }}
-                onClick={() => setMenuOpen(false)}>
-                {label}
-              </Link>
+            {NAV.map(item => (
+              <div key={item.label} className="border-b" style={{ borderColor: 'var(--border)' }}>
+                <Link href={item.href}
+                  className="block px-0 py-3 text-xs font-bold uppercase tracking-[0.15em]"
+                  style={{ color: 'var(--white)' }}
+                  onClick={() => setMenuOpen(false)}>
+                  {item.label}
+                </Link>
+                {item.children && (
+                  <div className="pl-3 pb-2 flex flex-col">
+                    {item.children.map(c => (
+                      <Link key={c.href} href={c.href}
+                        className="py-1.5 text-[11px] font-semibold uppercase tracking-wide"
+                        style={{ color: 'var(--gray)' }}
+                        onClick={() => setMenuOpen(false)}>
+                        · {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
 
             <div className="flex flex-col gap-2 mt-4">

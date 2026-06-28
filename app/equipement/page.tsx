@@ -82,6 +82,11 @@ export default function EquipementPage() {
     getListings().then(data => { setListings(data); setLoading(false) })
   }, [])
 
+  // Ouvre directement le dépôt d'annonce via /equipement?vendre=1 (menu « Vendre »)
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('vendre') === '1') setDepot(true)
+  }, [])
+
   // Pré-remplir le message quand on ouvre le modal contact
   const openContact = (listing: Listing) => {
     setContactListing(listing)

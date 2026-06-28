@@ -22,32 +22,33 @@ interface Stage {
   lien?: string          // lien d'inscription
 }
 
-const ACADEMIE = 'Académie des Gardiens'   // ← nom de l'académie (à ajuster)
+const ACADEMIE = 'Académie du Hockey'
+const ACADEMIE_URL = 'https://academieduhockey.com'
 
 const STAGES: Stage[] = [
   {
-    id: '1', titre: 'Stage de la Toussaint', organisateur: ACADEMIE,
-    periode: 'Vacances de la Toussaint · oct. 2026', dateDebut: '2026-10-20',
-    lieu: 'Patinoire de Montpellier', public: 'Gardiens U11 à U17', niveau: 'Tous niveaux',
-    tarif: '180 € · 3 jours', places: '12 places',
-    description: 'Travail technique du papillon, couverture d’angle et jeu au pied. 3 jours sur la glace + vidéo et préparation physique spécifique gardien.',
-    image: '/images/hardy.jpg', lien: '#',
+    id: '1', titre: 'Stage Jeunes · Pralognan', organisateur: ACADEMIE,
+    periode: 'Été · juillet 2026', dateDebut: '2026-07-06',
+    lieu: 'Pralognan-la-Vanoise', public: 'U9 à U15 · filles & garçons', niveau: 'Programme spécifique gardiens',
+    tarif: 'Voir le site', places: '2 sessions : 6-11 & 13-18 juillet (ou 2 semaines)',
+    description: 'Stage estival de développement et de perfectionnement, en altitude, avec un programme dédié aux gardiens de but. Groupes par âge et par niveau.',
+    image: '/images/florian-hardy.jpg', lien: ACADEMIE_URL,
   },
   {
-    id: '2', titre: 'Stage de Noël', organisateur: ACADEMIE,
-    periode: 'Vacances de Noël · déc. 2026', dateDebut: '2026-12-21',
-    lieu: 'Patinoire de Grenoble', public: 'Gardiens U13 à U20', niveau: 'Perfectionnement',
-    tarif: '200 € · 3 jours', places: '10 places',
-    description: 'Stage perfectionnement : lecture du jeu, gestion du rebond, prise d’information. Encadrement par des entraîneurs gardiens diplômés.',
-    image: '/images/florian-hardy.jpg', lien: '#',
+    id: '2', titre: 'Skills Days · Meudon', organisateur: ACADEMIE,
+    periode: 'Skills Days · juin 2026', dateDebut: '2026-06-09',
+    lieu: 'Patinoire de Meudon', public: 'U11 à U18 + loisirs adultes', niveau: 'Joueurs & gardiens',
+    tarif: 'Voir le site', places: 'Groupes gardiens U11/U13/U15/U18',
+    description: 'Journées « skills » de travail technique intensif, avec des groupes gardiens dédiés à chaque catégorie d’âge et un groupe loisirs adultes.',
+    image: '/images/hardy.jpg', lien: ACADEMIE_URL,
   },
   {
-    id: '3', titre: 'Stage d’été', organisateur: ACADEMIE,
-    periode: 'Été · juillet 2027', dateDebut: '2027-07-06',
-    lieu: 'À confirmer', public: 'Gardiens U11 à séniors', niveau: 'Tous niveaux',
-    tarif: 'À confirmer', places: 'Inscriptions à venir',
-    description: 'Le grand rendez-vous estival : 5 jours intensifs, glace matin et après-midi, préparation physique, nutrition et mental. Hébergement possible.',
-    image: '/images/fabrice-lhenry.jpg', lien: '#',
+    id: '3', titre: 'Loisirs Adultes · Vaujany', organisateur: ACADEMIE,
+    periode: 'Loisirs adultes · mai 2026', dateDebut: '2026-05-22',
+    lieu: 'Vaujany', public: 'Adultes loisirs', niveau: 'Programme gardiens inclus',
+    tarif: 'Voir le site', places: '22-25 mai 2026',
+    description: 'Stage loisirs pour adultes, glace et perfectionnement dans un cadre montagnard, avec un programme spécifique pour les gardiens.',
+    image: '/images/fabrice-lhenry.jpg', lien: ACADEMIE_URL,
   },
 ]
 
@@ -88,13 +89,11 @@ function StageCard({ s }: { s: Stage }) {
         <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--gray)' }}>{s.description}</p>
         <div className="mt-auto flex items-center justify-between gap-3">
           <span className="text-xs" style={{ color: 'var(--gray)' }}>Organisé par {s.organisateur}</span>
-          {!passed && (
-            <a href={s.lien || '#'} target={s.lien && s.lien !== '#' ? '_blank' : undefined} rel="noopener noreferrer"
-              className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] text-white transition-all hover:-translate-y-0.5"
-              style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
-              S&apos;inscrire →
-            </a>
-          )}
+          <a href={s.lien || ACADEMIE_URL} target="_blank" rel="noopener noreferrer"
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] text-white transition-all hover:-translate-y-0.5"
+            style={{ background: passed ? 'rgba(255,255,255,0.08)' : 'var(--accent)', border: passed ? '1px solid var(--border-mid)' : 'none', boxShadow: passed ? 'none' : '0 4px 16px rgba(74,127,255,0.3)' }}>
+            {passed ? 'Plus d’infos →' : 'S’inscrire →'}
+          </a>
         </div>
       </div>
     </div>
@@ -139,9 +138,9 @@ export default function StagesPage() {
         <div className="flex items-start gap-3 p-4 rounded-xl mb-6" style={{ background: 'rgba(74,127,255,0.06)', border: '1px solid rgba(74,127,255,0.25)' }}>
           <span className="text-lg flex-shrink-0">ℹ️</span>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-            Programme indicatif des stages de <strong style={{ color: 'var(--white)' }}>{ACADEMIE}</strong>. Les dates,
-            lieux et tarifs sont confirmés à l&apos;ouverture des inscriptions. Pour toute question :{' '}
-            <a href="mailto:angbcontact@gmail.com" className="font-semibold" style={{ color: 'var(--accent)' }}>angbcontact@gmail.com</a>.
+            Stages proposés par l&apos;<strong style={{ color: 'var(--white)' }}>{ACADEMIE}</strong>. Tarifs, horaires et
+            inscriptions (toutes les infos à jour) sur{' '}
+            <a href={ACADEMIE_URL} target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: 'var(--accent)' }}>academieduhockey.com</a>.
           </p>
         </div>
 
