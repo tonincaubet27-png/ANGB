@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { updateGoalieProfile, uploadGoaliePhoto } from '@/lib/data'
 import PhotoUpload from '@/components/PhotoUpload'
+import ImageCropper from '@/components/ImageCropper'
 
 const DIVISIONS = ['', 'Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
 
@@ -22,6 +23,7 @@ export default function ProfilPage() {
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [coverUrl, setCoverUrl]   = useState('')
   const [coverUploading, setCoverUploading] = useState(false)
+  const [coverToCrop, setCoverToCrop] = useState<File | null>(null)
   const [gallery, setGallery]   = useState<string[]>([])
   const [saving, setSaving]     = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
@@ -76,13 +78,20 @@ export default function ProfilPage() {
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  const handleCoverAdd = async (file: File | null) => {
-    if (!file || !user) return
+  // Sélection d'un fichier de couverture → ouvre le recadrage
+  const handleCoverPick = (file: File | null) => {
+    if (file) setCoverToCrop(file)
+    if (coverRef.current) coverRef.current.value = ''
+  }
+
+  // Couverture recadrée → upload
+  const handleCoverCropped = async (cropped: File) => {
+    setCoverToCrop(null)
+    if (!user) return
     setCoverUploading(true)
-    const { url } = await uploadGoaliePhoto(user.id, file)
+    const { url } = await uploadGoaliePhoto(user.id, cropped)
     if (url) setCoverUrl(url)
     setCoverUploading(false)
-    if (coverRef.current) coverRef.current.value = ''
   }
 
   const handleSave = async () => {
@@ -111,7 +120,7 @@ export default function ProfilPage() {
       <div className="rounded-3xl overflow-hidden" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
 
         {/* ── Bannière / photo de couverture ───────────────────────────── */}
-        <div className="relative h-40" style={{ background: coverUrl ? '#0a1628' : 'linear-gradient(120deg, #0a1628 0%, #112240 45%, rgba(74,127,255,0.35) 100%)' }}>
+        <div className="relative h-52 md:h-60" style={{ background: coverUrl ? '#0a1628' : 'linear-gradient(120deg, #0a1628 0%, #112240 45%, rgba(74,127,255,0.35) 100%)' }}>
           {coverUrl && <Image src={coverUrl} alt="Couverture" fill className="object-cover" sizes="800px" />}
           {!coverUrl && <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)', backgroundSize: '28px 28px' }} />}
           <div className="absolute top-0 left-0 right-0 h-[3px] flex">
@@ -140,19 +149,19 @@ export default function ProfilPage() {
                 {coverUploading ? 'Envoi…' : coverUrl ? '🖼️ Changer la couverture' : '🖼️ Ajouter une couverture'}
               </button>
               <input ref={coverRef} type="file" accept="image/*" className="hidden"
-                onChange={e => handleCoverAdd(e.target.files?.[0] ?? null)} />
+                onChange={e => handleCoverPick(e.target.files?.[0] ?? null)} />
             </div>
           )}
         </div>
 
         {/* ── Identité ─────────────────────────────────────────────────── */}
-        <div className="px-6 md:px-8 -mt-12 relative">
+        <div className="px-6 md:px-8 -mt-16 relative">
           {editing ? (
-            <PhotoUpload currentUrl={photoUrl || null} name={name} onFileSelect={f => setPhotoFile(f)} size={96} />
+            <PhotoUpload currentUrl={photoUrl || null} name={name} onFileSelect={f => setPhotoFile(f)} size={132} />
           ) : (
-            <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center text-2xl font-bold"
+            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center text-3xl font-bold"
               style={{ border: '4px solid var(--navy-mid)', background: 'rgba(74,127,255,0.15)', color: '#4a7fff' }}>
-              {photoUrl ? <Image src={photoUrl} alt={name} width={96} height={96} className="w-full h-full object-cover" /> : initials}
+              {photoUrl ? <Image src={photoUrl} alt={name} width={128} height={128} className="w-full h-full object-cover" /> : initials}
             </div>
           )}
 
@@ -272,6 +281,18 @@ export default function ProfilPage() {
       <p className="text-center mt-6">
         <Link href="/annuaire" className="text-xs" style={{ color: 'var(--gray)' }}>Voir ma fiche publique dans l’annuaire →</Link>
       </p>
+
+      {coverToCrop && (
+        <ImageCropper
+          file={coverToCrop}
+          aspect={3 / 1}
+          cropShape="rect"
+          title="Cadrer ta photo de couverture"
+          maxDim={1600}
+          onCancel={() => setCoverToCrop(null)}
+          onCropped={handleCoverCropped}
+        />
+      )}
     </div>
   )
 }

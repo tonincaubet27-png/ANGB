@@ -152,7 +152,7 @@ function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit, message
 }) {
   return (
     <>
-      <div className="relative h-44 flex-shrink-0" style={{
+      <div className="relative h-52 flex-shrink-0" style={{
         background: goalie.cover_url ? '#0a1628' : 'linear-gradient(135deg, #0a1628 0%, #112240 50%, rgba(74,127,255,0.2) 100%)',
       }}>
         {goalie.cover_url
@@ -173,11 +173,11 @@ function ViewProfile({ goalie, div, isFounder, canEdit, onClose, onEdit, message
         )}
       </div>
 
-      <div className="px-6 -mt-14 relative z-10 mb-5">
-        <div className="w-28 h-28 rounded-full overflow-hidden mb-4 flex items-center justify-center text-2xl font-bold"
+      <div className="px-6 -mt-16 relative z-10 mb-5">
+        <div className="w-32 h-32 rounded-full overflow-hidden mb-4 flex items-center justify-center text-3xl font-bold"
           style={{ border: '4px solid #080f1c', boxShadow: '0 0 0 2px rgba(74,127,255,0.5), 0 8px 32px rgba(0,0,0,0.5)', background: 'rgba(74,127,255,0.15)', color: '#4a7fff' }}>
           {goalie.photo_url ? (
-            <Image src={goalie.photo_url} alt={goalie.name} width={112} height={112} className="w-full h-full object-cover" />
+            <Image src={goalie.photo_url} alt={goalie.name} width={128} height={128} className="w-full h-full object-cover" />
           ) : ini(goalie.name)}
         </div>
         <h2 className="mb-0.5" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', lineHeight: 1.1 }}>

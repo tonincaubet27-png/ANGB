@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
+import ImageCropper from './ImageCropper'
 
 interface Props {
   currentUrl?: string | null
@@ -14,6 +15,7 @@ export default function PhotoUpload({ currentUrl, name, onFileSelect, size = 96 
   const fileRef                     = useRef<HTMLInputElement>(null)
   const [preview, setPreview]       = useState<string | null>(null)
   const [errSize, setErrSize]       = useState(false)
+  const [toCrop, setToCrop]         = useState<File | null>(null)
 
   const displayUrl = preview ?? currentUrl
   const initials   = name
@@ -28,8 +30,14 @@ export default function PhotoUpload({ currentUrl, name, onFileSelect, size = 96 
       setErrSize(true); return
     }
     setErrSize(false)
-    setPreview(URL.createObjectURL(file))
-    onFileSelect(file)
+    setToCrop(file)               // ouvre le recadrage avant d'utiliser la photo
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  const handleCropped = (cropped: File) => {
+    setPreview(URL.createObjectURL(cropped))
+    onFileSelect(cropped)
+    setToCrop(null)
   }
 
   return (
@@ -83,6 +91,18 @@ export default function PhotoUpload({ currentUrl, name, onFileSelect, size = 96 
         className="hidden"
         onChange={handleChange}
       />
+
+      {toCrop && (
+        <ImageCropper
+          file={toCrop}
+          aspect={1}
+          cropShape="round"
+          title="Cadrer ta photo de profil"
+          maxDim={512}
+          onCancel={() => setToCrop(null)}
+          onCropped={handleCropped}
+        />
+      )}
     </div>
   )
 }
