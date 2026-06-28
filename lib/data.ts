@@ -5,7 +5,7 @@
 import type {
   Listing, Thread, Post, GoalieProfile,
   ContactRequest, CareerEntry, TrainingEntry, EtudesEntry,
-  Message, MessageMember,
+  Message, MessageMember, Stage,
 } from './types'
 import { getClient } from './supabase-client'
 
@@ -261,6 +261,24 @@ export async function createPost(payload: {
   const { error } = await client.from('posts').insert(payload)
   if (error) return { ok: false, error: error.message }
   return { ok: true }
+}
+
+// Stages affichés tant que la table n'existe pas / est vide (avant migration 013).
+const FALLBACK_STAGES: Stage[] = [
+  { id: 'f1', titre: 'Stage Jeunes · Pralognan', organisateur: 'Académie du Hockey', periode: 'Été · juillet 2026', date_debut: '2026-07-06', lieu: 'Pralognan-la-Vanoise', audience: 'U9 à U15 · filles & garçons', niveau: 'Programme spécifique gardiens', tarif: 'Voir le site', places: '2 sessions : 6-11 & 13-18 juillet', description: 'Stage estival de développement et de perfectionnement, en altitude, avec un programme dédié aux gardiens de but.', image: '/images/florian-hardy.jpg', lien: 'https://academieduhockey.com', is_active: true },
+  { id: 'f2', titre: 'Skills Days · Meudon', organisateur: 'Académie du Hockey', periode: 'Skills Days · juin 2026', date_debut: '2026-06-09', lieu: 'Patinoire de Meudon', audience: 'U11 à U18 + loisirs adultes', niveau: 'Joueurs & gardiens', tarif: 'Voir le site', places: 'Groupes gardiens U11/U13/U15/U18', description: 'Journées « skills » de travail technique intensif, avec des groupes gardiens dédiés à chaque catégorie d’âge.', image: '/images/hardy.jpg', lien: 'https://academieduhockey.com', is_active: true },
+  { id: 'f3', titre: 'Loisirs Adultes · Vaujany', organisateur: 'Académie du Hockey', periode: 'Loisirs adultes · mai 2026', date_debut: '2026-05-22', lieu: 'Vaujany', audience: 'Adultes loisirs', niveau: 'Programme gardiens inclus', tarif: 'Voir le site', places: '22-25 mai 2026', description: 'Stage loisirs pour adultes, glace et perfectionnement dans un cadre montagnard, avec un programme spécifique gardiens.', image: '/images/fabrice-lhenry.jpg', lien: 'https://academieduhockey.com', is_active: true },
+]
+
+/** Stages actifs (lecture publique), triés par date de début. Repli sur les exemples si vide. */
+export async function getStages(): Promise<Stage[]> {
+  const client = getClient()
+  if (!client) return FALLBACK_STAGES
+  try {
+    const { data, error } = await client.from('stages').select('*').eq('is_active', true).order('date_debut', { ascending: true })
+    if (error || !data || data.length === 0) return FALLBACK_STAGES
+    return data as Stage[]
+  } catch { return FALLBACK_STAGES }
 }
 
 /** Crée un nouveau sujet de forum (réservé aux membres actifs via RLS). */

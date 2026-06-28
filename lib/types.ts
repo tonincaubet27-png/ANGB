@@ -65,6 +65,25 @@ export interface Conversation {
   unread: number
 }
 
+// ── Stages ──────────────────────────────────────────────────────────────────
+export interface Stage {
+  id: string
+  titre: string
+  organisateur?: string
+  periode?: string
+  date_debut?: string
+  lieu?: string
+  audience?: string
+  niveau?: string
+  tarif?: string
+  places?: string
+  description?: string
+  image?: string
+  lien?: string
+  is_active?: boolean
+  created_at?: string
+}
+
 // ── Annuaire ────────────────────────────────────────────────────────────────
 
 /** Entrée de carrière dans le parcours hockey */

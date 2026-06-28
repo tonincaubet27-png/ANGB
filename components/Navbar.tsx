@@ -43,8 +43,8 @@ export default function Navbar() {
     { href: '/stages', label: 'Stages' },
     { href: '/forum', label: 'Forum' },
     { href: '/equipement', label: 'Équipement', children: [
-      { href: '/equipement',          label: 'Acheter du matériel' },
-      { href: '/equipement?vendre=1', label: 'Vendre mon matériel' },
+      { href: '/equipement',        label: 'Acheter du matériel' },
+      { href: '/equipement/vendre', label: 'Vendre mon matériel' },
     ] },
   ]
 

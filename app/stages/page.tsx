@@ -1,66 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import HeaderPhoto from '@/components/HeaderPhoto'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { getStages } from '@/lib/data'
+import type { Stage } from '@/lib/types'
 
-// ── Données stages (EXEMPLES de l'académie · à remplacer par les vrais) ─────────
-interface Stage {
-  id: string
-  titre: string
-  organisateur: string
-  periode: string        // libellé lisible
-  dateDebut: string      // ISO, pour trier / filtrer à venir
-  lieu: string
-  public: string         // ex. « Gardiens U13 à U20 »
-  niveau: string         // ex. « Tous niveaux »
-  tarif: string
-  places?: string
-  description: string
-  image: string
-  lien?: string          // lien d'inscription
+const fmt = (iso?: string) => iso ? new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'À confirmer'
+const FALLBACK_IMG = '/images/florian-hardy.jpg'
+
+function Info({ icon, label, value }: { icon: string; label: string; value?: string }) {
+  if (!value) return null
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--gray)' }}>{icon} {label}</p>
+      <p className="text-xs font-medium mt-0.5" style={{ color: 'rgba(255,255,255,0.85)' }}>{value}</p>
+    </div>
+  )
 }
 
-const ACADEMIE = 'Académie du Hockey'
-const ACADEMIE_URL = 'https://academieduhockey.com'
-
-const STAGES: Stage[] = [
-  {
-    id: '1', titre: 'Stage Jeunes · Pralognan', organisateur: ACADEMIE,
-    periode: 'Été · juillet 2026', dateDebut: '2026-07-06',
-    lieu: 'Pralognan-la-Vanoise', public: 'U9 à U15 · filles & garçons', niveau: 'Programme spécifique gardiens',
-    tarif: 'Voir le site', places: '2 sessions : 6-11 & 13-18 juillet (ou 2 semaines)',
-    description: 'Stage estival de développement et de perfectionnement, en altitude, avec un programme dédié aux gardiens de but. Groupes par âge et par niveau.',
-    image: '/images/florian-hardy.jpg', lien: ACADEMIE_URL,
-  },
-  {
-    id: '2', titre: 'Skills Days · Meudon', organisateur: ACADEMIE,
-    periode: 'Skills Days · juin 2026', dateDebut: '2026-06-09',
-    lieu: 'Patinoire de Meudon', public: 'U11 à U18 + loisirs adultes', niveau: 'Joueurs & gardiens',
-    tarif: 'Voir le site', places: 'Groupes gardiens U11/U13/U15/U18',
-    description: 'Journées « skills » de travail technique intensif, avec des groupes gardiens dédiés à chaque catégorie d’âge et un groupe loisirs adultes.',
-    image: '/images/hardy.jpg', lien: ACADEMIE_URL,
-  },
-  {
-    id: '3', titre: 'Loisirs Adultes · Vaujany', organisateur: ACADEMIE,
-    periode: 'Loisirs adultes · mai 2026', dateDebut: '2026-05-22',
-    lieu: 'Vaujany', public: 'Adultes loisirs', niveau: 'Programme gardiens inclus',
-    tarif: 'Voir le site', places: '22-25 mai 2026',
-    description: 'Stage loisirs pour adultes, glace et perfectionnement dans un cadre montagnard, avec un programme spécifique pour les gardiens.',
-    image: '/images/fabrice-lhenry.jpg', lien: ACADEMIE_URL,
-  },
-]
-
-const fmt = (iso: string) => new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-
-// ── Carte stage ────────────────────────────────────────────────────────────────
 function StageCard({ s }: { s: Stage }) {
-  const passed = new Date(s.dateDebut).getTime() < Date.now()
+  const passed = s.date_debut ? new Date(s.date_debut).getTime() < Date.now() : false
   return (
     <div className="rounded-2xl overflow-hidden flex flex-col card-lift" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
       <div className="relative h-44">
-        <Image src={s.image} alt={s.titre} fill className="object-cover" sizes="(max-width:768px) 100vw, 380px" style={{ filter: passed ? 'grayscale(60%) opacity(0.6)' : 'none' }} />
+        <Image src={s.image || FALLBACK_IMG} alt={s.titre} fill className="object-cover" sizes="(max-width:768px) 100vw, 380px" style={{ filter: passed ? 'grayscale(60%) opacity(0.6)' : 'none' }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)' }} />
         <div className="absolute top-0 left-0 right-0 h-[3px] flex">
           <div className="flex-1" style={{ background: '#002395' }} />
@@ -72,54 +38,49 @@ function StageCard({ s }: { s: Stage }) {
           {passed ? 'Terminé' : 'À venir'}
         </span>
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: '#9db4ff' }}>{s.periode}</p>
+          {s.periode && <p className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: '#9db4ff' }}>{s.periode}</p>}
           <h3 className="text-2xl" style={{ fontFamily: 'var(--font-bebas)', color: '#fff', letterSpacing: '0.03em', lineHeight: 1 }}>{s.titre}</h3>
         </div>
       </div>
 
       <div className="p-5 flex flex-col flex-1">
         <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-3">
-          <Info icon="📅" label="Dates" value={fmt(s.dateDebut)} />
+          <Info icon="📅" label="Dates" value={fmt(s.date_debut)} />
           <Info icon="📍" label="Lieu" value={s.lieu} />
-          <Info icon="🥅" label="Public" value={s.public} />
+          <Info icon="🥅" label="Public" value={s.audience} />
           <Info icon="📈" label="Niveau" value={s.niveau} />
           <Info icon="💶" label="Tarif" value={s.tarif} />
-          {s.places && <Info icon="🎟️" label="Places" value={s.places} />}
+          <Info icon="🎟️" label="Places" value={s.places} />
         </div>
-        <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--gray)' }}>{s.description}</p>
+        {s.description && <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--gray)' }}>{s.description}</p>}
         <div className="mt-auto flex items-center justify-between gap-3">
-          <span className="text-xs" style={{ color: 'var(--gray)' }}>Organisé par {s.organisateur}</span>
-          <a href={s.lien || ACADEMIE_URL} target="_blank" rel="noopener noreferrer"
-            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] text-white transition-all hover:-translate-y-0.5"
-            style={{ background: passed ? 'rgba(255,255,255,0.08)' : 'var(--accent)', border: passed ? '1px solid var(--border-mid)' : 'none', boxShadow: passed ? 'none' : '0 4px 16px rgba(74,127,255,0.3)' }}>
-            {passed ? 'Plus d’infos →' : 'S’inscrire →'}
-          </a>
+          <span className="text-xs truncate" style={{ color: 'var(--gray)' }}>{s.organisateur ? `Par ${s.organisateur}` : ''}</span>
+          {s.lien && (
+            <a href={s.lien} target="_blank" rel="noopener noreferrer"
+              className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] text-white transition-all hover:-translate-y-0.5"
+              style={{ background: passed ? 'rgba(255,255,255,0.08)' : 'var(--accent)', border: passed ? '1px solid var(--border-mid)' : 'none', boxShadow: passed ? 'none' : '0 4px 16px rgba(74,127,255,0.3)' }}>
+              {passed ? 'Plus d’infos →' : 'S’inscrire →'}
+            </a>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function Info({ icon, label, value }: { icon: string; label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--gray)' }}>{icon} {label}</p>
-      <p className="text-xs font-medium mt-0.5" style={{ color: 'rgba(255,255,255,0.85)' }}>{value}</p>
-    </div>
-  )
-}
-
-// ── Page ─────────────────────────────────────────────────────────────────────
 export default function StagesPage() {
   const { openAdhesion } = useAdhesion()
+  const [stages, setStages] = useState<Stage[]>([])
+  const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'avenir' | 'tous'>('avenir')
 
-  const sorted = [...STAGES].sort((a, b) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime())
-  const list = tab === 'tous' ? sorted : sorted.filter(s => new Date(s.dateDebut).getTime() >= Date.now())
+  useEffect(() => { getStages().then(d => { setStages(d); setLoading(false) }) }, [])
+
+  const sorted = [...stages].sort((a, b) => new Date(a.date_debut || 0).getTime() - new Date(b.date_debut || 0).getTime())
+  const list = tab === 'tous' ? sorted : sorted.filter(s => !s.date_debut || new Date(s.date_debut).getTime() >= Date.now())
 
   return (
     <div>
-      {/* Header */}
       <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
         <HeaderPhoto src="/images/florian-hardy.jpg" position="center 30%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8">
@@ -134,17 +95,13 @@ export default function StagesPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {/* Note programme */}
         <div className="flex items-start gap-3 p-4 rounded-xl mb-6" style={{ background: 'rgba(74,127,255,0.06)', border: '1px solid rgba(74,127,255,0.25)' }}>
           <span className="text-lg flex-shrink-0">ℹ️</span>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-            Stages proposés par l&apos;<strong style={{ color: 'var(--white)' }}>{ACADEMIE}</strong>. Tarifs, horaires et
-            inscriptions (toutes les infos à jour) sur{' '}
-            <a href={ACADEMIE_URL} target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: 'var(--accent)' }}>academieduhockey.com</a>.
+            Stages de gardiens référencés par l&apos;ANGB. Tarifs, horaires et inscriptions auprès de l&apos;organisateur (lien sur chaque stage).
           </p>
         </div>
 
-        {/* Filtres */}
         <div className="flex gap-2 mb-6">
           {([['avenir', 'À venir'], ['tous', 'Tous les stages']] as const).map(([k, label]) => (
             <button key={k} onClick={() => setTab(k)}
@@ -159,11 +116,14 @@ export default function StagesPage() {
           ))}
         </div>
 
-        {/* Liste */}
-        {list.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(3)].map((_, i) => <div key={i} className="h-80 rounded-2xl animate-pulse" style={{ background: 'var(--navy-mid)' }} />)}
+          </div>
+        ) : list.length === 0 ? (
           <div className="p-12 text-center rounded-2xl" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
             <div className="text-3xl mb-2 opacity-40">🥅</div>
-            <p className="text-sm" style={{ color: 'var(--gray)' }}>Aucun stage à venir pour le moment · reviens bientôt !</p>
+            <p className="text-sm" style={{ color: 'var(--gray)' }}>Aucun stage {tab === 'avenir' ? 'à venir' : ''} pour le moment · reviens bientôt !</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -171,13 +131,12 @@ export default function StagesPage() {
           </div>
         )}
 
-        {/* CTA */}
         <div className="mt-12 rounded-2xl p-8 text-center" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
           <h3 className="text-2xl md:text-3xl mb-2" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
             Tu organises un stage gardiens ?
           </h3>
           <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--gray)' }}>
-            Membres et structures de l&apos;ANGB peuvent proposer leurs stages ici. Contacte le bureau pour l&apos;ajouter.
+            Contacte le bureau pour le référencer sur cette page.
           </p>
           <button onClick={openAdhesion}
             className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
