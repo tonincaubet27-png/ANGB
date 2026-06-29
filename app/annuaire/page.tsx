@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { useContent } from '@/contexts/ContentContext'
 import { getGoalieProfiles, updateGoalieProfile, uploadGoaliePhoto } from '@/lib/data'
 import PhotoUpload from '@/components/PhotoUpload'
 import HeaderPhoto from '@/components/HeaderPhoto'
@@ -665,6 +666,7 @@ function InviteCard({ singular, onJoin }: { singular: string; onJoin: () => void
 export default function AnnuairePage() {
   const { user, profile, goalieProfile, linkedGoalies } = useAuth()
   const { openAdhesion } = useAdhesion()
+  const c = useContent()
   const [goalies,   setGoalies]  = useState<GoalieProfile[]>([])
   const [loading,   setLoading]  = useState(true)
   const [search,    setSearch]   = useState('')
@@ -737,12 +739,12 @@ export default function AnnuairePage() {
       <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
         <HeaderPhoto src="/images/florian-hardy.jpg" position="center 30%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8">
-          <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Annuaire</p>
+          <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>{c('annuaire.header.overline')}</p>
           <h1 style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em', fontSize: 'clamp(3rem, 8vw, 5rem)' }}>
-            Annuaire des membres
+            {c('annuaire.header.title')}
           </h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>
-            Gardiens, entraîneurs, joueurs et soutiens de la communauté ANGB · <span style={{ color: '#4a7fff' }}>Cliquez sur une fiche pour en savoir plus</span>
+            {c('annuaire.header.sub')}
           </p>
         </div>
       </div>

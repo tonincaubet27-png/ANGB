@@ -9,6 +9,7 @@ import type { Tab } from '@/components/ui/tabs'
 import HeaderPhoto from '@/components/HeaderPhoto'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { useContent } from '@/contexts/ContentContext'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -139,6 +140,7 @@ export default function ForumPage() {
   const [loading, setLoading] = useState(true)
   const { user, profile } = useAuth()
   const { openAdhesion } = useAdhesion()
+  const c = useContent()
   const isMember = profile?.membership_status === 'active'
 
   // Modale « Nouveau sujet »
@@ -204,15 +206,15 @@ export default function ForumPage() {
       >
         <HeaderPhoto src="/images/hardy.jpg" position="center 35%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8">
-          <span className="overline-fr mb-3 inline-block">Communauté</span>
+          <span className="overline-fr mb-3 inline-block">{c('forum.header.overline')}</span>
           <h1
             className="text-5xl md:text-7xl"
             style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
           >
-            Forum ANGB
+            {c('forum.header.title')}
           </h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>
-            Échanges entre gardiens, entraîneurs et structures
+            {c('forum.header.sub')}
           </p>
         </div>
       </div>

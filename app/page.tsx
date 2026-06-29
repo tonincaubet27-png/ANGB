@@ -341,10 +341,10 @@ export default function HomePage() {
           >
             <h3 className="text-center text-3xl md:text-4xl mb-2"
               style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
-              Les clubs de hockey en France
+              {c('home.clubs.title')}
             </h3>
             <p className="text-center text-sm mb-10" style={{ color: 'var(--gray)', maxWidth: 520, margin: '0 auto 40px' }}>
-              Survole la carte pour explorer les clubs, de la Ligue Magnus à la Division 3.
+              {c('home.clubs.sub')}
             </p>
             <FranceClubsMap />
           </motion.div>
@@ -355,9 +355,9 @@ export default function HomePage() {
       <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <SectionHead
-            overline="Légendes françaises"
-            title="Les gardiens en action"
-            sub="De la D3 au Magnus, jusqu'à la NHL · la communauté des gardiens français."
+            overline={c('home.gallery.overline')}
+            title={c('home.gallery.title')}
+            sub={c('home.gallery.sub')}
           />
 
           <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-3xl mx-auto">
@@ -416,8 +416,8 @@ export default function HomePage() {
       <section className="py-16" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <SectionHead
-            overline="Équipe fondatrice"
-            title="Les créateurs de l'ANGB"
+            overline={c('home.founders.overline')}
+            title={c('home.founders.title')}
           />
           <div className="flex flex-wrap justify-center gap-8">
             {FOUNDERS.map(({ src, name }, i) => (
@@ -446,8 +446,8 @@ export default function HomePage() {
       {/* ── Ce que fait l'ANGB · HeroParallax ───────────────────────── */}
       <section style={{ borderTop: '1px solid var(--border)' }}>
         <HeroParallax
-          title="Ce que fait l'ANGB"
-          description="Structurer, protéger et développer la pratique du poste de gardien en France · de la formation à la carrière. Clique une tuile pour explorer."
+          title={c('home.actions.title')}
+          description={c('home.actions.desc')}
           items={ANGB_ACTIONS}
         />
       </section>
@@ -503,7 +503,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <span className="overline-fr mb-4 inline-block">Adhésion ouverte</span>
+              <span className="overline-fr mb-4 inline-block">{c('home.cta2.overline')}</span>
             </motion.div>
 
             <motion.h2
@@ -514,7 +514,7 @@ export default function HomePage() {
               className="text-5xl md:text-7xl mb-5 mt-3"
               style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
             >
-              Rejoins la communauté
+              {c('home.cta2.title')}
             </motion.h2>
 
             <motion.p
@@ -525,8 +525,7 @@ export default function HomePage() {
               className="max-w-lg mx-auto text-sm leading-relaxed mb-10"
               style={{ color: 'var(--gray)' }}
             >
-              Gardien actif, ancien gardien, entraîneur ou structure · l&apos;ANGB est ton association.
-              Cotisation à partir de 0€ pour les mineurs, étudiants et membres du bureau.
+              {c('home.cta2.sub')}
             </motion.p>
 
             <motion.div
@@ -539,12 +538,12 @@ export default function HomePage() {
               <button onClick={openAdhesion}
                 className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
                 style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
-                Rejoindre l&apos;ANGB
+                {c('home.cta2.primary')}
               </button>
               <Link href="/forum"
                 className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
                 style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>
-                Accéder au forum
+                {c('home.cta2.secondary')}
               </Link>
             </motion.div>
           </motion.div>

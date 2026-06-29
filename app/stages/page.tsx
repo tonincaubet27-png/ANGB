@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import HeaderPhoto from '@/components/HeaderPhoto'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { useContent } from '@/contexts/ContentContext'
 import { getStages } from '@/lib/data'
 import type { Stage } from '@/lib/types'
 
@@ -70,6 +71,7 @@ function StageCard({ s }: { s: Stage }) {
 
 export default function StagesPage() {
   const { openAdhesion } = useAdhesion()
+  const c = useContent()
   const [stages, setStages] = useState<Stage[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'avenir' | 'tous'>('avenir')
@@ -84,12 +86,12 @@ export default function StagesPage() {
       <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
         <HeaderPhoto src="/images/florian-hardy.jpg" position="center 30%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8">
-          <span className="overline-fr mb-3 inline-block">Formation sur la glace</span>
+          <span className="overline-fr mb-3 inline-block">{c('stages.header.overline')}</span>
           <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
-            Stages gardiens
+            {c('stages.header.title')}
           </h1>
           <p className="mt-2 text-sm max-w-2xl" style={{ color: 'var(--gray)' }}>
-            Stages et camps de perfectionnement pour gardiens de but, encadrés par des entraîneurs spécialisés.
+            {c('stages.header.sub')}
           </p>
         </div>
       </div>

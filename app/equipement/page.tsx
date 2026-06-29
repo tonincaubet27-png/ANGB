@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { getListings, createListing, createContactRequest, uploadGoaliePhoto } from '@/lib/data'
 import type { Listing } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
+import { useContent } from '@/contexts/ContentContext'
 import HeaderPhoto from '@/components/HeaderPhoto'
 
 const CATEGORIES = ['Tout', 'jambières', 'plastron', 'masque', 'gants', 'crosse', 'complet', 'autre']
@@ -43,6 +44,7 @@ interface ContactForm {
 
 export default function EquipementPage() {
   const { user, profile, isMember, openAuth } = useAuth()
+  const c = useContent()
   const [listings, setListings]         = useState<Listing[]>([])
   const [loading, setLoading]           = useState(true)
   const [catFilter, setCat]             = useState('Tout')
@@ -182,9 +184,9 @@ export default function EquipementPage() {
         <HeaderPhoto src="/images/huet-canadiens.jpg" position="center 30%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Bourse d&apos;équipement</p>
-            <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Équipement</h1>
-            <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>Achat et vente de matériel de gardien entre membres de la communauté</p>
+            <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>{c('equip.header.overline')}</p>
+            <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>{c('equip.header.title')}</h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--gray)' }}>{c('equip.header.sub')}</p>
           </div>
           <button
             onClick={() => {

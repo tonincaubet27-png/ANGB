@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import HeaderPhoto from '@/components/HeaderPhoto'
 import { useAdhesion } from '@/contexts/AdhesionContext'
+import { useContent } from '@/contexts/ContentContext'
 import CoachesMap, { coachRegion, REGIONS_FR, type Coach } from '@/components/CoachesMap'
 
 const ini = (n: string) => n.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
@@ -14,6 +15,7 @@ const DIV_COLOR: Record<string, string> = {
 
 export default function EntraineursPage() {
   const { openAdhesion } = useAdhesion()
+  const c = useContent()
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [loading, setLoading] = useState(true)
   const [activeRegion, setActiveRegion] = useState<string | null>(null)
@@ -49,12 +51,12 @@ export default function EntraineursPage() {
       <div className="relative overflow-hidden py-16" style={{ borderBottom: '1px solid var(--border)' }}>
         <HeaderPhoto src="/images/florian-hardy.jpg" position="center 28%" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8">
-          <span className="overline-fr mb-3 inline-block">Réseau d&apos;encadrement</span>
+          <span className="overline-fr mb-3 inline-block">{c('entraineurs.header.overline')}</span>
           <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
-            Entraîneurs gardiens
+            {c('entraineurs.header.title')}
           </h1>
           <p className="mt-2 text-sm max-w-2xl" style={{ color: 'var(--gray)' }}>
-            Trouve un entraîneur spécialisé gardien près de chez toi. Clique une région sur la carte ou filtre par zone.
+            {c('entraineurs.header.sub')}
           </p>
         </div>
       </div>

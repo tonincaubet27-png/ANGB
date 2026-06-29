@@ -92,7 +92,7 @@ export default function AssociationPage() {
           animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }} />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
           <div>
-            <span className="overline-fr mb-3 inline-block">L&apos;association · tableau de bord</span>
+            <span className="overline-fr mb-3 inline-block">{c('assoc.header.overline')}</span>
             <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>ANGB</h1>
             <p className="mt-2 max-w-xl text-sm" style={{ color: 'var(--gray)' }}>
               {c('assoc.header.sub')}
@@ -156,10 +156,10 @@ export default function AssociationPage() {
         {!user && (
           <div className="mt-12 rounded-2xl p-8 md:p-10 text-center" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
             <h3 className="text-2xl md:text-3xl mb-2" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
-              Prêt à rejoindre l&apos;ANGB ?
+              {c('assoc.cta.title')}
             </h3>
             <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--gray)' }}>
-              Adhésion gratuite la première année · gardiens, anciens gardiens, entraîneurs, parents et structures.
+              {c('assoc.cta.sub')}
             </p>
             <button onClick={openAdhesion}
               className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
