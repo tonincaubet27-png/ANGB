@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useContent } from '@/contexts/ContentContext'
 import MissionSection from '@/components/about/MissionSection'
 import FormationSection from '@/components/about/FormationSection'
 import SanteSection from '@/components/about/SanteSection'
@@ -65,6 +66,7 @@ export default function AssociationPage() {
   const [active, setActive] = useState('mission')
   const { openAdhesion } = useAdhesion()
   const { user } = useAuth()
+  const c = useContent()
   const ActiveSection = MODULES.find(m => m.id === active)?.component ?? MissionSection
 
   return (
@@ -93,7 +95,7 @@ export default function AssociationPage() {
             <span className="overline-fr mb-3 inline-block">L&apos;association · tableau de bord</span>
             <h1 className="text-5xl md:text-7xl" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>ANGB</h1>
             <p className="mt-2 max-w-xl text-sm" style={{ color: 'var(--gray)' }}>
-              Association Nationale des Gardiens de But · loi 1901 · fondée en 2026
+              {c('assoc.header.sub')}
             </p>
           </div>
           {!user && (

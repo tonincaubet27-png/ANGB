@@ -326,6 +326,9 @@ export default async function AdminPage({
               <a href="/admin/stages" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.35)', color: '#34d399' }}>
                 🏒 Stages
               </a>
+              <a href="/admin/contenu" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(192,132,252,0.12)', border: '1px solid rgba(192,132,252,0.35)', color: '#c084fc' }}>
+                📝 Contenu
+              </a>
               <form action={adminLogout}>
                 <span style={{ fontSize: 11, color: '#475569', marginRight: 10 }}>🔓 {adminEmail}</span>
                 <button type="submit" style={{ padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#0d1525', border: '1px solid #1e293b', color: '#94a3b8' }}>

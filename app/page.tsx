@@ -9,6 +9,7 @@ import { HeroParallax, type ParallaxItem } from '@/components/ui/hero-parallax'
 import { Spotlight } from '@/components/ui/spotlight'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useContent } from '@/contexts/ContentContext'
 import FranceClubsMap from '@/components/FranceClubsMap'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -147,6 +148,7 @@ const FOUNDERS = [
 export default function HomePage() {
   const { openAdhesion } = useAdhesion()
   const { user } = useAuth()
+  const c = useContent()
   return (
     <div>
 
@@ -213,7 +215,7 @@ export default function HomePage() {
             style={{ background: 'rgba(0,35,149,0.12)', borderColor: 'rgba(0,35,149,0.35)', color: 'rgba(150,180,255,0.9)' }}
           >
             <span>🇫🇷</span>
-            <span>Association Loi 1901 · Fondée en 2026</span>
+            <span>{c('home.badge')}</span>
           </motion.div>
 
           {/* Titre */}
@@ -273,8 +275,7 @@ export default function HomePage() {
             className="max-w-2xl mx-auto text-base md:text-lg mb-10 leading-relaxed"
             style={{ color: 'var(--gray)' }}
           >
-            L&apos;ANGB structure, développe et protège la pratique du poste de gardien de but
-            en France · de la formation à la carrière professionnelle.
+            {c('home.tagline')}
           </motion.p>
 
           {/* CTAs */}
@@ -287,12 +288,12 @@ export default function HomePage() {
             <Link href="/association"
               className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
               style={{ background: 'var(--accent)', boxShadow: '0 8px 32px rgba(74,127,255,0.35)' }}>
-              Découvrir l&apos;ANGB
+              {c('home.cta.primary')}
             </Link>
             <Link href="/annuaire"
               className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
               style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>
-              Annuaire des gardiens →
+              {c('home.cta.secondary')}
             </Link>
           </motion.div>
 
@@ -321,8 +322,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <SectionHead
             overline="L'ANGB en chiffres"
-            title="Un mouvement national"
-            sub="Fédérer et représenter les gardiens de but du hockey français, dans toutes les catégories, du professionnel à l'amateur."
+            title={c('home.stats.title')}
+            sub={c('home.stats.sub')}
           />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATS.map(({ value, label, sub, color }, i) => (

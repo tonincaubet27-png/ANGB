@@ -2,6 +2,7 @@
 
 import { AuthProvider } from '@/contexts/AuthContext'
 import { AdhesionProvider } from '@/contexts/AdhesionContext'
+import { ContentProvider } from '@/contexts/ContentContext'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import AuthModal from '@/components/AuthModal'
@@ -25,7 +26,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <AuthProvider>
       <AdhesionProvider>
-        <Inner>{children}</Inner>
+        <ContentProvider>
+          <Inner>{children}</Inner>
+        </ContentProvider>
       </AdhesionProvider>
     </AuthProvider>
   )

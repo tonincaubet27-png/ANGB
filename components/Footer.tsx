@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
+import { useContent } from '@/contexts/ContentContext'
 
 export default function Footer() {
+  const c = useContent()
   return (
     <footer style={{ background: 'var(--navy-mid)', borderTop: '1px solid var(--border)' }}>
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
@@ -17,15 +21,14 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed max-w-sm" style={{ color: 'var(--gray)' }}>
-              Association Nationale des Gardiens de But · Loi 1901 fondée en 2026.
-              Structurer, développer et protéger la pratique du poste de gardien de but en France.
+              {c('footer.description')}
             </p>
             <a
-              href="mailto:angbcontact@gmail.com"
+              href={`mailto:${c('contact.email')}`}
               className="inline-block mt-4 text-sm font-medium transition-colors hover:text-white"
               style={{ color: 'var(--accent)' }}
             >
-              angbcontact@gmail.com
+              {c('contact.email')}
             </a>
           </div>
 
