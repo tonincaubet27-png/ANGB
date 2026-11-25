@@ -93,11 +93,12 @@ function StatCard({ value, label, sub, delay = 0, color = 'blue' }: {
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
+// Uniquement des faits vérifiables sur le site (aucune estimation).
 const STATS = [
-  { value: '5',     label: 'Divisions couvertes', sub: 'Magnus → Féminine Élite',  color: 'blue'  as const },
-  { value: '1200+', label: 'Gardiens en France',  sub: 'Estimation, tous niveaux', color: 'white' as const },
-  { value: '25 000+', label: 'Licenciés FFHG',    sub: 'Le vivier (saison 2023/24)', color: 'blue' as const },
-  { value: '2026',  label: 'Année de fondation',  sub: 'Association loi 1901',     color: 'red'   as const },
+  { value: '2026',    label: 'Année de fondation',     sub: 'Association loi 1901',        color: 'red'   as const },
+  { value: '0 %',     label: 'Commission',             sub: "sur la bourse d'équipement",  color: 'blue'  as const },
+  { value: '7',       label: 'Rubriques de savoirs',   sub: 'du poste à la santé',         color: 'white' as const },
+  { value: 'Gratuit', label: 'Adhésion',               sub: 'la première année',           color: 'blue'  as const },
 ]
 
 const ANGB_ACTIONS: ParallaxItem[] = [

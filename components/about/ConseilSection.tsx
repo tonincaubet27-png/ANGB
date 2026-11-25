@@ -13,7 +13,7 @@ export default function ConseilSection() {
     {
       icon: '🎓',
       title: 'Double carrière',
-      desc: "Conseils sur la gestion études/sport, reconversion anticipée, partenariats avec les dispositifs CNOSF et FFHG.",
+      desc: "Un sujet d'échange entre membres : concilier études et sport, préparer la suite de sa carrière.",
     },
   ]
 
@@ -73,7 +73,7 @@ export default function ConseilSection() {
           <a href="mailto:angbcontact@gmail.com" className="underline" style={{ color: 'var(--accent)' }}>
             angbcontact@gmail.com
           </a>
-          {' '}· le bureau répondra dans les 48h ouvrées.
+          .
         </p>
       </div>
     </div>

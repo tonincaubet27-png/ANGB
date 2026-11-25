@@ -14,12 +14,12 @@ export const CONTENT_FIELDS: ContentField[] = [
   // ── Accueil ──
   { key: 'home.badge',         group: 'Accueil', label: 'Badge (haut de page)', def: 'Association Loi 1901 · Fondée en 2026' },
   { key: 'home.tagline',       group: 'Accueil', label: 'Accroche sous le titre', multiline: true,
-    def: "L'ANGB structure, développe et protège la pratique du poste de gardien de but en France · de la formation à la carrière professionnelle." },
+    def: "Par des gardiens, pour les gardiens : apprendre le poste, se soigner, s'équiper et échanger, dans une association non lucrative." },
   { key: 'home.cta.primary',   group: 'Accueil', label: 'Bouton principal (hero)', def: "Découvrir l'ANGB" },
   { key: 'home.cta.secondary', group: 'Accueil', label: 'Bouton secondaire (hero)', def: 'Annuaire des gardiens →' },
-  { key: 'home.stats.title',   group: 'Accueil', label: 'Titre section chiffres', def: 'Un mouvement national' },
+  { key: 'home.stats.title',   group: 'Accueil', label: 'Titre section chiffres', def: "L'ANGB en bref" },
   { key: 'home.stats.sub',     group: 'Accueil', label: 'Sous-titre section chiffres', multiline: true,
-    def: "Fédérer et représenter les gardiens de but du hockey français, dans toutes les catégories, du professionnel à l'amateur." },
+    def: "Quelques faits simples sur l'association." },
   { key: 'home.clubs.title',   group: 'Accueil', label: 'Titre carte des clubs', def: 'Les clubs de hockey en France' },
   { key: 'home.clubs.sub',     group: 'Accueil', label: 'Sous-titre carte des clubs', def: 'Survole la carte pour explorer les clubs, de la Ligue Magnus à la Division 3.' },
   { key: 'home.gallery.overline', group: 'Accueil', label: 'Surtitre galerie', def: 'Légendes françaises' },
@@ -29,7 +29,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'home.founders.title',    group: 'Accueil', label: 'Titre fondateurs', def: "Les créateurs de l'ANGB" },
   { key: 'home.actions.title',  group: 'Accueil', label: 'Titre « Ce que fait l\'ANGB »', def: "Ce que fait l'ANGB" },
   { key: 'home.actions.desc',   group: 'Accueil', label: 'Description « Ce que fait l\'ANGB »', multiline: true,
-    def: "Structurer, protéger et développer la pratique du poste de gardien en France · de la formation à la carrière. Clique une tuile pour explorer." },
+    def: "Des savoirs, une bourse d'équipement, un forum et des stages non lucratifs. Clique une tuile pour explorer." },
   { key: 'home.cta2.overline',  group: 'Accueil', label: 'Surtitre bandeau bas', def: 'Adhésion ouverte' },
   { key: 'home.cta2.title',     group: 'Accueil', label: 'Titre bandeau bas', def: 'Rejoins la communauté' },
   { key: 'home.cta2.sub',       group: 'Accueil', label: 'Texte bandeau bas', multiline: true,
@@ -72,7 +72,7 @@ export const CONTENT_FIELDS: ContentField[] = [
 
   // ── Pied de page & contact ──
   { key: 'footer.description', group: 'Pied de page', label: 'Description', multiline: true,
-    def: 'Association Nationale des Gardiens de But · Loi 1901 fondée en 2026. Structurer, développer et protéger la pratique du poste de gardien de but en France.' },
+    def: 'Association loi 1901 fondée en 2026, à but non lucratif. Elle réunit les gardiens de but du hockey sur glace, leurs familles et leurs clubs.' },
   { key: 'social.instagram', group: 'Réseaux sociaux', label: 'Lien Instagram (laisser vide pour masquer)', def: '' },
   { key: 'social.tiktok',    group: 'Réseaux sociaux', label: 'Lien TikTok (laisser vide pour masquer)', def: '' },
   { key: 'social.youtube',   group: 'Réseaux sociaux', label: 'Lien YouTube (laisser vide pour masquer)', def: '' },

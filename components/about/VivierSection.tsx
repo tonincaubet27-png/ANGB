@@ -68,17 +68,6 @@ export default function VivierSection() {
           </div>
         ))}
       </div>
-
-      <div
-        className="p-5 rounded-xl border-l-4"
-        style={{ background: 'rgba(74,127,255,0.07)', borderColor: 'var(--accent)' }}
-      >
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>
-          <strong style={{ color: 'var(--white)' }}>Objectif 2027 :</strong>{' '}
-          cartographier 100% des gardiens actifs en Magnus, D1 et D2 dans notre base de données.
-          Faire de l'ANGB la référence nationale incontournable pour les recruteurs.
-        </p>
-      </div>
     </div>
   )
 }

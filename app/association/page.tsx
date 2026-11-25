@@ -25,11 +25,12 @@ const MODULES = [
   { id: 'equipe',     label: "L'équipe",         icon: '👥', tag: 'Bureau',          component: EquipeSection },
 ]
 
+// Uniquement des faits vérifiables sur le site (aucune estimation).
 const KPIS = [
-  { value: 1200, suffix: '+', label: 'Gardiens en France', sub: 'estimation' },
-  { value: 5,    suffix: '',  label: 'Divisions couvertes', sub: 'Magnus → Féminine' },
-  { value: 67,   suffix: '%', label: 'Jouent blessés',      sub: 'priorité santé' },
-  { value: 7,    suffix: '',  label: 'Axes pilotés',        sub: 'commissions ANGB' },
+  { value: 2026, suffix: '',     label: 'Année de fondation',  sub: 'Association loi 1901' },
+  { value: 0,    suffix: ' %',   label: 'Commission',          sub: "sur la bourse d'équipement" },
+  { value: 7,    suffix: '',     label: 'Rubriques de savoirs', sub: 'du poste à la santé' },
+  { value: 1,    suffix: ' an',  label: 'Adhésion gratuite',   sub: 'la première année' },
 ]
 
 function AnimatedStat({ value, suffix, label, sub, delay = 0 }: {
@@ -100,8 +101,7 @@ export default function AssociationPage() {
           </div>
           {!user && (
             <button onClick={openAdhesion}
-              className="flex-shrink-0 px-6 py-3 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-              style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
+              className="btn-sport flex-shrink-0 px-6 py-3 text-sm">
               Rejoindre l&apos;ANGB
             </button>
           )}
@@ -162,8 +162,7 @@ export default function AssociationPage() {
               {c('assoc.cta.sub')}
             </p>
             <button onClick={openAdhesion}
-              className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-              style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
+              className="btn-sport px-8 py-3.5 text-sm">
               Rejoindre l&apos;ANGB
             </button>
           </div>

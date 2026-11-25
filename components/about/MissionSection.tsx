@@ -33,12 +33,12 @@ export default function MissionSection() {
   ]
 
   const benefits = [
-    { icon: '🛡️', text: 'Représentation officielle auprès de la FFHG' },
-    { icon: '🤝', text: 'Réseau national de gardiens et entraîneurs' },
-    { icon: '📚', text: "Accès aux ressources formation et outils d'analyse" },
-    { icon: '🩺', text: 'Accompagnement santé et prévention' },
-    { icon: '💼', text: 'Conseils carrière dans le cadre légal' },
-    { icon: '🏆', text: "Défense des intérêts du poste à l'échelon national" },
+    { icon: '🤝', text: 'Un réseau de gardiens, de familles et de clubs' },
+    { icon: '📚', text: 'Des savoirs sur le poste, l\'équipement, la santé et la préparation' },
+    { icon: '🛡️', text: "Une bourse d'équipement entre familles, sans aucune commission" },
+    { icon: '💬', text: 'Un forum pour échanger entre gardiens et parents' },
+    { icon: '🩺', text: 'Des repères sur la santé et la prévention des blessures' },
+    { icon: '🏒', text: "Selon les statuts : représenter les gardiens auprès des instances fédérales" },
   ]
 
   return (
@@ -52,10 +52,14 @@ export default function MissionSection() {
           Notre vision
         </h2>
         <p className="text-base leading-relaxed max-w-3xl" style={{ color: 'var(--gray)' }}>
-          L'ANGB naît d'un constat simple : le gardien de but est le poste le plus spécialisé
-          du hockey sur glace, et pourtant le moins structuré institutionnellement en France.
-          Notre ambition est de changer cela · en créant une structure dédiée qui parle d'une
-          seule voix pour plus de 1 200 gardiens.
+          L'ANGB a été fondée en 2026 par des gardiens de but, pour les gardiens de but.
+          Le poste est très particulier, et les bonnes informations pour apprendre, se soigner
+          ou s'équiper ne sont pas toujours faciles à trouver. L'association les réunit au même
+          endroit, gratuitement la première année.
+        </p>
+        <p className="text-base leading-relaxed max-w-3xl mt-3" style={{ color: 'var(--gray)' }}>
+          Elle est à but non lucratif : pas de commission sur la bourse d'équipement entre familles,
+          pas de mise en avant personnelle, seulement de l'entraide entre gardiens, familles et clubs.
         </p>
       </div>
 
