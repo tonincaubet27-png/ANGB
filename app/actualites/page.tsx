@@ -98,8 +98,7 @@ export default function ActualitesPage() {
               {([['social.instagram', 'Instagram'], ['social.tiktok', 'TikTok'], ['social.youtube', 'YouTube']] as const)
                 .filter(([k]) => c(k)).map(([k, label]) => (
                   <a key={k} href={c(k)} target="_blank" rel="noopener noreferrer"
-                    className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
-                    style={{ background: 'var(--accent)' }}>
+                    className="btn-sport px-4 py-1.5 text-[11px]">
                     {label}
                   </a>
                 ))}
@@ -144,9 +143,11 @@ export default function ActualitesPage() {
         {loading ? (
           <div className="max-w-5xl mx-auto h-64 rounded-2xl animate-pulse" style={{ background: 'var(--navy-mid)' }} />
         ) : cards.length === 0 ? (
-          <div className="max-w-3xl mx-auto p-12 text-center rounded-2xl" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
-            <div className="text-3xl mb-2 opacity-40">🎙️</div>
-            <p className="text-sm" style={{ color: 'var(--gray)' }}>Les premières interviews et vidéos arrivent bientôt.</p>
+          <div className="max-w-3xl mx-auto p-8 md:p-12 text-center rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(91,141,255,0.14), rgba(237,41,57,0.08))', border: '1px solid var(--border-mid)' }}>
+            <div className="text-4xl mb-3">🎙️</div>
+            <p className="text-2xl md:text-3xl mb-2" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Les premières interviews arrivent</p>
+            <p className="text-sm mb-6 max-w-md mx-auto" style={{ color: 'var(--gray)' }}>En attendant, des articles sont déjà en ligne : le poste, l&apos;équipement, la santé.</p>
+            <Link href="/savoir" className="btn-sport px-7 py-3 text-xs">Lire les savoirs du gardien</Link>
           </div>
         ) : (
           <LayoutGrid key={filter} cards={cards} />

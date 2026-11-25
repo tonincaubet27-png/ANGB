@@ -43,7 +43,7 @@ interface ContactForm {
 }
 
 export default function EquipementPage() {
-  const { user, profile, isMember, openAuth } = useAuth()
+  const { user, profile, isMember, openAuth, loading: authLoading } = useAuth()
   const c = useContent()
   const [listings, setListings]         = useState<Listing[]>([])
   const [loading, setLoading]           = useState(true)
@@ -87,9 +87,13 @@ export default function EquipementPage() {
   }, [])
 
   // Ouvre directement le dépôt d'annonce via /equipement?vendre=1 (menu « Vendre »)
+  // Lien « Vendre mon matériel » : ouvre le dépôt si membre, sinon la connexion
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('vendre') === '1') setDepot(true)
-  }, [])
+    if (authLoading || new URLSearchParams(window.location.search).get('vendre') !== '1') return
+    if (!user) openAuth('login')
+    else if (isMember) setDepot(true)
+    window.history.replaceState(null, '', '/equipement')
+  }, [authLoading, user, isMember, openAuth])
 
   // Pré-remplir le message quand on ouvre le modal contact
   const openContact = (listing: Listing) => {
