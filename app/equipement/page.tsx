@@ -78,7 +78,9 @@ export default function EquipementPage() {
   const [contactSubmitting, setContactSub] = useState(false)
   const [contactDone, setContactDone]   = useState(false)
 
-  const [mobileOpen, setMobile]         = useState(false)
+  const [step, setStep]                 = useState(1)
+  const [contactErr, setContactErr]     = useState('')
+  useEffect(() => { if (depotOpen) setStep(1) }, [depotOpen])
 
   useEffect(() => {
     getListings().then(data => { setListings(data); setLoading(false) })
@@ -104,6 +106,7 @@ export default function EquipementPage() {
   const handleContact = async () => {
     if (!contactListing || !contactForm.buyer_name || !contactForm.buyer_email) return
     setContactSub(true)
+    setContactErr('')
     await createContactRequest({
       listing_id: contactListing.id,
       listing_title: contactListing.title,
@@ -112,7 +115,18 @@ export default function EquipementPage() {
       buyer_phone: contactForm.buyer_phone || undefined,
       message: contactForm.message,
     })
+    // Envoi d'un vrai e-mail au vendeur (ou au bureau si le vendeur n'a pas de compte lié)
+    const res = await fetch('/api/message', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        toName: contactListing.seller_name, toUserId: contactListing.user_id,
+        fromName: contactForm.buyer_name, fromEmail: contactForm.buyer_email,
+        context: `votre annonce « ${contactListing.title} »`,
+        message: contactForm.message + (contactForm.buyer_phone ? `\n\nTéléphone : ${contactForm.buyer_phone}` : ''),
+      }),
+    }).then(r => r.json()).catch(() => ({ ok: false }))
     setContactSub(false)
+    if (!res.ok) { setContactErr("L'envoi n'a pas fonctionné. Réessaie dans un instant."); return }
     setContactDone(true)
     setTimeout(() => { setContactListing(null); setContactDone(false) }, 2500)
   }
@@ -154,29 +168,6 @@ export default function EquipementPage() {
     }
   }
 
-  const Filters = () => (
-    <div className="space-y-5">
-      {([
-        { label: 'Catégorie', items: CATEGORIES, value: catFilter, set: setCat, fmt: (c: string) => c === 'Tout' ? 'Toutes catégories' : `${CATEGORY_EMOJI[c] ?? ''} ${c}` },
-        { label: 'État',      items: CONDITIONS, value: condFilter, set: setCond, fmt: (c: string) => c },
-        { label: 'Division',  items: DIVISIONS,  value: divFilter,  set: setDiv,  fmt: (c: string) => c === 'Tout' ? 'Toutes divisions' : c },
-      ] as const).map(({ label, items, value, set, fmt: fmtItem }) => (
-        <div key={label}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--gray)' }}>{label}</p>
-          <div className="space-y-0.5">
-            {(items as readonly string[]).map(it => (
-              <button key={it} onClick={() => set(it)}
-                className="w-full text-left px-3 py-1.5 rounded-lg text-sm transition-colors"
-                style={{ background: value === it ? 'rgba(74,127,255,0.15)' : 'transparent', color: value === it ? 'var(--white)' : 'var(--gray)' }}>
-                {fmtItem(it)}
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
   return (
     <div>
       {/* Header */}
@@ -204,50 +195,54 @@ export default function EquipementPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {/* Aucune commission */}
-        <div className="flex items-start gap-3 p-4 rounded-xl mb-4" style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.3)' }}>
-          <span className="text-lg flex-shrink-0">🤝</span>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-            <strong style={{ color: 'var(--white)' }}>{c('equip.nocommission').split(' : ')[0]}</strong>
-            {c('equip.nocommission').includes(' : ') ? ' : ' + c('equip.nocommission').split(' : ').slice(1).join(' : ') : ''}
-          </p>
+        {/* Bandeau confiance : l'essentiel en 3 pastilles */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          {[['🤝', c('equip.nocommission').split(' : ')[0] || 'Aucune commission'], ['👋', 'Remise en main propre conseillée'], ['🔒', 'Jamais de données bancaires']].map(([ic, t]) => (
+            <span key={t} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              style={{ background: 'rgba(52,211,153,0.1)', color: '#bdf5dc', border: '1px solid rgba(52,211,153,0.3)' }}>{ic} {t}</span>
+          ))}
         </div>
-
-        {/* Avertissement transactions */}
-        <div className="flex items-start gap-3 p-4 rounded-xl mb-6" style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.3)' }}>
-          <span className="text-lg flex-shrink-0">⚠️</span>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-            <strong style={{ color: 'var(--white)' }}>Transactions entre membres.</strong> L&apos;ANGB met en relation mais
-            <strong style={{ color: 'var(--white)' }}> n&apos;est pas responsable</strong> des échanges, paiements ou litiges.
-            Méfie-toi des arnaques : privilégie la remise en main propre, vérifie le matériel, et
-            <strong style={{ color: 'var(--white)' }}> ne communique jamais d&apos;informations bancaires sensibles</strong>.
+        <details className="mb-6 group">
+          <summary className="cursor-pointer text-xs font-semibold list-none inline-flex items-center gap-1" style={{ color: 'var(--accent)' }}>
+            <span className="transition-transform group-open:rotate-90">›</span> Comment ça marche
+          </summary>
+          <p className="mt-2 text-xs leading-relaxed max-w-3xl" style={{ color: 'var(--gray)' }}>
+            {c('equip.nocommission')} L&apos;ANGB n&apos;est pas responsable des échanges, paiements ou litiges : vérifie le matériel avant de payer.
           </p>
-        </div>
+        </details>
 
-        {/* Mobile filters */}
-        <button className="md:hidden w-full mb-4 py-2.5 px-4 rounded-lg text-sm font-medium border flex items-center justify-between"
-          style={{ borderColor: 'var(--border)', color: 'var(--gray)', background: 'var(--navy-mid)' }}
-          onClick={() => setMobile(!mobileOpen)}>
-          <span>Filtres</span><span>{mobileOpen ? '▲' : '▼'}</span>
-        </button>
-        {mobileOpen && (
-          <div className="md:hidden mb-6 p-4 rounded-xl border" style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
-            <Filters />
-          </div>
-        )}
+        {/* Filtres en pastilles */}
+        <div className="flex gap-2 overflow-x-auto no-visible-scrollbar pb-2 mb-3 -mx-4 px-4 md:mx-0 md:px-0">
+          {CATEGORIES.map(cat => {
+            const on = catFilter === cat
+            return (
+              <button key={cat} onClick={() => setCat(cat)} className="px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 hover:-translate-y-0.5"
+                style={{ background: on ? 'var(--accent)' : 'var(--navy-mid)', color: on ? '#fff' : 'var(--gray)', border: `1px solid ${on ? 'var(--accent)' : 'var(--border)'}`, boxShadow: on ? '0 4px 14px rgba(91,141,255,0.35)' : 'none' }}>
+                {cat === 'Tout' ? 'Tout' : `${CATEGORY_EMOJI[cat] ?? ''} ${cat}`}
+              </button>
+            )
+          })}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <select value={condFilter} onChange={e => setCond(e.target.value)} className="px-3 py-2 rounded-full text-xs font-semibold outline-none"
+            style={{ background: 'var(--navy-mid)', color: condFilter === 'Tout' ? 'var(--gray)' : 'var(--white)', border: '1px solid var(--border)' }}>
+            {CONDITIONS.map(x => <option key={x} value={x}>{x === 'Tout' ? 'Tous les états' : x}</option>)}
+          </select>
+          <select value={divFilter} onChange={e => setDiv(e.target.value)} className="px-3 py-2 rounded-full text-xs font-semibold outline-none"
+            style={{ background: 'var(--navy-mid)', color: divFilter === 'Tout' ? 'var(--gray)' : 'var(--white)', border: '1px solid var(--border)' }}>
+            {DIVISIONS.map(x => <option key={x} value={x}>{x === 'Tout' ? 'Toutes divisions' : x}</option>)}
+          </select>
+          {(catFilter !== 'Tout' || condFilter !== 'Tout' || divFilter !== 'Tout') && (
+            <button onClick={() => { setCat('Tout'); setCond('Tout'); setDiv('Tout') }} className="text-xs font-semibold px-2" style={{ color: 'var(--gray)' }}>Réinitialiser ✕</button>
+          )}
+        </div>
 
         <div className="flex gap-6">
-          {/* Desktop sidebar */}
-          <aside className="hidden md:block w-52 flex-shrink-0 p-4 rounded-2xl border h-fit sticky top-24"
-            style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
-            <Filters />
-          </aside>
-
           {/* Listings */}
           <div className="flex-1">
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {[...Array(6)].map((_, i) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {[...Array(8)].map((_, i) => (
                   <div key={i} className="h-72 rounded-2xl animate-pulse" style={{ background: 'var(--navy-mid)' }} />
                 ))}
               </div>
@@ -257,55 +252,35 @@ export default function EquipementPage() {
                 {filtered.length === 0 ? (
                   <p className="text-center py-16 text-sm" style={{ color: 'var(--gray)' }}>{listings.length === 0 ? 'Aucune annonce disponible pour le moment.' : 'Aucune annonce pour ces filtres.'}</p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(l => {
                       const cond = CONDITION_COLOR[l.condition] ?? CONDITION_COLOR['usage']
                       return (
-                        <div key={l.id} className="p-5 rounded-2xl border flex flex-col gap-3 hover:border-accent/30 transition-colors card-lift"
-                          style={{ background: 'var(--navy-mid)', borderColor: 'var(--border)' }}>
-                          {/* Photo de couverture, sinon emoji */}
-                          <div className="relative w-full h-40 rounded-xl overflow-hidden flex items-center justify-center text-5xl"
-                            style={{ background: 'var(--navy-light)' }}>
+                        <div key={l.id} className="group rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1.5"
+                          style={{ background: 'var(--navy-card)', border: '1px solid var(--border)', boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
+                          <div className="relative w-full aspect-[4/3] overflow-hidden flex items-center justify-center text-6xl" style={{ background: 'var(--navy-light)' }}>
                             {l.photos && l.photos.length > 0 ? (
-                              <>
-                                <Image src={l.photos[0]} alt={l.title} fill className="object-cover" sizes="(max-width:768px) 100vw, 360px" />
-                                {l.photos.length > 1 && (
-                                  <span className="absolute bottom-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(0,0,0,0.6)', color: '#fff' }}>
-                                    📷 {l.photos.length}
-                                  </span>
-                                )}
-                              </>
-                            ) : (CATEGORY_EMOJI[l.category] ?? '🔧')}
+                              <Image src={l.photos[0]} alt={l.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width:768px) 100vw, 360px" />
+                            ) : (
+                              <span className="transition-transform duration-500 group-hover:scale-125">{CATEGORY_EMOJI[l.category] ?? '🔧'}</span>
+                            )}
+                            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(8,14,28,0.7), transparent 50%)' }} />
+                            <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full backdrop-blur"
+                              style={{ background: cond.bg, color: cond.color, border: `1px solid ${cond.color}55` }}>{l.condition}</span>
+                            {l.photos && l.photos.length > 1 && (
+                              <span className="absolute top-3 right-3 text-[10px] font-semibold px-2 py-1 rounded-full" style={{ background: 'rgba(0,0,0,0.55)', color: '#fff' }}>📷 {l.photos.length}</span>
+                            )}
+                            <span className="absolute bottom-3 right-3 text-3xl leading-none px-3 py-1 rounded-xl"
+                              style={{ fontFamily: 'var(--font-bebas)', color: '#fff', background: 'rgba(15,27,51,0.75)', letterSpacing: '0.04em' }}>{fmt(l.price)}</span>
                           </div>
-                          {/* Titre + prix */}
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-sm leading-snug" style={{ color: 'var(--white)' }}>{l.title}</h3>
-                            <span className="text-xl font-bold flex-shrink-0"
-                              style={{ fontFamily: 'var(--font-bebas)', color: 'var(--accent)', letterSpacing: '0.05em' }}>
-                              {fmt(l.price)}
-                            </span>
+                          <div className="p-4 flex flex-col gap-2 flex-1">
+                            <h3 className="font-bold text-[15px] leading-snug" style={{ color: 'var(--white)' }}>{l.title}</h3>
+                            {l.description && <p className="text-xs leading-relaxed line-clamp-2" style={{ color: 'var(--gray)' }}>{l.description}</p>}
+                            <p className="text-xs mt-auto pt-1" style={{ color: 'var(--gray)' }}>
+                              📍 {[l.city, l.seller_division].filter(Boolean).join(' · ') || 'Lieu à préciser'}{l.seller_name ? ` · ${l.seller_name}` : ''}
+                            </p>
+                            <button onClick={() => openContact(l)} className="btn-sport w-full py-2.5 text-xs mt-2">Contacter le vendeur</button>
                           </div>
-                          {/* Description */}
-                          <p className="text-xs leading-relaxed flex-1" style={{ color: 'var(--gray)' }}>{l.description}</p>
-                          {/* Vendeur + état */}
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xs font-medium" style={{ color: 'var(--white)' }}>{l.seller_name}</p>
-                              <p className="text-xs" style={{ color: 'var(--gray)' }}>{l.city}{l.seller_division ? ` · ${l.seller_division}` : ''}</p>
-                            </div>
-                            <span className="text-[10px] font-semibold px-2 py-1 rounded-full"
-                              style={{ background: cond.bg, color: cond.color }}>
-                              {l.condition}
-                            </span>
-                          </div>
-                          {/* ── Bouton Contacter ── */}
-                          <button
-                            onClick={() => openContact(l)}
-                            className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 active:scale-95 mt-1"
-                            style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(74,127,255,0.25)' }}
-                          >
-                            Contacter le vendeur
-                          </button>
                         </div>
                       )
                     })}
@@ -335,10 +310,22 @@ export default function EquipementPage() {
                 <div className="text-center py-8">
                   <div className="text-5xl mb-3">✓</div>
                   <p className="font-semibold" style={{ color: 'var(--white)' }}>Annonce publiée !</p>
-                  <p className="text-sm mt-1" style={{ color: 'var(--gray)' }}>Visible après validation par le bureau.</p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--gray)' }}>Elle est en ligne. Les acheteurs te contacteront par e-mail.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Progression des étapes */}
+                  <div>
+                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--gray)' }}>
+                      {['Le matériel', 'Le prix', 'Toi'].map((t, i) => (
+                        <span key={t} style={{ color: step >= i + 1 ? 'var(--white)' : 'var(--gray)' }}>{i + 1}. {t}</span>
+                      ))}
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--navy-light)' }}>
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(step / 3) * 100}%`, background: 'linear-gradient(to right,#002395,#5b8dff,#ED2939)' }} />
+                    </div>
+                  </div>
+                  {step === 1 && (<div className="space-y-4 menu-drop">
                   {/* Photos (style Vinted) */}
                   <div>
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Photos de l&apos;équipement</span>
@@ -384,6 +371,9 @@ export default function EquipementPage() {
                       </label>
                     ))}
                   </div>
+                  <button onClick={() => setStep(2)} disabled={!depotForm.title.trim()} className="btn-sport w-full py-3 text-xs">Suivant →</button>
+                  </div>)}
+                  {step === 2 && (<div className="space-y-4 menu-drop">
                   <label className="block">
                     <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Prix (€) *</span>
                     <input type="number" min="0" className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
@@ -398,6 +388,12 @@ export default function EquipementPage() {
                       value={depotForm.description} onChange={e => setDepotForm(f => ({ ...f, description: e.target.value }))}
                       placeholder="Détails, taille, utilisation…" />
                   </label>
+                  <div className="flex gap-2">
+                    <button onClick={() => setStep(1)} className="btn-sport-ghost flex-1 py-3 text-xs">← Retour</button>
+                    <button onClick={() => setStep(3)} disabled={!depotForm.price} className="btn-sport flex-1 py-3 text-xs">Suivant →</button>
+                  </div>
+                  </div>)}
+                  {step === 3 && (<div className="space-y-4 menu-drop">
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block">
                       <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Ville</span>
@@ -421,11 +417,13 @@ export default function EquipementPage() {
                       {['Magnus','D1','D2','D3','Féminine Élite','Régionale','Loisir'].map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </label>
-                  <button onClick={handleDepot} disabled={!depotForm.title || !depotForm.price || depotSubmitting}
-                    className="w-full py-3 rounded-xl text-sm font-semibold text-white mt-2 disabled:opacity-50 hover:opacity-90 transition-opacity"
-                    style={{ background: 'var(--accent)' }}>
-                    {depotSubmitting ? 'Publication…' : "Publier l'annonce"}
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => setStep(2)} className="btn-sport-ghost flex-1 py-3 text-xs">← Retour</button>
+                    <button onClick={handleDepot} disabled={!depotForm.title || !depotForm.price || depotSubmitting} className="btn-sport flex-1 py-3 text-xs">
+                      {depotSubmitting ? 'Publication…' : "Publier l'annonce"}
+                    </button>
+                  </div>
+                  </div>)}
                 </div>
               )}
             </div>
@@ -457,7 +455,7 @@ export default function EquipementPage() {
                     Message envoyé !
                   </p>
                   <p className="text-sm" style={{ color: 'var(--gray)' }}>
-                    Le vendeur vous contactera par email sous 48h.
+                    Le vendeur a reçu ton message par e-mail. Il te répondra directement.
                   </p>
                 </div>
               ) : (
@@ -520,13 +518,13 @@ export default function EquipementPage() {
                     <button
                       onClick={handleContact}
                       disabled={!contactForm.buyer_name || !contactForm.buyer_email || contactSubmitting}
-                      className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-50 hover:opacity-90 transition-all hover:-translate-y-0.5"
-                      style={{ background: 'var(--accent)', boxShadow: '0 4px 20px rgba(74,127,255,0.3)' }}
+                      className="btn-sport w-full py-3 text-xs"
                     >
                       {contactSubmitting ? 'Envoi…' : '📩 Envoyer ma demande'}
                     </button>
+                    {contactErr && <p className="text-center text-xs" style={{ color: '#fca5a5' }}>{contactErr}</p>}
                     <p className="text-center text-[11px]" style={{ color: 'var(--gray)' }}>
-                      Vos coordonnées seront transmises au vendeur via l&apos;ANGB.
+                      Ton message et ton e-mail sont envoyés au vendeur, pour qu&apos;il puisse te répondre.
                     </p>
                   </div>
                 </>
