@@ -36,7 +36,6 @@ export default function Navbar() {
     { href: '/association', label: "L'association", children: [
       { href: '/association',  label: 'Présentation' },
       { href: '/annuaire',     label: 'Annuaire des membres' },
-      { href: '/entraineurs',  label: 'Entraîneurs gardiens' },
       { href: '/ressources',   label: 'Ressources officielles' },
     ] },
     { href: '/savoir', label: 'Savoirs', children: [

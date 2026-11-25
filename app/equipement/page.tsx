@@ -205,6 +205,15 @@ export default function EquipementPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        {/* Aucune commission */}
+        <div className="flex items-start gap-3 p-4 rounded-xl mb-4" style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.3)' }}>
+          <span className="text-lg flex-shrink-0">🤝</span>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+            <strong style={{ color: 'var(--white)' }}>{c('equip.nocommission').split(' : ')[0]}</strong>
+            {c('equip.nocommission').includes(' : ') ? ' : ' + c('equip.nocommission').split(' : ').slice(1).join(' : ') : ''}
+          </p>
+        </div>
+
         {/* Avertissement transactions */}
         <div className="flex items-start gap-3 p-4 rounded-xl mb-6" style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.3)' }}>
           <span className="text-lg flex-shrink-0">⚠️</span>

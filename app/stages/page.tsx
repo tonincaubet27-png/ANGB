@@ -100,7 +100,7 @@ export default function StagesPage() {
         <div className="flex items-start gap-3 p-4 rounded-xl mb-6" style={{ background: 'rgba(74,127,255,0.06)', border: '1px solid rgba(74,127,255,0.25)' }}>
           <span className="text-lg flex-shrink-0">ℹ️</span>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-            Stages de gardiens référencés par l&apos;ANGB. Tarifs, horaires et inscriptions auprès de l&apos;organisateur (lien sur chaque stage).
+            Événements non lucratifs organisés sous le sigle de l&apos;ANGB. Les informations pratiques (date, lieu, inscription) figurent sur chaque fiche.
           </p>
         </div>
 

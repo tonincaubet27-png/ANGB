@@ -329,9 +329,6 @@ export default async function AdminPage({
 <a href="/admin/articles" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.35)', color: '#fb923c' }}>
                 📚 Articles
               </a>
-              <a href="/admin/entraineurs" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(237,41,57,0.12)', border: '1px solid rgba(237,41,57,0.35)', color: '#f87171' }}>
-                🧤 Entraîneurs
-              </a>
               <a href="/admin/liens-parents" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.35)', color: '#38bdf8' }}>
                 👪 Liens parents
               </a>

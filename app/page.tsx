@@ -116,7 +116,7 @@ const ANGB_ACTIONS: ParallaxItem[] = [
   { title: "Réseau d'entraîneurs",  link: '/association', thumbnail: '/images/flo gourdin.jpg' },
   { title: 'Le bureau & l’équipe',  link: '/association', thumbnail: '/images/jean jp fontaine.jpg' },
   { title: 'Adhésion gratuite',     link: '/association', thumbnail: '/images/adrien vazzaz.jpg' },
-  { title: 'Stages & camps',        link: '/actualites',  thumbnail: '/images/steven catelin.png' },
+  { title: 'Stages & événements',        link: '/actualites',  thumbnail: '/images/steven catelin.png' },
 ]
 
 const GALLERY = [

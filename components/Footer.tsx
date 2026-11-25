@@ -53,7 +53,6 @@ export default function Footer() {
                 { href: '/savoir', label: 'Savoirs du gardien' },
                 { href: '/stages', label: 'Stages' },
                 { href: '/annuaire', label: 'Annuaire' },
-                { href: '/entraineurs', label: 'Entraîneurs gardiens' },
                 { href: '/forum', label: 'Forum' },
                 { href: '/equipement', label: 'Équipement' },
                 { href: '/ressources', label: 'Ressources officielles' },

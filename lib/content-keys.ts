@@ -52,6 +52,8 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'equip.header.overline', group: 'Équipement', label: 'Surtitre', def: "Bourse d'équipement" },
   { key: 'equip.header.title',    group: 'Équipement', label: 'Titre', def: 'Équipement' },
   { key: 'equip.header.sub',      group: 'Équipement', label: 'Sous-titre', def: 'Achat et vente de matériel de gardien entre membres de la communauté' },
+  { key: 'equip.nocommission',    group: 'Équipement', label: 'Encadré « aucune commission »', multiline: true,
+    def: "Aucune commission, aucun pourcentage : l'ANGB met seulement les familles en relation. Le prix, le paiement et la remise du matériel se règlent directement entre vendeur et acheteur. L'ANGB n'intervient pas dans la transaction." },
 
   // ── Annuaire ──
   { key: 'annuaire.header.overline', group: 'Annuaire', label: 'Surtitre', def: 'Annuaire' },
@@ -61,7 +63,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   // ── Stages ──
   { key: 'stages.header.overline', group: 'Stages', label: 'Surtitre', def: 'Formation sur la glace' },
   { key: 'stages.header.title',    group: 'Stages', label: 'Titre', def: 'Stages gardiens' },
-  { key: 'stages.header.sub',      group: 'Stages', label: 'Sous-titre', def: 'Stages et camps de perfectionnement pour gardiens de but, encadrés par des entraîneurs spécialisés.' },
+  { key: 'stages.header.sub',      group: 'Stages', label: 'Sous-titre', def: "Stages et événements non lucratifs pour gardiens de but, organisés sous le sigle de l'ANGB." },
 
   // ── Entraîneurs gardiens ──
   { key: 'entraineurs.header.overline', group: 'Entraîneurs gardiens', label: 'Surtitre', def: "Réseau d'encadrement" },
