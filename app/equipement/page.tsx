@@ -247,7 +247,7 @@ export default function EquipementPage() {
               <>
                 <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>{filtered.length} annonce{filtered.length !== 1 ? 's' : ''}</p>
                 {filtered.length === 0 ? (
-                  <p className="text-center py-16 text-sm" style={{ color: 'var(--gray)' }}>Aucune annonce pour ces filtres.</p>
+                  <p className="text-center py-16 text-sm" style={{ color: 'var(--gray)' }}>{listings.length === 0 ? 'Aucune annonce disponible pour le moment.' : 'Aucune annonce pour ces filtres.'}</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {filtered.map(l => {

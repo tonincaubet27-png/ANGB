@@ -1,0 +1,6 @@
+// Les 13 régions de France métropolitaine (noms officiels, identiques à la carte).
+export const REGIONS_FR = [
+  'Île-de-France', 'Centre-Val de Loire', 'Bourgogne-Franche-Comté', 'Normandie',
+  'Hauts-de-France', 'Grand Est', 'Pays de la Loire', 'Bretagne', 'Nouvelle-Aquitaine',
+  'Occitanie', 'Auvergne-Rhône-Alpes', "Provence-Alpes-Côte d'Azur", 'Corse',
+]

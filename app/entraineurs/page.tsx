@@ -72,7 +72,7 @@ export default function EntraineursPage() {
                 <CoachesMap coaches={coaches} activeRegion={activeRegion} onRegion={setActiveRegion} />
               </div>
               <p className="text-center text-xs mt-3" style={{ color: 'var(--gray)' }}>
-                {coaches.length} entraîneur{coaches.length !== 1 ? 's' : ''} gardien{coaches.length !== 1 ? 's' : ''} inscrit{coaches.length !== 1 ? 's' : ''} ·
+                {coaches.length} entraîneur{coaches.length !== 1 ? 's' : ''} gardien{coaches.length !== 1 ? 's' : ''} validé{coaches.length !== 1 ? 's' : ''} par l&apos;ANGB ·
                 les chiffres indiquent le nombre par région
               </p>
             </div>
@@ -115,8 +115,8 @@ export default function EntraineursPage() {
               {coaches.length === 0 ? (
                 <div className="p-6 rounded-2xl text-center" style={{ background: 'var(--navy-mid)', border: '1px dashed var(--border-mid)' }}>
                   <div className="text-3xl mb-2 opacity-40">🧤</div>
-                  <p className="text-sm mb-1" style={{ color: 'var(--white)' }}>Aucun entraîneur gardien inscrit pour l&apos;instant</p>
-                  <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>Tu es entraîneur gardien ? Rejoins l&apos;ANGB et apparais sur la carte.</p>
+                  <p className="text-sm mb-1" style={{ color: 'var(--white)' }}>Aucun entraîneur gardien référencé pour l&apos;instant</p>
+                  <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>Tu es entraîneur gardien ? Rejoins l&apos;ANGB : le bureau valide chaque entraîneur avant de l&apos;afficher.</p>
                   <button onClick={openAdhesion} className="px-5 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'var(--accent)' }}>
                     Rejoindre l&apos;ANGB
                   </button>

@@ -66,11 +66,14 @@ export const CONTENT_FIELDS: ContentField[] = [
   // ── Entraîneurs gardiens ──
   { key: 'entraineurs.header.overline', group: 'Entraîneurs gardiens', label: 'Surtitre', def: "Réseau d'encadrement" },
   { key: 'entraineurs.header.title',    group: 'Entraîneurs gardiens', label: 'Titre', def: 'Entraîneurs gardiens' },
-  { key: 'entraineurs.header.sub',      group: 'Entraîneurs gardiens', label: 'Sous-titre', def: 'Trouve un entraîneur spécialisé gardien près de chez toi. Clique une région sur la carte ou filtre par zone.' },
+  { key: 'entraineurs.header.sub',      group: 'Entraîneurs gardiens', label: 'Sous-titre', def: 'Les entraîneurs gardiens validés par l’ANGB, près de chez toi. Clique une région sur la carte ou filtre par zone.' },
 
   // ── Pied de page & contact ──
   { key: 'footer.description', group: 'Pied de page', label: 'Description', multiline: true,
     def: 'Association Nationale des Gardiens de But · Loi 1901 fondée en 2026. Structurer, développer et protéger la pratique du poste de gardien de but en France.' },
+  { key: 'social.instagram', group: 'Réseaux sociaux', label: 'Lien Instagram (laisser vide pour masquer)', def: '' },
+  { key: 'social.tiktok',    group: 'Réseaux sociaux', label: 'Lien TikTok (laisser vide pour masquer)', def: '' },
+  { key: 'social.youtube',   group: 'Réseaux sociaux', label: 'Lien YouTube (laisser vide pour masquer)', def: '' },
   { key: 'contact.email', group: 'Contact', label: 'Email de contact', def: 'angbcontact@gmail.com' },
 ]
 

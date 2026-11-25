@@ -114,7 +114,7 @@ function ThreadPanel({ threads }: { threads: Thread[] }) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3">
         <span className="text-3xl opacity-30">🥅</span>
-        <p className="text-sm" style={{ color: 'var(--gray)' }}>Aucun sujet dans cette catégorie</p>
+        <p className="text-sm" style={{ color: 'var(--gray)' }}>Aucun sujet disponible pour le moment</p>
       </div>
     )
   }

@@ -47,14 +47,37 @@ export default function PolitiqueConfidentialitePage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--white)' }}>Conservation</h2>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--white)' }}>Données des mineurs</h2>
           <p>
-            Les données sont conservées pendant la durée de l'adhésion, puis archivées 3 ans
-            conformément aux obligations comptables des associations loi 1901.
+            Le site peut être utilisé par des gardiens mineurs. Pour eux, nous traitons : le nom, la date de naissance,
+            la photo de profil et de galerie, le club, et le lien avec un parent ou tuteur légal.<br />
+            · <strong style={{ color: 'var(--white)' }}>Moins de 15 ans :</strong> le consentement d&apos;un parent ou tuteur légal est obligatoire
+            pour l&apos;adhésion, la publication d&apos;une photo et l&apos;apparition dans l&apos;annuaire.<br />
+            · Le lien parent-enfant n&apos;est actif qu&apos;après validation par le bureau de l&apos;ANGB. Tant qu&apos;il est en attente,
+            le parent ne peut pas modifier la fiche de l&apos;enfant.<br />
+            · Les photos de mineurs ne sont publiées qu&apos;avec l&apos;autorisation d&apos;image donnée à l&apos;adhésion.
           </p>
         </section>
 
-        <p className="text-xs italic">Dernière mise à jour : juin 2026</p>
+        <section>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--white)' }}>Conservation</h2>
+          <p>
+            Les données sont conservées pendant la durée de l&apos;adhésion, puis <strong style={{ color: 'var(--white)' }}>un an</strong> après
+            la fin de celle-ci, sauf obligation légale contraire. Les données comptables éventuelles suivent leurs délais légaux.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--white)' }}>Suppression sur demande</h2>
+          <p>
+            Tu peux demander la suppression de ton compte et de tes données (ou de celles de ton enfant) à tout moment,
+            par simple e-mail à{' '}
+            <a href="mailto:angbcontact@gmail.com" style={{ color: 'var(--accent)' }}>angbcontact@gmail.com</a>.
+            Nous traitons la demande dans un délai d&apos;un mois maximum.
+          </p>
+        </section>
+
+        <p className="text-xs italic">Dernière mise à jour : novembre 2026</p>
       </div>
     </div>
   )

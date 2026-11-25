@@ -319,12 +319,21 @@ export default async function AdminPage({
               </h1>
               <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Association Nationale des Gardiens de But</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
               <a href="/admin/stats" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(74,127,255,0.15)', border: '1px solid rgba(74,127,255,0.4)', color: '#4a7fff' }}>
                 📊 Statistiques
               </a>
               <a href="/admin/stages" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.35)', color: '#34d399' }}>
                 🏒 Stages
+              </a>
+<a href="/admin/articles" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.35)', color: '#fb923c' }}>
+                📚 Articles
+              </a>
+              <a href="/admin/entraineurs" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(237,41,57,0.12)', border: '1px solid rgba(237,41,57,0.35)', color: '#f87171' }}>
+                🧤 Entraîneurs
+              </a>
+              <a href="/admin/liens-parents" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.35)', color: '#38bdf8' }}>
+                👪 Liens parents
               </a>
               <a href="/admin/contenu" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', background: 'rgba(192,132,252,0.12)', border: '1px solid rgba(192,132,252,0.35)', color: '#c084fc' }}>
                 📝 Contenu

@@ -551,7 +551,7 @@ export default function AuthModal() {
                         {role === 'gardien'
                           ? 'Votre fiche est maintenant visible dans l\'annuaire. Vous pouvez la compléter à tout moment.'
                           : selected
-                            ? `Vous êtes lié au profil de ${selected.name}. Vous pouvez désormais modifier sa fiche.`
+                            ? `Votre demande de lien avec le profil de ${selected.name} est en attente de validation par le bureau de l'ANGB. Vous pourrez modifier sa fiche une fois le lien validé.`
                             : 'Votre compte a été créé. Vous pouvez lier un profil depuis l\'annuaire.'}
                       </p>
                       <button onClick={handleClose}

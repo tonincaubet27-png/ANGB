@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { geoMercator, geoPath } from 'd3-geo'
+import { REGIONS_FR } from '@/lib/regions'
 
 export interface Coach {
   id: string
@@ -14,11 +15,7 @@ export interface Coach {
 
 const W = 600, H = 580
 
-export const REGIONS_FR = [
-  'Île-de-France', 'Centre-Val de Loire', 'Bourgogne-Franche-Comté', 'Normandie',
-  'Hauts-de-France', 'Grand Est', 'Pays de la Loire', 'Bretagne', 'Nouvelle-Aquitaine',
-  'Occitanie', 'Auvergne-Rhône-Alpes', "Provence-Alpes-Côte d'Azur", 'Corse',
-]
+export { REGIONS_FR }
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '')
 const KNOWN: Record<string, string> = Object.fromEntries(REGIONS_FR.map(n => [norm(n), n]))

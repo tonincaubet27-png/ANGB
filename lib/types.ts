@@ -144,6 +144,8 @@ export interface GoalieProfile {
   gallery?:     string[]
   is_active:   boolean
   is_founder?: boolean
+  coach_verified?: boolean
+  coach_zone?: string
   created_at:  string
 }
 
@@ -184,4 +186,18 @@ export interface AdhesionFormData {
   accept_statuts:    boolean
   accept_rgpd:       boolean
   autorisation_image: boolean
+}
+
+// ── Savoirs & actualités ────────────────────────────────────────────────────
+export type ArticleFormat = 'article' | 'video' | 'interview' | 'podcast' | 'reportage'
+export interface Article {
+  id: string
+  titre: string
+  rubrique: string
+  format: ArticleFormat
+  resume?: string
+  image?: string
+  members_only: boolean
+  is_published: boolean
+  published_at: string
 }

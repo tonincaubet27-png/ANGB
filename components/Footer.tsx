@@ -30,6 +30,15 @@ export default function Footer() {
             >
               {c('contact.email')}
             </a>
+            <div className="flex gap-4 mt-3">
+              {([['social.instagram', 'Instagram'], ['social.tiktok', 'TikTok'], ['social.youtube', 'YouTube']] as const)
+                .filter(([k]) => c(k)).map(([k, label]) => (
+                  <a key={k} href={c(k)} target="_blank" rel="noopener noreferrer"
+                    className="text-sm transition-colors hover:text-white" style={{ color: 'var(--gray)' }}>
+                    {label}
+                  </a>
+                ))}
+            </div>
           </div>
 
           {/* Navigation */}
@@ -41,6 +50,7 @@ export default function Footer() {
               {[
                 { href: '/association', label: "L'association" },
                 { href: '/actualites', label: 'Actualités' },
+                { href: '/savoir', label: 'Savoirs du gardien' },
                 { href: '/stages', label: 'Stages' },
                 { href: '/annuaire', label: 'Annuaire' },
                 { href: '/entraineurs', label: 'Entraîneurs gardiens' },
