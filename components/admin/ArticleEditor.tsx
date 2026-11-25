@@ -53,7 +53,7 @@ export default function ArticleEditor({ name, defaultValue = '' }: { name: strin
           <button key={t.title} type="button" title={t.title} onClick={() => { setTab('write'); apply(t) }}
             style={{ ...btn, fontStyle: t.label === 'I' ? 'italic' : 'normal' }}>{t.label}</button>
         ))}
-        <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }} className="lg:hidden">
+        <span style={{ marginLeft: 'auto', gap: 6 }} className="flex lg:hidden">
           <button type="button" style={tabBtn(tab === 'write')} onClick={() => setTab('write')}>Écrire</button>
           <button type="button" style={tabBtn(tab === 'preview')} onClick={() => setTab('preview')}>Aperçu</button>
         </span>
