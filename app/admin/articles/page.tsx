@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { getAdminEmail } from '@/lib/admin-auth'
 import { RUBRIQUES, RUBRIQUE_ACTUS, FORMATS } from '@/lib/rubriques'
 import type { Article } from '@/lib/types'
+import ArticleEditor from '@/components/admin/ArticleEditor'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,8 +61,8 @@ async function deleteArticle(fd: FormData) {
   revalidatePath('/admin/articles')
 }
 
-const inp: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '8px 10px', borderRadius: 8, background: '#070b15', border: '1px solid #1e293b', color: '#fff', fontSize: 13 }
-const lab: React.CSSProperties = { display: 'block', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', margin: '0 0 3px' }
+const inp: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '8px 10px', borderRadius: 8, background: '#0f1b33', border: '1px solid #2f4677', color: '#fff', fontSize: 13 }
+const lab: React.CSSProperties = { display: 'block', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94a3b8', margin: '0 0 3px' }
 const full: React.CSSProperties = { gridColumn: '1 / -1' }
 
 function ArticleForm({ a, submitLabel }: { a?: Row; submitLabel: string }) {
@@ -84,7 +85,7 @@ function ArticleForm({ a, submitLabel }: { a?: Row; submitLabel: string }) {
         </select>
       </div>
       <div style={full}><label style={lab}>Résumé (visible par tous)</label><textarea name="resume" rows={2} defaultValue={a?.resume ?? ''} style={{ ...inp, resize: 'vertical' }} /></div>
-      <div style={full}><label style={lab}>Texte complet</label><textarea name="body" rows={8} defaultValue={b?.body ?? ''} style={{ ...inp, resize: 'vertical' }} /></div>
+      <div style={full}><label style={lab}>Texte complet</label><ArticleEditor name="body" defaultValue={b?.body ?? ''} /></div>
       <div style={full}><label style={lab}>Lien (YouTube, Instagram, TikTok, podcast…)</label><input name="lien" type="url" defaultValue={b?.lien ?? ''} placeholder="https://…" style={inp} /></div>
       <div><label style={lab}>Image : envoyer un fichier (4 Mo max)</label><input name="image_file" type="file" accept="image/*" style={{ ...inp, padding: 6 }} /></div>
       <div><label style={lab}>…ou adresse de l&apos;image</label><input name="image" defaultValue={a?.image ?? ''} placeholder="/images/hardy.jpg" style={inp} /></div>
@@ -104,7 +105,7 @@ function ArticleForm({ a, submitLabel }: { a?: Row; submitLabel: string }) {
 export default async function AdminArticlesPage() {
   if (!getAdminEmail()) {
     return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#070b15' }}>
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f1b33' }}>
         <Link href="/admin" style={{ color: '#4a7fff', fontSize: 13 }}>🔒 Se connecter →</Link>
       </main>
     )
@@ -116,32 +117,32 @@ export default async function AdminArticlesPage() {
   const articles = (data ?? []) as Row[]
 
   return (
-    <main style={{ minHeight: '100vh', background: '#070b15', padding: '32px 16px' }}>
+    <main style={{ minHeight: '100vh', background: '#0f1b33', padding: '32px 16px' }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
         <div style={{ height: 4, background: 'linear-gradient(to right,#002395 0%,#002395 33%,#fff 33%,#fff 66%,#ED2939 66%,#ED2939 100%)', borderRadius: 4, marginBottom: 18 }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 8 }}>
           <h1 style={{ fontFamily: 'var(--font-bebas, sans-serif)', fontSize: 26, letterSpacing: '0.08em', color: '#fff', margin: 0 }}>Savoirs & actualités</h1>
-          <Link href="/admin" style={{ fontSize: 12, color: '#94a3b8', border: '1px solid #1e293b', background: '#0d1525', borderRadius: 8, padding: '6px 12px', textDecoration: 'none' }}>← Admin</Link>
+          <Link href="/admin" style={{ fontSize: 12, color: '#94a3b8', border: '1px solid #2f4677', background: '#16264a', borderRadius: 8, padding: '6px 12px', textDecoration: 'none' }}>← Admin</Link>
         </div>
-        <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 24px' }}>
+        <p style={{ fontSize: 12, color: '#94a3b8', margin: '0 0 24px' }}>
           Le résumé est visible par tous. Si « Réservé aux membres » est coché, le texte complet et le lien ne sont lisibles que par les adhérents validés.
         </p>
         {error && <p style={{ fontSize: 13, color: '#fca5a5', marginBottom: 16 }}>⚠️ {error.message}</p>}
 
-        <div style={{ background: '#0d1525', border: '1px solid #1e293b', borderRadius: 12, padding: 20, marginBottom: 24 }}>
+        <div style={{ background: '#16264a', border: '1px solid #2f4677', borderRadius: 12, padding: 20, marginBottom: 24 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: '0 0 14px' }}>➕ Nouveau contenu</h2>
           <ArticleForm submitLabel="Publier" />
         </div>
 
-        <h2 style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#475569', margin: '0 0 12px' }}>
+        <h2 style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8', margin: '0 0 12px' }}>
           {articles.length} contenu{articles.length !== 1 ? 's' : ''}
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {articles.map(a => (
-            <details key={a.id} style={{ background: '#0d1525', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 20px', opacity: a.is_published ? 1 : 0.6 }}>
+            <details key={a.id} style={{ background: '#16264a', border: '1px solid #2f4677', borderRadius: 12, padding: '14px 20px', opacity: a.is_published ? 1 : 0.6 }}>
               <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#fff' }}>
                 {a.titre}
-                <span style={{ fontWeight: 400, color: '#64748b' }}> · {a.rubrique}{a.members_only ? ' · 🔒' : ''}{a.is_published ? '' : ' · brouillon'}</span>
+                <span style={{ fontWeight: 400, color: '#94a3b8' }}> · {a.rubrique}{a.members_only ? ' · 🔒' : ''}{a.is_published ? '' : ' · brouillon'}</span>
               </summary>
               <div style={{ marginTop: 14 }}>
                 <ArticleForm a={a} submitLabel="Enregistrer" />
