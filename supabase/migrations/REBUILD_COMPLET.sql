@@ -224,6 +224,20 @@ create table if not exists article_bodies (
   lien       text
 );
 
+-- Si d'anciennes tables existent déjà (rejeu partiel des anciennes migrations), on complète les colonnes manquantes.
+alter table goalie_profiles add column if not exists cover_url   text;
+alter table goalie_profiles add column if not exists role_angb   text;
+alter table goalie_profiles add column if not exists formation   jsonb  default '[]'::jsonb;
+alter table goalie_profiles add column if not exists etudes      jsonb  default '[]'::jsonb;
+alter table goalie_profiles add column if not exists experiences jsonb  default '[]'::jsonb;
+alter table goalie_profiles add column if not exists palmares    text[] default array[]::text[];
+alter table goalie_profiles add column if not exists gallery     text[] default '{}';
+alter table goalie_profiles add column if not exists is_founder  boolean default false;
+alter table goalie_profiles add column if not exists category    text not null default 'gardien';
+alter table listings add column if not exists photos text[] default '{}';
+alter table adhesion_requests add column if not exists member_no integer;
+alter table adhesion_requests add column if not exists user_id uuid references auth.users(id) on delete set null;
+
 -- Entraîneurs gardiens : seul le bureau valide (colonne non modifiable par les membres).
 alter table goalie_profiles add column if not exists coach_verified boolean not null default false;
 alter table goalie_profiles add column if not exists coach_zone text;
