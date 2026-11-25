@@ -188,8 +188,22 @@ body {
 }
 .menu-drop { animation: menu-drop 0.22s ease-out backwards; }
 
+/* ── Bandeau photo qui défile ─────────────────────────────────────────────── */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 45s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-item:hover img { transform: scale(1.08); }
+@media (max-width: 767px) { .marquee-track { animation-duration: 70s !important; } }
+
+/* Apparitions plus marquées sur ordinateur, sobres au tactile */
+@media (hover: hover) and (pointer: fine) {
+  [data-reveal] { transform: translateY(40px) scale(0.98); transition: opacity 0.7s cubic-bezier(.2,.8,.2,1), transform 0.7s cubic-bezier(.2,.8,.2,1); }
+  [data-reveal].revealed { transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .menu-drop { animation: none; }
+  .marquee-track { animation: none; }
   .btn-sport, .btn-sport-ghost, .btn-sport::after { transition: none; }
   [data-reveal] { transition: none; }
 }

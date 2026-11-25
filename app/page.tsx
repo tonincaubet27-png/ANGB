@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion'
+import { motion, useInView, useMotionValue, useSpring, useTransform, useMotionTemplate } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
@@ -9,6 +9,7 @@ import { Spotlight } from '@/components/ui/spotlight'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
+import { Magnetic, PhotoMarquee, useFinePointer } from '@/components/ui/motion-kit'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -125,26 +126,60 @@ const GALLERY = [
 ]
 
 
+const MARQUEE = [
+  { src: '/images/huet-bercy.jpg',        alt: 'Gardien de l’équipe de France dans son but' },
+  { src: '/images/hardy.jpg',             alt: 'Arrêt en papillon' },
+  { src: '/images/antoine keller.jpg',    alt: 'Gardien de l’équipe de France' },
+  { src: '/images/fabrice-lhenry.jpg',    alt: 'Arrêt au sol devant le but' },
+  { src: '/images/florian-hardy.jpg',     alt: 'Gardien qui salue' },
+  { src: '/images/huet-canadiens.jpg',    alt: 'Gardien devant son but' },
+  { src: '/images/cristobal-huet-cup.jpg', alt: 'Gardien avec la coupe Stanley' },
+]
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   const { openAdhesion } = useAdhesion()
   const { user } = useAuth()
   const c = useContent()
+  const fine = useFinePointer()
+
+  // Profondeur au survol de la souris (ordinateur seulement)
+  const mx = useSpring(useMotionValue(0), { stiffness: 60, damping: 18 })
+  const my = useSpring(useMotionValue(0), { stiffness: 60, damping: 18 })
+  const titleX = useTransform(mx, [-0.5, 0.5], [-22, 22])
+  const titleY = useTransform(my, [-0.5, 0.5], [-14, 14])
+  const photoX = useTransform(mx, [-0.5, 0.5], [30, -30])
+  const photoY = useTransform(my, [-0.5, 0.5], [20, -20])
+  const glowX = useTransform(mx, [-0.5, 0.5], [20, 80])
+  const glowY = useTransform(my, [-0.5, 0.5], [20, 80])
+  const glow = useMotionTemplate`radial-gradient(600px circle at ${glowX}% ${glowY}%, rgba(91,141,255,0.18), transparent 60%)`
+  const onHeroMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!fine) return
+    const r = e.currentTarget.getBoundingClientRect()
+    mx.set((e.clientX - r.left) / r.width - 0.5)
+    my.set((e.clientY - r.top) / r.height - 0.5)
+  }
+  const onHeroLeave = () => { mx.set(0); my.set(0) }
+
   return (
     <div>
 
       {/* ── Hero ────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden min-h-[80vh] flex items-center">
+      <section className="relative overflow-hidden min-h-[80vh] flex items-center" onMouseMove={onHeroMove} onMouseLeave={onHeroLeave}>
 
-        {/* Photo Huet (Bercy) en fondu très discret, derrière les dégradés */}
-        <div className="absolute inset-0 pointer-events-none" style={{
+        {/* Photo Huet (Bercy) en fondu, qui bouge à l'inverse de la souris */}
+        <motion.div className="absolute -inset-10 pointer-events-none" style={{
+          x: photoX, y: photoY,
           backgroundImage: 'url(/images/huet-bercy.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
           opacity: 0.22,
           filter: 'grayscale(28%)',
         }} />
+
+        {/* Halo qui suit la souris */}
+        {fine && <motion.div className="absolute inset-0 pointer-events-none" style={{ background: glow }} />}
 
         {/* Gradient bleu France */}
         <motion.div
@@ -200,7 +235,8 @@ export default function HomePage() {
             <span>{c('home.badge')}</span>
           </motion.div>
 
-          {/* Titre */}
+          {/* Titre (léger effet de profondeur à la souris) */}
+          <motion.div style={{ x: titleX, y: titleY }}>
           <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] leading-none mb-6"
             style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.02em' }}>
             {/* Ligne 1 — « La voix » en bleu */}
@@ -239,6 +275,7 @@ export default function HomePage() {
               </motion.span>
             ))}
           </h1>
+          </motion.div>
 
           {/* Ligne tricolore pleine largeur sous le titre */}
           <motion.div
@@ -267,14 +304,18 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 1.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link href="/association"
-              className="btn-sport px-8 py-3.5 text-sm">
-              {c('home.cta.primary')}
-            </Link>
-            <Link href="/savoir"
-              className="btn-sport-ghost px-8 py-3.5 text-sm">
-              {c('home.cta.secondary')}
-            </Link>
+            <Magnetic>
+              <Link href="/association"
+                className="btn-sport px-8 py-3.5 text-sm">
+                {c('home.cta.primary')}
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <Link href="/savoir"
+                className="btn-sport-ghost px-8 py-3.5 text-sm">
+                {c('home.cta.secondary')}
+              </Link>
+            </Magnetic>
           </motion.div>
 
           {/* Scroll indicator */}
@@ -296,6 +337,9 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      {/* ── Bandeau photo qui défile ─────────────────────────────────── */}
+      <PhotoMarquee photos={MARQUEE} />
 
       {/* ── Ce que fait l'ANGB · accès rapide ───────────────────────── */}
       <section className="py-14 md:py-16" style={{ borderTop: '1px solid var(--border)' }}>

@@ -6,6 +6,7 @@ import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
 import { CometCard } from '@/components/ui/comet-card'
+import { Magnetic } from '@/components/ui/motion-kit'
 
 // Page courte et positive : l'essentiel visible sans défiler longtemps.
 // Aucune promesse de projet ni chiffre non vérifiable.
@@ -68,9 +69,9 @@ export default function AssociationPage() {
           </motion.p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
             {!user && (
-              <button onClick={openAdhesion} className="btn-sport px-7 py-3.5 text-sm">Rejoindre l&apos;ANGB</button>
+              <Magnetic><button onClick={openAdhesion} className="btn-sport px-7 py-3.5 text-sm">Rejoindre l&apos;ANGB</button></Magnetic>
             )}
-            <Link href="/savoir" className="btn-sport-ghost px-7 py-3.5 text-sm">Découvrir les savoirs</Link>
+            <Magnetic><Link href="/savoir" className="btn-sport-ghost px-7 py-3.5 text-sm">Découvrir les savoirs</Link></Magnetic>
           </div>
 
           {/* Faits courts */}
