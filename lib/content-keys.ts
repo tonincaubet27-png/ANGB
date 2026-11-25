@@ -16,7 +16,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'home.tagline',       group: 'Accueil', label: 'Accroche sous le titre', multiline: true,
     def: "Par des gardiens, pour les gardiens : apprendre le poste, se soigner, s'équiper et échanger, dans une association non lucrative." },
   { key: 'home.cta.primary',   group: 'Accueil', label: 'Bouton principal (hero)', def: "Découvrir l'ANGB" },
-  { key: 'home.cta.secondary', group: 'Accueil', label: 'Bouton secondaire (hero)', def: 'Annuaire des gardiens →' },
+  { key: 'home.cta.secondary', group: 'Accueil', label: 'Bouton secondaire (hero)', def: 'Les savoirs du gardien →' },
   { key: 'home.stats.title',   group: 'Accueil', label: 'Titre section chiffres', def: "L'ANGB en bref" },
   { key: 'home.stats.sub',     group: 'Accueil', label: 'Sous-titre section chiffres', multiline: true,
     def: "Quelques faits simples sur l'association." },
@@ -27,9 +27,9 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'home.gallery.sub',      group: 'Accueil', label: 'Sous-titre galerie', def: "De la D3 au Magnus, jusqu'à la NHL · la communauté des gardiens français." },
   { key: 'home.founders.overline', group: 'Accueil', label: 'Surtitre fondateurs', def: 'Équipe fondatrice' },
   { key: 'home.founders.title',    group: 'Accueil', label: 'Titre fondateurs', def: "Les créateurs de l'ANGB" },
-  { key: 'home.actions.title',  group: 'Accueil', label: 'Titre « Ce que fait l\'ANGB »', def: "Ce que fait l'ANGB" },
+  { key: 'home.actions.title',  group: 'Accueil', label: 'Titre « Ce que fait l\'ANGB »', def: "Ce qu'on fait pour toi" },
   { key: 'home.actions.desc',   group: 'Accueil', label: 'Description « Ce que fait l\'ANGB »', multiline: true,
-    def: "Des savoirs, une bourse d'équipement, un forum et des stages non lucratifs. Clique une tuile pour explorer." },
+    def: "Tout ce qui sert vraiment, à un clic." },
   { key: 'home.cta2.overline',  group: 'Accueil', label: 'Surtitre bandeau bas', def: 'Adhésion ouverte' },
   { key: 'home.cta2.title',     group: 'Accueil', label: 'Titre bandeau bas', def: 'Rejoins la communauté' },
   { key: 'home.cta2.sub',       group: 'Accueil', label: 'Texte bandeau bas', multiline: true,
@@ -38,10 +38,10 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: 'home.cta2.secondary', group: 'Accueil', label: 'Bouton bandeau (forum)', def: 'Accéder au forum' },
 
   // ── L'association ──
-  { key: 'assoc.header.overline', group: "L'association", label: 'Surtitre en-tête', def: "L'association · tableau de bord" },
+  { key: 'assoc.header.overline', group: "L'association", label: 'Surtitre en-tête', def: "L'association" },
   { key: 'assoc.header.sub',      group: "L'association", label: 'Sous-titre en-tête', def: 'Association Nationale des Gardiens de But · loi 1901 · fondée en 2026' },
   { key: 'assoc.cta.title',  group: "L'association", label: 'Titre encart bas', def: "Prêt à rejoindre l'ANGB ?" },
-  { key: 'assoc.cta.sub',    group: "L'association", label: 'Texte encart bas', multiline: true, def: 'Adhésion gratuite la première année · gardiens, anciens gardiens, entraîneurs, parents et structures.' },
+  { key: 'assoc.cta.sub',    group: "L'association", label: 'Texte encart bas', multiline: true, def: 'Gratuit la première année. Gardiens, anciens gardiens, parents et clubs.' },
 
   // ── Forum ──
   { key: 'forum.header.overline', group: 'Forum', label: 'Surtitre', def: 'Communauté' },

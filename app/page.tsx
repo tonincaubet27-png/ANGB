@@ -5,12 +5,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect, useState } from 'react'
 import { CometCard } from '@/components/ui/comet-card'
-import { HeroParallax, type ParallaxItem } from '@/components/ui/hero-parallax'
 import { Spotlight } from '@/components/ui/spotlight'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
-import FranceClubsMap from '@/components/FranceClubsMap'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -96,28 +94,19 @@ function StatCard({ value, label, sub, delay = 0, color = 'blue' }: {
 // Uniquement des faits vérifiables sur le site (aucune estimation).
 const STATS = [
   { value: '2026',    label: 'Année de fondation',     sub: 'Association loi 1901',        color: 'red'   as const },
-  { value: '0 %',     label: 'Commission',             sub: "sur la bourse d'équipement",  color: 'blue'  as const },
+  { value: 'Sans',    label: 'Commission',             sub: "sur la bourse d'équipement",  color: 'blue'  as const },
   { value: '7',       label: 'Rubriques de savoirs',   sub: 'du poste à la santé',         color: 'white' as const },
   { value: 'Gratuit', label: 'Adhésion',               sub: 'la première année',           color: 'blue'  as const },
 ]
 
-const ANGB_ACTIONS: ParallaxItem[] = [
-  { title: "L'association",         link: '/association', thumbnail: '/images/huet-bercy.jpg' },
-  { title: 'Formation',             link: '/association', thumbnail: '/images/florian-hardy.jpg' },
-  { title: 'Santé du gardien',      link: '/association', thumbnail: '/images/hardy.jpg' },
-  { title: 'Vivier français',       link: '/association', thumbnail: '/images/fabrice-lhenry.jpg' },
-  { title: 'Statistiques',          link: '/association', thumbnail: '/images/eddy-ferhi.jpg' },
-  { title: 'Conseil carrière',      link: '/association', thumbnail: '/images/huet-canadiens.jpg' },
-  { title: 'Annuaire des membres',  link: '/annuaire',    thumbnail: '/images/caroline-baldin.jpg' },
-  { title: 'Forum',                 link: '/forum',       thumbnail: '/images/cristobal-huet-cup.jpg' },
-  { title: "Bourse d'équipement",   link: '/equipement',  thumbnail: '/images/antoine keller.jpg' },
-  { title: 'Ressources FFHG',       link: '/ressources',  thumbnail: '/images/tonin caubet.jpg' },
-  { title: 'Actualités',            link: '/actualites',  thumbnail: '/images/pacôme courtoison.jpeg' },
-  { title: 'Hockey féminin',        link: '/annuaire',    thumbnail: '/images/caroline-baldin.jpg' },
-  { title: "Réseau d'entraîneurs",  link: '/association', thumbnail: '/images/flo gourdin.jpg' },
-  { title: 'Le bureau & l’équipe',  link: '/association', thumbnail: '/images/jean jp fontaine.jpg' },
-  { title: 'Adhésion gratuite',     link: '/association', thumbnail: '/images/adrien vazzaz.jpg' },
-  { title: 'Stages & événements',        link: '/actualites',  thumbnail: '/images/steven catelin.png' },
+// Accès rapide : uniquement ce qui existe vraiment sur le site.
+const ACTIONS = [
+  { title: 'Savoirs du gardien',  sub: "Le poste, l'équipement, la santé",   href: '/savoir',               img: '/images/huet-bercy.jpg' },
+  { title: "Bourse d'équipement", sub: 'Entre familles, sans commission',     href: '/equipement',           img: '/images/antoine keller.jpg' },
+  { title: 'Forum',               sub: 'Échanger entre gardiens et parents',  href: '/forum',                img: '/images/hardy.jpg' },
+  { title: 'Stages & événements', sub: "Non lucratifs, sous le sigle ANGB",   href: '/stages',               img: '/images/fabrice-lhenry.jpg' },
+  { title: 'Actualités',          sub: 'Vidéos, interviews, portraits',       href: '/actualites',           img: '/images/florian-hardy.jpg' },
+  { title: 'Entraide',            sub: 'Les anciens aident les jeunes',       href: '/association#entraide', img: '/images/huet-canadiens.jpg' },
 ]
 
 const GALLERY = [
@@ -135,14 +124,6 @@ const GALLERY = [
   },
 ]
 
-const FOUNDERS = [
-  { src: '/images/tonin caubet.jpg',       name: 'Tonin Caubet' },
-  { src: '/images/pacôme courtoison.jpeg', name: 'Pacôme Courtoison' },
-  { src: '/images/steven catelin.png',     name: 'Steven Catelin' },
-  { src: '/images/flo gourdin.jpg',        name: 'Flo Gourdin' },
-  { src: '/images/jean jp fontaine.jpg',   name: 'Jean-JP Fontaine' },
-  { src: '/images/adrien vazzaz.jpg',      name: 'Adrien Vazzaz' },
-]
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -154,7 +135,7 @@ export default function HomePage() {
     <div>
 
       {/* ── Hero ────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden min-h-[92vh] flex items-center">
+      <section className="relative overflow-hidden min-h-[80vh] flex items-center">
 
         {/* Photo Huet (Bercy) en fondu très discret, derrière les dégradés */}
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -290,7 +271,7 @@ export default function HomePage() {
               className="btn-sport px-8 py-3.5 text-sm">
               {c('home.cta.primary')}
             </Link>
-            <Link href="/annuaire"
+            <Link href="/savoir"
               className="btn-sport-ghost px-8 py-3.5 text-sm">
               {c('home.cta.secondary')}
             </Link>
@@ -316,8 +297,42 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Ce que fait l'ANGB · accès rapide ───────────────────────── */}
+      <section className="py-14 md:py-16" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <SectionHead overline="Accès rapide" title={c('home.actions.title')} sub={c('home.actions.desc')} />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
+            {ACTIONS.map((a, i) => (
+              <motion.div key={a.title}
+                initial={{ opacity: 0, y: 28, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}>
+                <CometCard rotateDepth={9} translateDepth={8} className="w-full">
+                  <Link href={a.href} className="group relative block w-full overflow-hidden rounded-2xl"
+                    style={{ aspectRatio: '4 / 3', background: 'var(--navy-light)', border: '1px solid var(--border)' }}>
+                    <Image src={a.img} alt="" fill sizes="(max-width:1024px) 50vw, 400px"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-110" />
+                    <div className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-80"
+                      style={{ background: 'linear-gradient(to top, rgba(8,14,28,0.95) 5%, rgba(8,14,28,0.35) 55%, rgba(8,14,28,0.1))' }} />
+                    <span className="absolute top-0 left-0 h-[3px] w-1/3 transition-all duration-500 group-hover:w-full"
+                      style={{ background: 'linear-gradient(to right,#002395 0 33.3%,#fff 33.3% 66.6%,#ED2939 66.6% 100%)' }} />
+                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
+                      <p className="text-xl md:text-3xl leading-none" style={{ fontFamily: 'var(--font-bebas)', color: '#fff', letterSpacing: '0.04em' }}>{a.title}</p>
+                      <p className="text-[11px] md:text-xs mt-1 font-medium" style={{ color: 'rgba(255,255,255,0.78)' }}>{a.sub}</p>
+                      <span className="hidden md:inline-block mt-2 text-[11px] font-bold uppercase tracking-wider transition-all duration-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
+                        style={{ color: '#9db8ff' }}>Y aller →</span>
+                    </div>
+                  </Link>
+                </CometCard>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Stats ───────────────────────────────────────────────────── */}
-      <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
+      <section className="py-14 md:py-16" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <SectionHead
             overline="L'ANGB en chiffres"
@@ -330,28 +345,11 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Carte interactive des clubs de hockey */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
-            className="mt-20"
-          >
-            <h3 className="text-center text-3xl md:text-4xl mb-2"
-              style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
-              {c('home.clubs.title')}
-            </h3>
-            <p className="text-center text-sm mb-10" style={{ color: 'var(--gray)', maxWidth: 520, margin: '0 auto 40px' }}>
-              {c('home.clubs.sub')}
-            </p>
-            <FranceClubsMap />
-          </motion.div>
         </div>
       </section>
 
       {/* ── Galerie ─────────────────────────────────────────────────── */}
-      <section className="py-20" style={{ borderTop: '1px solid var(--border)' }}>
+      <section className="py-14 md:py-16" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <SectionHead
             overline={c('home.gallery.overline')}
@@ -409,46 +407,6 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── Fondateurs ──────────────────────────────────────────────── */}
-      <section className="py-16" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <SectionHead
-            overline={c('home.founders.overline')}
-            title={c('home.founders.title')}
-          />
-          <div className="flex flex-wrap justify-center gap-8">
-            {FOUNDERS.map(({ src, name }, i) => (
-              <motion.div
-                key={name}
-                className="flex flex-col items-center gap-3"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.07 }}
-                whileHover={{ y: -5 }}
-              >
-                <div className="relative w-20 h-20 rounded-full overflow-hidden"
-                  style={{ border: '2px solid rgba(0,35,149,0.5)', background: 'var(--navy-light)', boxShadow: '0 0 0 1px rgba(255,255,255,0.06)' }}>
-                  <Image src={src} alt={name} fill className="object-cover object-top" sizes="80px" />
-                </div>
-                <p className="text-[11px] font-bold uppercase tracking-wide text-center" style={{ color: 'var(--white)' }}>
-                  {name}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Ce que fait l'ANGB · HeroParallax ───────────────────────── */}
-      <section style={{ borderTop: '1px solid var(--border)' }}>
-        <HeroParallax
-          title={c('home.actions.title')}
-          description={c('home.actions.desc')}
-          items={ANGB_ACTIONS}
-        />
       </section>
 
       {/* ── CTA Banner · masqué pour les membres déjà connectés ──────── */}

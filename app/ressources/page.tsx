@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import HeaderPhoto from '@/components/HeaderPhoto'
+import FranceClubsMap from '@/components/FranceClubsMap'
 
 export const metadata = {
   title: 'Ressources & documents officiels · ANGB',
@@ -364,6 +365,17 @@ export default function RessourcesPage() {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Carte des clubs (déplacée depuis l'accueil) */}
+        <div className="mt-16">
+          <h3 className="text-center text-3xl md:text-4xl mb-2" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>
+            Les clubs de hockey en France
+          </h3>
+          <p className="text-center text-sm mb-8" style={{ color: 'var(--gray)' }}>
+            Survole la carte pour explorer les clubs, de la Ligue Magnus à la Division 3.
+          </p>
+          <FranceClubsMap />
         </div>
 
       </div>
