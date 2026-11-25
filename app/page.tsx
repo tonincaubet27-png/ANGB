@@ -169,30 +169,16 @@ export default function HomePage() {
       <section className="relative overflow-hidden min-h-[80vh] flex items-center" onMouseMove={onHeroMove} onMouseLeave={onHeroLeave}>
 
         {/* Photo Huet (Bercy) en fondu, qui bouge à l'inverse de la souris */}
-        <motion.div className="absolute -inset-10 pointer-events-none" style={{
-          x: photoX, y: photoY,
-          backgroundImage: 'url(/images/huet-bercy.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 20%',
-          opacity: 0.22,
-          filter: 'grayscale(28%)',
-        }} />
+        <motion.div className="absolute -inset-10 pointer-events-none" style={{ x: photoX, y: photoY, opacity: 0.22, filter: 'grayscale(28%)' }}>
+          <Image src="/images/huet-bercy.jpg" alt="" fill priority quality={60} sizes="100vw" className="object-cover" style={{ objectPosition: 'center 20%' }} />
+        </motion.div>
 
         {/* Halo qui suit la souris */}
         {fine && <motion.div className="absolute inset-0 pointer-events-none" style={{ background: glow }} />}
 
         {/* Gradient bleu France */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          animate={{
-            background: [
-              'radial-gradient(ellipse 100% 70% at 50% -15%, rgba(0,35,149,0.18) 0%, transparent 70%)',
-              'radial-gradient(ellipse 100% 70% at 50% -8%,  rgba(0,35,149,0.26) 0%, transparent 70%)',
-              'radial-gradient(ellipse 100% 70% at 50% -15%, rgba(0,35,149,0.18) 0%, transparent 70%)',
-            ],
-          }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        <div className="absolute inset-0 pointer-events-none anim-breathe"
+          style={{ background: 'radial-gradient(ellipse 100% 70% at 50% -12%, rgba(0,35,149,0.26) 0%, transparent 70%)' }} />
 
         {/* Grille décorative */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
@@ -201,19 +187,11 @@ export default function HomePage() {
         }} />
 
         {/* Orbe bleu */}
-        <motion.div
-          className="absolute right-[8%] top-[20%] w-72 h-72 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(0,35,149,0.14) 0%, transparent 70%)' }}
-          animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        <div className="absolute right-[8%] top-[20%] w-72 h-72 rounded-full pointer-events-none anim-orb"
+          style={{ background: 'radial-gradient(circle, rgba(0,35,149,0.14) 0%, transparent 70%)' }} />
         {/* Orbe rouge */}
-        <motion.div
-          className="absolute left-[5%] bottom-[20%] w-56 h-56 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(237,41,57,0.1) 0%, transparent 70%)' }}
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        />
+        <div className="absolute left-[5%] bottom-[20%] w-56 h-56 rounded-full pointer-events-none anim-orb"
+          style={{ background: 'radial-gradient(circle, rgba(237,41,57,0.1) 0%, transparent 70%)', animationDuration: '9s', animationDelay: '3s' }} />
 
         {/* Lignes latérales */}
         <div className="absolute left-0 top-0 bottom-0 w-px opacity-25"

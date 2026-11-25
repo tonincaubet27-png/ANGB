@@ -188,6 +188,12 @@ body {
 }
 .menu-drop { animation: menu-drop 0.22s ease-out backwards; }
 
+/* ── Animations de fond légères (CSS, sans JavaScript) ───────────────────── */
+@keyframes breathe { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+.anim-breathe { animation: breathe 5s ease-in-out infinite; }
+@keyframes orb { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } }
+.anim-orb { animation: orb 7s ease-in-out infinite; will-change: transform; }
+
 /* ── Bandeau photo qui défile ─────────────────────────────────────────────── */
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .marquee-track { animation: marquee 45s linear infinite; }
@@ -203,7 +209,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .menu-drop { animation: none; }
-  .marquee-track { animation: none; }
+  .marquee-track, .anim-breathe, .anim-orb { animation: none; }
   .btn-sport, .btn-sport-ghost, .btn-sport::after { transition: none; }
   [data-reveal] { transition: none; }
 }

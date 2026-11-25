@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useAdhesion } from '@/contexts/AdhesionContext'
 import { useAuth } from '@/contexts/AuthContext'
@@ -47,13 +48,13 @@ export default function AssociationPage() {
       {/* ── En-tête : le message ─────────────────────────────────────── */}
       <section className="relative overflow-hidden" style={{ borderBottom: '1px solid var(--border)' }}>
         <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: 'url(/images/fabrice-lhenry.jpg)', backgroundSize: 'cover', backgroundPosition: 'center 22%',
           opacity: 0.22, maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)',
           WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)',
-        }} />
-        <motion.div className="absolute -top-24 right-[6%] w-96 h-96 rounded-full pointer-events-none hidden md:block"
-          style={{ background: 'radial-gradient(circle, rgba(91,141,255,0.3) 0%, transparent 70%)' }}
-          animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }} />
+        }}>
+          <Image src="/images/fabrice-lhenry.jpg" alt="" fill priority quality={60} sizes="100vw" className="object-cover" style={{ objectPosition: 'center 22%' }} />
+        </div>
+        <div className="absolute -top-24 right-[6%] w-96 h-96 rounded-full pointer-events-none hidden md:block anim-orb"
+          style={{ background: 'radial-gradient(circle, rgba(91,141,255,0.3) 0%, transparent 70%)' }} />
 
         <div className="relative max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-20">
           <span className="overline-fr mb-4 inline-block">{c('assoc.header.overline')}</span>

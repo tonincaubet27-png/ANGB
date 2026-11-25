@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 /**
  * Photo en fondu derrière un en-tête de page.
  * À placer comme 1er enfant d'un conteneur `relative overflow-hidden`,
@@ -13,16 +15,9 @@ export default function HeaderPhoto({
 }) {
   return (
     <>
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `url(${src})`,
-          backgroundSize: 'cover',
-          backgroundPosition: position,
-          opacity: 0.16,
-          filter: 'grayscale(65%)',
-        }}
-      />
+      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.16, filter: 'grayscale(65%)' }}>
+        <Image src={src} alt="" fill priority quality={55} sizes="100vw" className="object-cover" style={{ objectPosition: position }} />
+      </div>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
