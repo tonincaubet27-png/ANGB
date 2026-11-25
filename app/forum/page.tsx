@@ -230,8 +230,7 @@ export default function ForumPage() {
         </p>
         {isMember ? (
           <button onClick={() => { setShowNew(true); setNtError('') }}
-            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-            style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
+            className="btn-sport flex-shrink-0 px-4 py-2 text-xs">
             + Nouveau sujet
           </button>
         ) : (

@@ -287,13 +287,11 @@ export default function HomePage() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/association"
-              className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-              style={{ background: 'var(--accent)', boxShadow: '0 8px 32px rgba(74,127,255,0.35)' }}>
+              className="btn-sport px-8 py-3.5 text-sm">
               {c('home.cta.primary')}
             </Link>
             <Link href="/annuaire"
-              className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
-              style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>
+              className="btn-sport-ghost px-8 py-3.5 text-sm">
               {c('home.cta.secondary')}
             </Link>
           </motion.div>
@@ -537,13 +535,11 @@ export default function HomePage() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <button onClick={openAdhesion}
-                className="px-8 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-[0.1em] text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-                style={{ background: 'var(--accent)', boxShadow: '0 6px 24px rgba(74,127,255,0.3)' }}>
+                className="btn-sport px-8 py-3.5 text-sm">
                 {c('home.cta2.primary')}
               </button>
               <Link href="/forum"
-                className="px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-[0.1em] transition-all border hover:bg-white/5 hover:-translate-y-0.5"
-                style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'var(--white)' }}>
+                className="btn-sport-ghost px-8 py-3.5 text-sm">
                 {c('home.cta2.secondary')}
               </Link>
             </motion.div>

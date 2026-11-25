@@ -21,7 +21,7 @@ export default function Error({
       alignItems: 'center',
       justifyContent: 'center',
       padding: '2rem',
-      background: '#070b15',
+      background: '#0f1b33',
       color: 'white',
       fontFamily: 'monospace',
     }}>

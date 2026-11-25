@@ -197,8 +197,7 @@ export default function EquipementPage() {
               setDepot(true)
             }}
             disabled={!!user && !isMember}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ background: 'var(--accent)' }}>
+            className="btn-sport px-5 py-2.5 text-xs flex-shrink-0">
             {!user ? '🔒 Connexion pour déposer' : !isMember ? '⏳ Adhésion en attente' : '+ Déposer une annonce'}
           </button>
         </div>

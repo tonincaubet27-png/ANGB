@@ -107,7 +107,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
               </p>
               {!user && (
                 <div className="flex gap-3 justify-center">
-                  <button onClick={openAdhesion} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'var(--accent)' }}>Rejoindre l&apos;ANGB</button>
+                  <button onClick={openAdhesion} className="btn-sport px-6 py-2.5 text-xs">Rejoindre l&apos;ANGB</button>
                   <button onClick={() => openAuth('login')} className="px-6 py-2.5 rounded-xl text-sm font-medium" style={{ color: 'var(--gray)', border: '1px solid var(--border)' }}>Se connecter</button>
                 </div>
               )}
@@ -134,7 +134,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
             <div className="mt-14 rounded-2xl p-6 md:p-8 text-center" style={{ background: 'linear-gradient(135deg, rgba(74,127,255,0.16), rgba(237,41,57,0.1))', border: '1px solid var(--border-mid, var(--border))' }}>
               <p className="text-2xl md:text-3xl mb-2" style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}>Tu es gardien, parent ou entraîneur ?</p>
               <p className="text-sm mb-5" style={{ color: 'var(--gray)' }}>Rejoins l&apos;ANGB : adhésion gratuite la première année, forum, bourse d&apos;équipement et contenus réservés aux membres.</p>
-              <button onClick={openAdhesion} className="px-7 py-3 rounded-xl text-sm font-bold text-white" style={{ background: 'var(--accent)' }}>Rejoindre l&apos;ANGB</button>
+              <button onClick={openAdhesion} className="btn-sport px-7 py-3 text-sm">Rejoindre l&apos;ANGB</button>
             </div>
           )}
 

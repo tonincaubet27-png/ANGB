@@ -182,8 +182,14 @@ body {
 }
 .page-enter { animation: page-enter 0.28s ease-out backwards; }
 
+@keyframes menu-drop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.menu-drop { animation: menu-drop 0.22s ease-out backwards; }
+
 @media (prefers-reduced-motion: reduce) {
-  .page-enter { animation: none; }
+  .page-enter, .menu-drop { animation: none; }
   .btn-sport, .btn-sport-ghost, .btn-sport::after { transition: none; }
   [data-reveal] { transition: none; }
 }

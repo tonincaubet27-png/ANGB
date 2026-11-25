@@ -15,7 +15,7 @@ export default function GlobalError({
 
   return (
     <html lang="fr">
-      <body style={{ margin: 0, background: '#070b15' }}>
+      <body style={{ margin: 0, background: '#0f1b33' }}>
         <div style={{
           minHeight: '100vh',
           display: 'flex',

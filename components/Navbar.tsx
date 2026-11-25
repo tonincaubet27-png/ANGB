@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdhesion } from '@/contexts/AdhesionContext'
@@ -10,6 +11,12 @@ export default function Navbar() {
   const [userMenu, setUserMenu] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const userMenuRef             = useRef<HTMLDivElement>(null)
+  const progressRef             = useRef<HTMLDivElement>(null)
+  const pathname                = usePathname() || '/'
+  const isActive = (href: string) => {
+    const base = href.split('?')[0]
+    return base === '/' ? pathname === '/' : pathname === base || pathname.startsWith(base + '/')
+  }
   const { user, profile, needsSetup, openAuth, signOut } = useAuth()
   const { openAdhesion } = useAdhesion()
 
@@ -23,7 +30,18 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60)
+    // Barre de progression tricolore : mise à jour directe du style (pas de re-rendu React)
+    let raf = 0
+    const onScroll = () => {
+      setScrolled(window.scrollY > 60)
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - window.innerHeight
+        const p = max > 0 ? Math.min(1, window.scrollY / max) : 0
+        if (progressRef.current) progressRef.current.style.transform = `scaleX(${p})`
+      })
+    }
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -63,7 +81,7 @@ export default function Navbar() {
       <nav
         className="px-4 md:px-8 py-0"
         style={{
-          background: scrolled ? 'rgba(11,19,34,0.98)' : 'rgba(11,19,34,0.92)',
+          background: scrolled ? 'rgba(15,27,51,0.97)' : 'rgba(15,27,51,0.88)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.07)'}`,
@@ -84,7 +102,7 @@ export default function Navbar() {
                   ANGB
                 </span>
                 <span className="hidden sm:block text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded"
-                  style={{ color: 'rgba(0,35,149,0.9)', background: 'rgba(0,35,149,0.12)', border: '1px solid rgba(0,35,149,0.25)' }}>
+                  style={{ color: '#b9ceff', background: 'rgba(91,141,255,0.16)', border: '1px solid rgba(91,141,255,0.4)' }}>
                   Loi 1901
                 </span>
               </div>
@@ -102,19 +120,19 @@ export default function Navbar() {
               <div key={item.label} className="relative group">
                 <Link href={item.href}
                   className="relative flex items-center gap-1 px-3 py-5 text-[11px] font-bold uppercase tracking-[0.15em] transition-colors group-hover:text-white"
-                  style={{ color: 'var(--gray)' }}>
+                  style={{ color: isActive(item.href) || item.children.some(c => isActive(c.href)) ? 'var(--white)' : 'var(--gray)' }}>
                   {item.label}
                   <span className="text-[8px] transition-transform group-hover:rotate-180" style={{ color: 'var(--gray)' }}>▾</span>
-                  <span className="absolute bottom-0 left-3 right-3 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" style={{ background: TRICOLOR }} />
+                  <span className={`absolute bottom-0 left-3 right-3 h-[3px] transition-transform duration-300 origin-left ${isActive(item.href) || item.children.some(c => isActive(c.href)) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} style={{ background: TRICOLOR }} />
                 </Link>
                 {/* pt-2 = pont invisible pour ne pas fermer en déplaçant la souris */}
                 <div className="absolute left-0 top-full pt-2 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-150 z-50">
                   <div className="min-w-[230px] rounded-xl overflow-hidden py-1"
-                    style={{ background: '#0d1525', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                    style={{ background: 'var(--navy-mid)', border: '1px solid var(--border-mid)', boxShadow: '0 16px 40px rgba(0,0,0,0.45)' }}>
                     {item.children.map(c => (
                       <Link key={c.href} href={c.href}
-                        className="block px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/5 hover:text-white"
-                        style={{ color: 'var(--gray)' }}>
+                        className="block px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/5 hover:text-white hover:pl-5"
+                        style={{ color: isActive(c.href) ? 'var(--white)' : 'var(--gray)', transition: 'padding 0.15s ease, color 0.15s ease, background-color 0.15s ease' }}>
                         {c.label}
                       </Link>
                     ))}
@@ -125,9 +143,9 @@ export default function Navbar() {
               /* ── Lien simple ── */
               <Link key={item.href} href={item.href}
                 className="relative px-3 py-5 text-[11px] font-bold uppercase tracking-[0.15em] transition-colors hover:text-white group"
-                style={{ color: 'var(--gray)' }}>
+                style={{ color: isActive(item.href) ? 'var(--white)' : 'var(--gray)' }}>
                 {item.label}
-                <span className="absolute bottom-0 left-3 right-3 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" style={{ background: TRICOLOR }} />
+                <span className={`absolute bottom-0 left-3 right-3 h-[3px] transition-transform duration-300 origin-left ${isActive(item.href) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} style={{ background: TRICOLOR }} />
               </Link>
             ))}
 
@@ -163,7 +181,7 @@ export default function Navbar() {
 
                 {userMenu && (
                   <div className="absolute right-0 top-full mt-2 w-52 rounded-xl overflow-hidden"
-                    style={{ background: '#0d1525', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.6)' }}>
+                    style={{ background: 'var(--navy-mid)', border: '1px solid var(--border-mid)', boxShadow: '0 16px 40px rgba(0,0,0,0.45)' }}>
                     {/* Header dropdown */}
                     <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                       <p className="text-sm font-bold" style={{ color: 'var(--white)' }}>{profile?.display_name}</p>
@@ -228,8 +246,7 @@ export default function Navbar() {
                 </button>
                 <button
                   onClick={openAdhesion}
-                  className="px-4 py-2 rounded-lg text-[11px] font-extrabold uppercase tracking-[0.12em] transition-all hover:opacity-90 active:scale-95"
-                  style={{ background: 'var(--accent)', color: '#fff', boxShadow: '0 4px 16px rgba(74,127,255,0.3)' }}>
+                  className="btn-sport px-4 py-2 text-[11px]">
                   Adhésion
                 </button>
               </div>
@@ -255,7 +272,7 @@ export default function Navbar() {
 
         {/* ── Mobile menu ─────────────────────────────────────────── */}
         {menuOpen && (
-          <div className="md:hidden pb-5 flex flex-col"
+          <div className="md:hidden pb-5 flex flex-col menu-drop"
             style={{ borderTop: '1px solid var(--border)' }}>
 
             {NAV.map(item => (
@@ -320,8 +337,7 @@ export default function Navbar() {
                     Connexion
                   </button>
                   <button onClick={() => { setMenuOpen(false); openAdhesion() }}
-                    className="py-3 rounded-lg text-xs font-extrabold uppercase tracking-[0.12em] text-center"
-                    style={{ background: 'var(--accent)', color: '#fff' }}>
+                    className="btn-sport py-3 text-xs">
                     Rejoindre l'ANGB
                   </button>
                 </>
@@ -330,6 +346,10 @@ export default function Navbar() {
           </div>
         )}
       </nav>
+      {/* Progression de lecture (tricolore) */}
+      <div className="h-[3px] w-full" style={{ background: 'transparent' }}>
+        <div ref={progressRef} className="h-full origin-left" style={{ transform: 'scaleX(0)', background: TRICOLOR, willChange: 'transform' }} />
+      </div>
     </header>
   )
 }
