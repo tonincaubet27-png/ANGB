@@ -20,7 +20,7 @@ const MODULES = [
   { id: 'sante',      label: 'Santé',            icon: '🩺', tag: 'Prévention',      component: SanteSection },
   { id: 'vivier',     label: 'Vivier français',  icon: '🌱', tag: 'Détection',       component: VivierSection },
   { id: 'stats',      label: 'Statistiques',     icon: '📊', tag: 'Données',         component: StatsSection },
-  { id: 'conseil',    label: 'Conseil carrière', icon: '💼', tag: 'Accompagnement',  component: ConseilSection },
+  { id: 'conseil',    label: 'Entraide',         icon: '🤝', tag: 'Anciens & jeunes', component: ConseilSection },
   { id: 'ressources', label: 'Ressources',       icon: '📚', tag: 'FFHG',            component: RessourcesSection },
   { id: 'equipe',     label: "L'équipe",         icon: '👥', tag: 'Bureau',          component: EquipeSection },
 ]

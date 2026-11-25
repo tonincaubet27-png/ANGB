@@ -26,8 +26,8 @@ export default function MissionSection() {
     },
     {
       num: '05',
-      title: 'Conseil & Accompagnement',
-      desc: "Accompagner les gardiens dans leur carrière, dans le respect strict du cadre légal de l'agent sportif.",
+      title: 'Entraide entre générations',
+      desc: "Permettre aux anciens gardiens de conseiller, gratuitement, les jeunes qui le souhaitent. L'ANGB n'est pas un agent sportif et n'intervient pas dans les contrats.",
       color: 'var(--red-fr)',
     },
   ]

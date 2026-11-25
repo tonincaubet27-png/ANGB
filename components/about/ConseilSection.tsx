@@ -2,18 +2,18 @@ export default function ConseilSection() {
   const services = [
     {
       icon: '🤝',
-      title: 'Mise en relation',
-      desc: "L'ANGB facilite les contacts entre gardiens et clubs. Pas d'intermédiation financière · uniquement du réseau.",
-    },
-    {
-      icon: '📋',
-      title: 'Lecture de contrats',
-      desc: "Nous orientons les gardiens vers des professionnels compétents (avocats, agents certifiés) pour la relecture de leurs contrats.",
+      title: 'Des anciens qui conseillent',
+      desc: "Des anciens gardiens, volontaires, partagent gratuitement leur expérience avec les jeunes qui le souhaitent : parcours, vie de gardien, choix à faire.",
     },
     {
       icon: '🎓',
-      title: 'Double carrière',
+      title: 'Études et sport',
       desc: "Un sujet d'échange entre membres : concilier études et sport, préparer la suite de sa carrière.",
+    },
+    {
+      icon: '🚫',
+      title: 'Ce que nous ne faisons pas',
+      desc: "Pas de contrat, pas de représentation, pas de mise en relation avec des clubs, aucune rémunération. Seulement de l'entraide.",
     },
   ]
 
@@ -24,32 +24,29 @@ export default function ConseilSection() {
           className="text-4xl md:text-5xl mb-4"
           style={{ fontFamily: 'var(--font-bebas)', color: 'var(--white)', letterSpacing: '0.04em' }}
         >
-          Conseil carrière
+          Entraide entre anciens et jeunes
         </h2>
         <p className="text-sm leading-relaxed max-w-2xl" style={{ color: 'var(--gray)' }}>
-          L'ANGB accompagne les gardiens dans leur carrière. Notre rôle est celui d'une
-          association · conseil, orientation, mise en réseau · dans le respect strict du
-          cadre légal.
+          Un ancien gardien connaît les doutes d'un jeune gardien. À l'ANGB, ceux qui le veulent peuvent
+          donc donner un coup de main, gratuitement, à ceux qui le demandent.
         </p>
       </div>
 
-      {/* Avertissement légal */}
       <div
         className="p-5 rounded-xl border-l-4"
-        style={{ background: 'rgba(237,41,57,0.07)', borderColor: 'var(--red-fr)' }}
+        style={{ background: 'rgba(237,41,57,0.09)', borderColor: 'var(--red-fr)' }}
       >
         <h4 className="font-semibold text-sm mb-2" style={{ color: 'var(--white)' }}>
-          Limite légale importante
+          L'ANGB n'est pas un agent sportif
         </h4>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>
-          L'ANGB n'est <strong style={{ color: 'var(--white)' }}>pas un agent sportif</strong> et
-          ne peut pas se substituer à un agent certifié pour la négociation de contrats professionnels.
-          Toute prestation de représentation rémunérée nécessite la licence d'agent sportif délivrée
-          par la FFHG. L'ANGB oriente uniquement vers des professionnels certifiés.
+          L'association ne négocie aucun contrat, ne représente aucun joueur et ne reçoit aucune
+          rémunération. Elle n'intervient pas entre un gardien et un club. Pour un contrat, adressez-vous
+          à un professionnel qualifié. Les règles exactes sont à vérifier auprès du ministère des Sports
+          ou de la FFHG.
         </p>
       </div>
 
-      {/* Services */}
       <div className="grid gap-4 sm:grid-cols-3">
         {services.map(({ icon, title, desc }) => (
           <div
@@ -69,11 +66,10 @@ export default function ConseilSection() {
         style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}
       >
         <p className="text-sm" style={{ color: 'var(--gray)' }}>
-          Pour toute demande d'accompagnement, contactez-nous à{' '}
+          Ancien gardien et envie de conseiller un jeune, ou jeune gardien qui cherche un avis ? Écrivez-nous à{' '}
           <a href="mailto:angbcontact@gmail.com" className="underline" style={{ color: 'var(--accent)' }}>
             angbcontact@gmail.com
-          </a>
-          .
+          </a>.
         </p>
       </div>
     </div>
