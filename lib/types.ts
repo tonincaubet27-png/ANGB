@@ -2,13 +2,15 @@
 export interface Listing {
   id: string
   title: string
-  category: 'jambières' | 'plastron' | 'masque' | 'gants' | 'crosse' | 'complet' | 'autre'
+  category: 'masque' | 'plastron' | 'gants' | 'jambières' | 'culotte' | 'coquille' | 'genouillères' | 'protège-cou' | 'patins' | 'crosse' | 'complet' | 'autre'
   condition: 'très bon état' | 'bon état' | 'usage'
   price: number
   description?: string
   city?: string
   seller_name?: string
   seller_division?: string
+  size_range?: string
+  size_detail?: string
   photos?: string[]
   user_id?: string
   created_at: string

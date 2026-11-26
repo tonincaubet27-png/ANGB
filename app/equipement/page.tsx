@@ -8,13 +8,19 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useContent } from '@/contexts/ContentContext'
 import HeaderPhoto from '@/components/HeaderPhoto'
 
-const CATEGORIES = ['Tout', 'jambières', 'plastron', 'masque', 'gants', 'crosse', 'complet', 'autre']
+const CAT_LIST   = ['masque', 'plastron', 'gants', 'jambières', 'culotte', 'coquille', 'genouillères', 'protège-cou', 'patins', 'crosse', 'complet', 'autre']
+const CATEGORIES = ['Tout', ...CAT_LIST]
 const CONDITIONS = ['Tout', 'très bon état', 'bon état', 'usage']
-const DIVISIONS  = ['Tout', 'Magnus', 'D1', 'D2', 'D3', 'Féminine Élite', 'Régionale']
+// Gabarits utilisés par les marques de hockey
+const SIZES      = ['Enfant', 'Junior', 'Intermédiaire', 'Senior']
 
 const CATEGORY_EMOJI: Record<string, string> = {
-  jambières: '🦵', masque: '😷', gants: '🧤', plastron: '🛡️',
-  crosse: '🏒', complet: '📦', autre: '🔧',
+  masque: '😷', plastron: '🛡️', gants: '🧤', jambières: '🥅', culotte: '🩳', coquille: '🩲',
+  genouillères: '🦵', 'protège-cou': '🧣', patins: '⛸️', crosse: '🏒', complet: '📦', autre: '🔧',
+}
+const SIZE_HINT: Record<string, string> = {
+  jambières: 'ex. 33+1', patins: 'ex. pointure 8 D', gants: 'ex. Regular / Full right', plastron: 'ex. L',
+  culotte: 'ex. M', masque: 'ex. S/M', crosse: 'ex. palette 26"',
 }
 
 const CONDITION_COLOR: Record<string, { bg: string; color: string }> = {
@@ -26,13 +32,13 @@ const CONDITION_COLOR: Record<string, { bg: string; color: string }> = {
 interface DepotForm {
   title: string; category: string; condition: string
   price: string; description: string; city: string
-  seller_name: string; seller_division: string
+  seller_name: string; size_range: string; size_detail: string
   photos: string[]
 }
 
 const EMPTY_DEPOT: DepotForm = {
   title: '', category: 'jambières', condition: 'très bon état',
-  price: '', description: '', city: '', seller_name: '', seller_division: '', photos: [],
+  price: '', description: '', city: '', seller_name: '', size_range: '', size_detail: '', photos: [],
 }
 
 interface ContactForm {
@@ -49,7 +55,8 @@ export default function EquipementPage() {
   const [loading, setLoading]           = useState(true)
   const [catFilter, setCat]             = useState('Tout')
   const [condFilter, setCond]           = useState('Tout')
-  const [divFilter, setDiv]             = useState('Tout')
+  const [sizeFilter, setSize]           = useState('Tout')
+  const [depotErr, setDepotErr]         = useState('')
 
   // Modal dépôt annonce
   const [depotOpen, setDepot]           = useState(false)
@@ -138,7 +145,7 @@ export default function EquipementPage() {
   const filtered = listings.filter(l => {
     if (catFilter  !== 'Tout' && l.category       !== catFilter)  return false
     if (condFilter !== 'Tout' && l.condition       !== condFilter) return false
-    if (divFilter  !== 'Tout' && l.seller_division !== divFilter)  return false
+    if (sizeFilter !== 'Tout' && l.size_range      !== sizeFilter) return false
     return true
   })
 
@@ -147,6 +154,7 @@ export default function EquipementPage() {
   const handleDepot = async () => {
     if (!depotForm.title || !depotForm.price) return
     setDepotSub(true)
+    setDepotErr('')
     const res = await createListing({
       title: depotForm.title,
       category: depotForm.category as Listing['category'],
@@ -155,7 +163,8 @@ export default function EquipementPage() {
       description: depotForm.description,
       city: depotForm.city,
       seller_name: depotForm.seller_name,
-      seller_division: depotForm.seller_division,
+      size_range: depotForm.size_range || undefined,
+      size_detail: depotForm.size_detail.trim() || undefined,
       photos: depotForm.photos,
     }, user?.id)
     setDepotSub(false)
@@ -169,6 +178,8 @@ export default function EquipementPage() {
         created_at: new Date().toISOString(), is_active: true,
       }, ...prev])
       setTimeout(() => { setDepot(false); setDepotDone(false); setDepotForm(EMPTY_DEPOT) }, 1800)
+    } else {
+      setDepotErr(/category/.test(res.error ?? '') ? "Cette catégorie n'est pas encore activée. Choisis « autre » en attendant." : "La publication n'a pas fonctionné. Réessaie dans un instant.")
     }
   }
 
@@ -232,12 +243,19 @@ export default function EquipementPage() {
             style={{ background: 'var(--navy-mid)', color: condFilter === 'Tout' ? 'var(--gray)' : 'var(--white)', border: '1px solid var(--border)' }}>
             {CONDITIONS.map(x => <option key={x} value={x}>{x === 'Tout' ? 'Tous les états' : x}</option>)}
           </select>
-          <select value={divFilter} onChange={e => setDiv(e.target.value)} className="px-3 py-2 rounded-full text-xs font-semibold outline-none"
-            style={{ background: 'var(--navy-mid)', color: divFilter === 'Tout' ? 'var(--gray)' : 'var(--white)', border: '1px solid var(--border)' }}>
-            {DIVISIONS.map(x => <option key={x} value={x}>{x === 'Tout' ? 'Toutes divisions' : x}</option>)}
-          </select>
-          {(catFilter !== 'Tout' || condFilter !== 'Tout' || divFilter !== 'Tout') && (
-            <button onClick={() => { setCat('Tout'); setCond('Tout'); setDiv('Tout') }} className="text-xs font-semibold px-2" style={{ color: 'var(--gray)' }}>Réinitialiser ✕</button>
+          <div className="flex items-center gap-1 p-1 rounded-full max-w-full overflow-x-auto no-visible-scrollbar" style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)' }}>
+            {['Tout', ...SIZES].map(x => {
+              const on = sizeFilter === x
+              return (
+                <button key={x} onClick={() => setSize(x)} className="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors"
+                  style={{ background: on ? 'var(--accent)' : 'transparent', color: on ? '#fff' : 'var(--gray)' }}>
+                  {x === 'Tout' ? '📏 Toutes' : x}
+                </button>
+              )
+            })}
+          </div>
+          {(catFilter !== 'Tout' || condFilter !== 'Tout' || sizeFilter !== 'Tout') && (
+            <button onClick={() => { setCat('Tout'); setCond('Tout'); setSize('Tout') }} className="text-xs font-semibold px-2" style={{ color: 'var(--gray)' }}>Réinitialiser ✕</button>
           )}
         </div>
 
@@ -279,9 +297,14 @@ export default function EquipementPage() {
                           </div>
                           <div className="p-4 flex flex-col gap-2 flex-1">
                             <h3 className="font-bold text-[15px] leading-snug" style={{ color: 'var(--white)' }}>{l.title}</h3>
+                            {(l.size_range || l.size_detail) && (
+                              <span className="self-start text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(91,141,255,0.14)', color: '#cbd9ff', border: '1px solid rgba(91,141,255,0.35)' }}>
+                                📏 {[l.size_range, l.size_detail].filter(Boolean).join(' · ')}
+                              </span>
+                            )}
                             {l.description && <p className="text-xs leading-relaxed line-clamp-2" style={{ color: 'var(--gray)' }}>{l.description}</p>}
                             <p className="text-xs mt-auto pt-1" style={{ color: 'var(--gray)' }}>
-                              📍 {[l.city, l.seller_division].filter(Boolean).join(' · ') || 'Lieu à préciser'}{l.seller_name ? ` · ${l.seller_name}` : ''}
+                              📍 {l.city || 'Lieu à préciser'}{l.seller_name ? ` · ${l.seller_name}` : ''}
                             </p>
                             <button onClick={() => openContact(l)} className="btn-sport w-full py-2.5 text-xs mt-2">Contacter le vendeur</button>
                           </div>
@@ -368,12 +391,29 @@ export default function EquipementPage() {
                           style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
                           value={depotForm[field]} onChange={e => setDepotForm(f => ({ ...f, [field]: e.target.value }))}>
                           {(field === 'category'
-                            ? ['jambières','plastron','masque','gants','crosse','complet','autre']
+                            ? CAT_LIST
                             : ['très bon état','bon état','usage']
                           ).map(v => <option key={v} value={v}>{v}</option>)}
                         </select>
                       </label>
                     ))}
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Taille</span>
+                    <div className="grid grid-cols-4 gap-1.5 mb-2">
+                      {SIZES.map(sz => {
+                        const on = depotForm.size_range === sz
+                        return (
+                          <button key={sz} type="button" onClick={() => setDepotForm(f => ({ ...f, size_range: on ? '' : sz }))}
+                            className="py-2 rounded-lg text-[11px] font-bold transition-colors"
+                            style={{ background: on ? 'var(--accent)' : 'var(--navy-light)', color: on ? '#fff' : 'var(--gray)', border: `1px solid ${on ? 'var(--accent)' : 'transparent'}` }}>{sz}</button>
+                        )
+                      })}
+                    </div>
+                    <input className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                      style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
+                      value={depotForm.size_detail} onChange={e => setDepotForm(f => ({ ...f, size_detail: e.target.value }))}
+                      placeholder={`Taille précise (${SIZE_HINT[depotForm.category] ?? 'facultatif'})`} />
                   </div>
                   <button onClick={() => setStep(2)} disabled={!depotForm.title.trim()} className="btn-sport w-full py-3 text-xs">Suivant →</button>
                   </div>)}
@@ -390,7 +430,7 @@ export default function EquipementPage() {
                     <textarea rows={3} className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
                       style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
                       value={depotForm.description} onChange={e => setDepotForm(f => ({ ...f, description: e.target.value }))}
-                      placeholder="Détails, taille, utilisation…" />
+                      placeholder="Détails, marque, années d'utilisation…" />
                   </label>
                   <div className="flex gap-2">
                     <button onClick={() => setStep(1)} className="btn-sport-ghost flex-1 py-3 text-xs">← Retour</button>
@@ -412,15 +452,7 @@ export default function EquipementPage() {
                         value={depotForm.seller_name} onChange={e => setDepotForm(f => ({ ...f, seller_name: e.target.value }))} placeholder="Tonin C." />
                     </label>
                   </div>
-                  <label className="block">
-                    <span className="text-xs font-medium mb-1.5 block" style={{ color: 'var(--gray)' }}>Division</span>
-                    <select className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                      style={{ background: 'var(--navy-light)', color: 'var(--white)' }}
-                      value={depotForm.seller_division} onChange={e => setDepotForm(f => ({ ...f, seller_division: e.target.value }))}>
-                      <option value="">Sélectionner</option>
-                      {['Magnus','D1','D2','D3','Féminine Élite','Régionale','Loisir'].map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                  </label>
+                  {depotErr && <p className="text-xs font-semibold" style={{ color: '#f87171' }}>{depotErr}</p>}
                   <div className="flex gap-2">
                     <button onClick={() => setStep(2)} className="btn-sport-ghost flex-1 py-3 text-xs">← Retour</button>
                     <button onClick={handleDepot} disabled={!depotForm.title || !depotForm.price || depotSubmitting} className="btn-sport flex-1 py-3 text-xs">

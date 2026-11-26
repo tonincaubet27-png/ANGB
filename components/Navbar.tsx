@@ -29,6 +29,13 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', h)
   }, [])
 
+  // Menu téléphone : on ferme quand la page change et on bloque le défilement derrière
+  useEffect(() => { setMenuOpen(false) }, [pathname])
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
+
   useEffect(() => {
     // Barre de progression tricolore : mise à jour directe du style (pas de re-rendu React)
     let raf = 0
@@ -50,6 +57,9 @@ export default function Navbar() {
     name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
 
   const TRICOLOR = 'linear-gradient(to right, #002395 0%, #002395 33%, #fff 33%, #fff 66%, #ED2939 66%, #ED2939 100%)'
+  const MOBILE_ICON: Record<string, string> = {
+    '/association': '🤝', '/savoir': '📘', '/actualites': '📰', '/stages': '⛸️', '/forum': '💬', '/equipement': '🥅',
+  }
   const NAV: { href: string; label: string; children?: { href: string; label: string }[] }[] = [
     { href: '/association', label: "L'association", children: [
       { href: '/association',  label: 'Présentation' },
@@ -270,35 +280,35 @@ export default function Navbar() {
           </button>
         </div>
 
+      </nav>
         {/* ── Mobile menu ─────────────────────────────────────────── */}
         {menuOpen && (
-          <div className="md:hidden pb-5 flex flex-col menu-drop"
-            style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="md:hidden fixed left-0 right-0 bottom-0 z-50 px-4 pt-5 pb-8 overflow-y-auto menu-drop"
+            style={{ top: 64, background: 'linear-gradient(180deg, #0f1b33 0%, #16264a 100%)', borderTop: '1px solid var(--border)' }}>
 
-            {NAV.map(item => (
-              <div key={item.label} className="border-b" style={{ borderColor: 'var(--border)' }}>
-                <Link href={item.href}
-                  className="block px-0 py-3 text-xs font-bold uppercase tracking-[0.15em]"
-                  style={{ color: 'var(--white)' }}
-                  onClick={() => setMenuOpen(false)}>
-                  {item.label}
-                </Link>
-                {item.children && (
-                  <div className="pl-3 pb-2 flex flex-col">
-                    {item.children.map(c => (
-                      <Link key={c.href} href={c.href}
-                        className="py-1.5 text-[11px] font-semibold uppercase tracking-wide"
-                        style={{ color: 'var(--gray)' }}
-                        onClick={() => setMenuOpen(false)}>
-                        · {c.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+            {/* Grandes tuiles : juste le nom de chaque partie */}
+            <div className="grid grid-cols-2 gap-3">
+              {NAV.map((item, i) => {
+                const on = isActive(item.href) || !!item.children?.some(c => isActive(c.href))
+                return (
+                  <Link key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
+                    className="menu-tile relative overflow-hidden rounded-2xl px-4 py-5 flex flex-col justify-between"
+                    style={{
+                      animationDelay: `${i * 45}ms`, minHeight: 104,
+                      background: on ? 'linear-gradient(135deg, rgba(91,141,255,0.32), rgba(91,141,255,0.10))' : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${on ? 'rgba(91,141,255,0.6)' : 'var(--border)'}`,
+                    }}>
+                    <span className="text-2xl leading-none" aria-hidden>{MOBILE_ICON[item.href] ?? '•'}</span>
+                    <span className="text-[22px] leading-none mt-4" style={{ fontFamily: 'var(--font-bebas)', letterSpacing: '0.05em', color: 'var(--white)' }}>
+                      {item.label}
+                    </span>
+                    {on && <span className="absolute left-0 right-0 bottom-0 h-[3px]" style={{ background: TRICOLOR }} />}
+                  </Link>
+                )
+              })}
+            </div>
 
-            <div className="flex flex-col gap-2 mt-4">
+            <div className="flex flex-col gap-2 mt-6 menu-tile" style={{ animationDelay: `${NAV.length * 45}ms` }}>
               {user ? (
                 <>
                   <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--white)' }}>
@@ -345,7 +355,6 @@ export default function Navbar() {
             </div>
           </div>
         )}
-      </nav>
       {/* Progression de lecture (tricolore) */}
       <div className="h-[3px] w-full" style={{ background: 'transparent' }}>
         <div ref={progressRef} className="h-full origin-left" style={{ transform: 'scaleX(0)', background: TRICOLOR, willChange: 'transform' }} />

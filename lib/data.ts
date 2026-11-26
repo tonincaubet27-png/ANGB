@@ -206,8 +206,14 @@ export async function createListing(
 ): Promise<{ ok: boolean; error?: string }> {
   const client = getClient()
   if (!client) return { ok: false, error: UNAVAILABLE }
-  const { error } = await client
+  let { error } = await client
     .from('listings').insert({ ...payload, is_active: true, user_id: userId })
+  // Base pas encore à jour (migration 015) : on publie sans la taille plutôt que d'échouer
+  if (error && /size_(range|detail)/.test(error.message)) {
+    const { size_range: _r, size_detail: _d, ...rest } = payload
+    void _r; void _d
+    ;({ error } = await client.from('listings').insert({ ...rest, is_active: true, user_id: userId }))
+  }
   if (error) return { ok: false, error: error.message }
   return { ok: true }
 }

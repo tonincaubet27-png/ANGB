@@ -188,6 +188,14 @@ body {
 }
 .menu-drop { animation: menu-drop 0.22s ease-out backwards; }
 
+/* Menu mobile : tuiles qui arrivent l'une après l'autre */
+@keyframes menu-tile {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.menu-tile { animation: menu-tile 0.38s cubic-bezier(.2,.8,.2,1) backwards; }
+.menu-tile:active { transform: scale(0.97); }
+
 /* ── Animations de fond légères (CSS, sans JavaScript) ───────────────────── */
 @keyframes breathe { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
 .anim-breathe { animation: breathe 5s ease-in-out infinite; }
@@ -208,7 +216,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-enter, .menu-drop { animation: none; }
+  .page-enter, .menu-drop, .menu-tile { animation: none; }
   .marquee-track, .anim-breathe, .anim-orb { animation: none; }
   .btn-sport, .btn-sport-ghost, .btn-sport::after { transition: none; }
   [data-reveal] { transition: none; }

@@ -69,7 +69,7 @@ create table if not exists listings (
   id              uuid primary key default gen_random_uuid(),
   user_id         uuid references profiles(id) on delete set null,
   title           text not null,
-  category        text not null check (category in ('jambières','plastron','masque','gants','crosse','complet','autre')),
+  category        text not null check (category in ('masque','plastron','gants','jambières','culotte','coquille','genouillères','protège-cou','patins','crosse','complet','autre')),
   condition       text not null check (condition in ('très bon état','bon état','usage')),
   price           integer not null,   -- en centimes
   description     text,
@@ -235,6 +235,10 @@ alter table goalie_profiles add column if not exists gallery     text[] default 
 alter table goalie_profiles add column if not exists is_founder  boolean default false;
 alter table goalie_profiles add column if not exists category    text not null default 'gardien';
 alter table listings add column if not exists photos text[] default '{}';
+alter table listings add column if not exists size_range  text;
+alter table listings add column if not exists size_detail text;
+alter table listings drop constraint if exists listings_category_check;
+alter table listings add constraint listings_category_check check (category in ('masque','plastron','gants','jambières','culotte','coquille','genouillères','protège-cou','patins','crosse','complet','autre'));
 alter table adhesion_requests add column if not exists member_no integer;
 alter table adhesion_requests add column if not exists user_id uuid references auth.users(id) on delete set null;
 
